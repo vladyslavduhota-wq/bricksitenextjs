@@ -16,6 +16,7 @@ import {
 import rector from "@/assets/rector.webp.asset.json";
 import gavel from "@/assets/gavel-3d.png";
 import { Preloader } from "@/components/Preloader";
+import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, EASE } from "@/components/fx";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -117,7 +118,7 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
     </>
   );
   const c = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
-  return href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={c}>{body}</button>;
+  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={c}>{body}</button>}</Magnetic>;
 }
 
 /* ---------- nav ---------- */
@@ -277,8 +278,8 @@ function Marquee() {
   const row = [...items, ...items];
   return (
     <div className="relative z-10 -my-6 rotate-[-2deg] bg-accent py-5 text-accent-foreground shadow-soft">
-      <div className="flex w-max animate-marquee">
-        {[0, 1].map((r) => (
+      <VelocityMarquee>
+        {[0].map((r) => (
           <div key={r} className="flex shrink-0 items-center">
             {row.map((t, k) => (
               <span key={k} className="flex items-center gap-8 px-8 text-2xl font-bold tracking-tight md:text-4xl">
@@ -288,7 +289,7 @@ function Marquee() {
             ))}
           </div>
         ))}
-      </div>
+      </VelocityMarquee>
     </div>
   );
 }
@@ -340,7 +341,8 @@ function Lots({ onBid }: { onBid: () => void }) {
       <div className="relative mx-auto max-w-7xl px-4 md:px-8">
         <Reveal className="max-w-2xl md:ml-auto md:text-right">
           <h2 className="text-5xl font-bold tracking-tight md:text-7xl">
-            На столі <span className="text-accent">речі</span> Тимофія.
+            <SplitWords text="На столі" /> <span className="text-accent"><SplitWords text="речі" delay={0.14} /></span>{" "}
+            <SplitWords text="Тимофія." delay={0.21} />
           </h2>
           <p className="mt-6 text-primary-foreground/65 md:ml-auto md:max-w-[44ch]">
             Кожен слот відкриватиме окремий лот. Фото, назви й описи з'являться після підтвердження Офісом ректора.
@@ -348,9 +350,15 @@ function Lots({ onBid }: { onBid: () => void }) {
         </Reveal>
         <div className="mt-24 grid gap-8 md:grid-cols-3 md:gap-6">
           {[0, 1, 2].map((k) => (
-            <Reveal key={k} delay={k * 0.12}>
+            <motion.div
+              key={k}
+              initial={{ opacity: 0, x: (1 - k) * 260, y: 120, rotate: (k - 1) * -18, scale: 0.9 }}
+              whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
+            >
               <LotTag k={k} onBid={onBid} />
-            </Reveal>
+            </motion.div>
           ))}
         </div>
         <p className="mt-28 flex items-center gap-2 text-sm text-primary-foreground/45">
@@ -374,15 +382,21 @@ function Steps() {
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <Reveal>
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
-            Від речі
-            <br />
-            <span className="text-outline">до ставки.</span>
+            <SplitWords text="Від речі" className="block" />
+            <OutlineFill text="до ставки." />
           </h2>
           <p className="mt-6 max-w-[48ch] text-muted-foreground">Кожен крок вище за попередній, як і ставки. Точні правила підтвердять до старту.</p>
         </Reveal>
         <div className="mt-16 grid items-end gap-5 md:grid-cols-3">
           {steps.map((s, k) => (
-            <Reveal key={s.t} delay={k * 0.12}>
+            <motion.div
+              key={s.t}
+              className="origin-bottom"
+              initial={{ opacity: 0, scaleY: 0.4, y: 80 }}
+              whileInView={{ opacity: 1, scaleY: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 1.1, delay: k * 0.18, ease: EASE }}
+            >
               <Bezel core={`flex flex-col justify-between p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
                 <div className="flex items-start justify-between">
                   <s.icon size={44} weight="light" />
@@ -394,7 +408,7 @@ function Steps() {
                   <span className="mt-6 inline-block rounded-full bg-current/10 px-4 py-1.5 text-xs font-medium ring-1 ring-current/20">{s.s}</span>
                 </div>
               </Bezel>
-            </Reveal>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -413,7 +427,7 @@ function Report() {
             <div className="orb absolute -bottom-24 -right-24 h-80 w-80 rounded-full opacity-60" />
             <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Звітність</span>
             <h2 className="relative mt-8 text-5xl font-bold tracking-tight text-primary md:text-6xl">
-              Збір має бути <span className="italic">прозорим.</span>
+              <SplitWords text="Збір має бути" /> <Highlight delay={0.5}><span className="italic">прозорим.</span></Highlight>
             </h2>
             <p className="relative mt-6 max-w-[42ch] text-muted-foreground">
               Після фіналу тут з'являться підсумок збору та звіт про використання коштів. Без неперевірених цифр.
@@ -465,9 +479,8 @@ function Final() {
       <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">
         <Reveal className="md:col-span-7">
           <h2 className="text-6xl font-bold leading-[0.95] tracking-tight md:text-8xl">
-            Фінал
-            <br />
-            <span className="text-accent">14.11</span>
+            <SplitWords text="Фінал" className="block" />
+            <OutlineFill text="14.11" light />
           </h2>
           <p className="mt-8 max-w-[44ch] text-primary-foreground/65">
             Онлайн-завершення торгів є основним форматом. Можливість зустрічі на кампусі уточнюється.
@@ -476,14 +489,20 @@ function Final() {
             {units.map(([k, l]) => (
               <div key=
                 {k} className="rounded-3xl bg-primary-foreground/5 p-4 text-center ring-1 ring-primary-foreground/10">
-                <div className="text-3xl font-bold tabular-nums md:text-5xl">{left ? String(left[k]).padStart(2, "0") : "--"}</div>
+                <div className="text-3xl font-bold tabular-nums md:text-5xl">{left ? <RollDigits value={String(left[k]).padStart(2, "0")} /> : "--"}</div>
                 <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-primary-foreground/45">{l}</div>
               </div>
             ))}
           </div>
           <p className="mt-4 text-xs text-primary-foreground/40">Точний час фіналу уточнюється.</p>
         </Reveal>
-        <Reveal delay={0.15} className="md:col-span-5">
+        <motion.div
+          className="md:col-span-5"
+          initial={{ opacity: 0, y: -220, rotate: -25 }}
+          whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ type: "spring", stiffness: 90, damping: 11, mass: 1.2, delay: 0.2 }}
+        >
           {/* tear-off calendar stack */}
           <div className="relative mx-auto w-full max-w-xs">
             <div className="absolute inset-0 translate-x-4 translate-y-4 rotate-6 rounded-[2rem] bg-accent/30" />
@@ -502,7 +521,7 @@ function Final() {
               </div>
             </Bezel>
           </div>
-        </Reveal>
+        </motion.div>
       </div>
     </section>
   );
@@ -522,9 +541,8 @@ function Faq() {
       <div className="md:col-span-5">
         <div className="md:sticky md:top-32">
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
-            Питання,
-            <br />
-            <span className="text-outline">які важливі.</span>
+            <SplitWords text="Питання," className="block" />
+            <OutlineFill text="які важливі." />
           </h2>
           <a href={`mailto:${EMAIL}`} className="mt-10 inline-flex items-center gap-2 text-sm font-medium text-primary underline decoration-accent decoration-4 underline-offset-8">
             Не знайшли відповідь? Напишіть нам
@@ -535,15 +553,7 @@ function Faq() {
         {qs.map(([q, a], k) => (
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
-              <details className="group px-7 py-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xl font-bold tracking-tight text-primary">
-                  {q}
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/5 transition-all duration-500 ease-spring group-open:rotate-45 group-open:bg-accent">
-                    <Plus weight="light" size={20} />
-                  </span>
-                </summary>
-                <p className="mt-4 max-w-[56ch] text-muted-foreground">{a}</p>
-              </details>
+              <FaqItem q={q!} a={a!} />
             </Bezel>
           </Reveal>
         ))}
@@ -627,3 +637,22 @@ function BidModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="px-7 py-6">
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 text-left text-xl font-bold tracking-tight text-primary">
+        {q}
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-all duration-700 ease-spring ${open ? "rotate-[135deg] bg-accent" : "bg-primary/5"}`}>
+          <Plus weight="light" size={20} />
+        </span>
+      </button>
+      <div className={`grid transition-[grid-template-rows,opacity] duration-700 ease-spring ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+        <div className="overflow-hidden">
+          <p className={`max-w-[56ch] pt-4 text-muted-foreground transition-transform duration-700 ease-spring ${open ? "translate-y-0" : "-translate-y-3"}`}>{a}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

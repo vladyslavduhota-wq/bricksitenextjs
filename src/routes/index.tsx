@@ -553,7 +553,7 @@ function Faq() {
         {qs.map(([q, a], k) => (
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
-              <FaqItem q={q} a={a} />
+              <FaqItem q={q!} a={a!} />
             </Bezel>
           </Reveal>
         ))}

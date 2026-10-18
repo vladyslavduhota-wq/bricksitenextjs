@@ -46,17 +46,20 @@ export function SplitWords({ text, className = "", delay = 0 }: { text: string; 
 export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { children: ReactNode; delay?: number; tone?: string }) {
   const reduce = useReducedMotion();
   return (
-    <span className="relative inline-block">
+    <motion.span
+      className="relative isolate inline-block"
+      initial={reduce ? false : "hidden"}
+      whileInView="show"
+      viewport={{ once: true, amount: 0.8 }}
+    >
       <motion.span
         aria-hidden
         className={`absolute -inset-x-2 bottom-[0.08em] top-[0.42em] -z-10 origin-left -rotate-1 rounded-full ${tone}`}
-        initial={reduce ? false : { scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, amount: 0.8 }}
+        variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1 } }}
         transition={{ duration: 0.9, delay, ease: EASE }}
       />
       {children}
-    </span>
+    </motion.span>
   );
 }
 

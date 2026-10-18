@@ -200,7 +200,7 @@ function Hero({ onBid }: { onBid: () => void }) {
   return (
     <section id="top" className="dot-grid relative min-h-[100dvh] pt-28 md:pt-32">
       <div className="orb pointer-events-none absolute -left-40 top-40 h-[28rem] w-[28rem] rounded-full opacity-40" />
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-24 md:grid-cols-12 md:px-8">
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-40 md:pb-24 md:grid-cols-12 md:px-8">
         <div className="relative z-10 md:col-span-7 md:pt-10">
           <div className="enter mb-8 inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10" style={i(0)}>
             <span className="relative flex h-2 w-2">
@@ -214,7 +214,7 @@ function Hero({ onBid }: { onBid: () => void }) {
             <span className="enter block md:pl-[12%]" style={i(2)}>
               ректора<span className="text-accent [-webkit-text-stroke:2px_var(--primary)]">.</span>
             </span>
-            <span className="enter relative mt-2 block w-max" style={i(3)}>
+            <span className="enter relative mt-2 block md:w-max" style={i(3)}>
               <span className="text-outline">Спільна</span>{" "}
               <span className="relative inline-block">
                 <span className="absolute -inset-x-3 bottom-[0.06em] top-[0.18em] -z-10 -rotate-2 rounded-full bg-accent" />

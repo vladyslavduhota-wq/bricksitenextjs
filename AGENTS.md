@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Preloader is ported verbatim from the client's kse-preloader HTML (src/components/preloader-source.ts) and run once via new Function; why: keeps the original animation intact.

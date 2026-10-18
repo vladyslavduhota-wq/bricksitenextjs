@@ -64,6 +64,7 @@ function Index() {
       <main>
         <Hero onBid={bid} />
         <Marquee />
+        <About />
         <Lots onBid={bid} />
         <Steps />
         <Report />
@@ -534,6 +535,9 @@ function Faq() {
     ["Коли відкриється аукціон?", "Публічний старт орієнтовно запланований на початок листопада. Точну дату підтвердить Офіс ректора."],
     ["Чому тут поки немає фото й цін?", "Оригінальні фото, назви, описи та стартові ціни має передати й погодити Офіс ректора. Ми не підставляємо вигадані речі."],
     ["Як працюватиме ставка?", "Ставка має бути вищою за поточну щонайменше на крок лота. Захищений сервіс ставок підключать до старту."],
+    ["Хто може взяти участь?", "Аукціон відкритий для всіх охочих: студентів, випускників, партнерів і друзів KSE. Умови реєстрації оголосять до старту."],
+    ["Чи буде офлайн-подія?", "Основний формат - онлайн-завершення торгів. Можливість зустрічі на кампусі KSE уточнюється."],
+    ["Як отримати виграний лот?", "Порядок оплати й передачі речі переможцю погодить Офіс ректора і опублікує разом із правилами."],
     ["Куди підуть кошти?", "Благодійний напрям і рахунок збору ще уточнюються. Їх опублікують після підтвердження разом зі звітом."],
   ];
   return (
@@ -554,6 +558,44 @@ function Faq() {
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
               <FaqItem q={q!} a={a!} />
+            </Bezel>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- about ---------- */
+
+function About() {
+  const facts = [
+    ["01", "Особисті речі", "Кожен лот - річ, що має історію поруч із ректором KSE."],
+    ["02", "Онлайн-торги", "Ставки з будь-якої точки світу, без зайвих кроків."],
+    ["03", "Відкритий звіт", "Підсумок збору й використання коштів - публічно."],
+    ["04", "Фінал 14.11", "Завершення торгів 14 листопада 2026 року."],
+  ];
+  return (
+    <section id="about" className="relative px-4 pb-8 pt-20 md:px-8 md:pt-24">
+      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Про аукціон</span>
+          <h2 className="mt-6 text-4xl font-bold tracking-tight text-primary md:text-6xl">
+            <SplitWords text="Речі з історією" className="block" /> <Highlight delay={0.4}><span className="italic">для доброї справи.</span></Highlight>
+          </h2>
+        </div>
+        <div className="space-y-5 text-lg leading-relaxed text-muted-foreground md:col-span-7 md:pt-14">
+          <Reveal><p><b className="font-medium text-primary">Тимофій Брік</b>, ректор Київської школи економіки, передає на благодійний аукціон свої особисті речі. Кожна з них стане окремим лотом, а всі кошти від торгів підуть на спільну справу.</p></Reveal>
+          <Reveal delay={0.08}><p>Ми хочемо, щоб участь була простою, а результат - прозорим: фото, описи й стартові ціни публікуються лише після погодження Офісом ректора, а після фіналу тут з'явиться звіт про збір.</p></Reveal>
+        </div>
+      </div>
+      <div className="mx-auto mt-12 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {facts.map(([n, t, d], k) => (
+          <Reveal key={n} delay={k * 0.07}>
+            <Bezel core="group h-full bg-card p-6 transition-colors duration-500 hover:bg-accent-soft">
+              <span className="text-outline text-4xl font-bold leading-none">{n}</span>
+              <p className="mt-6 text-xl font-bold tracking-tight text-primary">{t}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{d}</p>
             </Bezel>
           </Reveal>
         ))}

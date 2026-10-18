@@ -131,3 +131,25 @@
 .tx{font-family:"KSE Sans","Montserrat","Helvetica Neue",Arial,sans-serif}
 .bd{visibility:hidden}
 .pre.p #scene{width:min(92vw,560px)}
+
+/* ---------- creative layer ---------- */
+:root { --ease-spring: cubic-bezier(.32,.72,0,1); --navy-deep: oklch(0.17 0.16 272); --gradient-orb: radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--accent) 90%, white), var(--accent) 40%, transparent 70%); }
+@theme inline { --color-navy-deep: var(--navy-deep); --ease-spring: var(--ease-spring); }
+@utility grain {
+  &::after { content:""; position:fixed; inset:0; z-index:30; pointer-events:none; opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+}
+@utility orb { background: var(--gradient-orb); filter: blur(10px); }
+@utility text-outline { color: transparent; -webkit-text-stroke: 2px var(--primary); }
+@utility text-outline-light { color: transparent; -webkit-text-stroke: 1.5px color-mix(in oklab, var(--primary-foreground) 35%, transparent); }
+@utility dot-grid { background-image: radial-gradient(color-mix(in oklab, var(--primary) 18%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
+@utility dot-grid-light { background-image: radial-gradient(color-mix(in oklab, var(--primary-foreground) 14%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes floaty { 0%,100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-18px) rotate(-4deg); } }
+@keyframes pulse-ring { 0% { transform: scale(.8); opacity:.8 } 100% { transform: scale(2.2); opacity:0 } }
+@utility animate-marquee { animation: marquee 38s linear infinite; }
+@utility animate-spin-slow { animation: spin-slow 22s linear infinite; }
+@utility animate-floaty { animation: floaty 7s var(--ease-spring) infinite; }
+@utility animate-pulse-ring { animation: pulse-ring 2.4s cubic-bezier(.23,1,.32,1) infinite; }
+@media (prefers-reduced-motion: reduce) { .animate-marquee, .animate-spin-slow, .animate-floaty, .animate-pulse-ring { animation: none; } }

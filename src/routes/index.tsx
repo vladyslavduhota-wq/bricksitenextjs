@@ -333,7 +333,7 @@ function LotTag({ k, onBid }: { k: number; onBid: () => void }) {
 
 function Lots({ onBid }: { onBid: () => void }) {
   return (
-    <section id="lots" className="relative overflow-hidden bg-primary pb-40 pt-40 text-primary-foreground">
+    <section id="lots" className="relative overflow-hidden bg-primary pb-20 pt-24 text-primary-foreground">
       <div className="orb pointer-events-none absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full opacity-30" />
       <span aria-hidden className="text-outline-light pointer-events-none absolute -left-6 top-24 select-none text-[22vw] font-bold leading-none opacity-60">
         ЛОТИ
@@ -420,7 +420,7 @@ function Steps() {
 
 function Report() {
   return (
-    <section id="report" className="px-4 pb-32 md:px-8">
+    <section id="report" className="px-4 pb-16 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-12 md:grid-rows-2">
         <Reveal className="md:col-span-7 md:row-span-2">
           <Bezel core="relative h-full overflow-hidden bg-accent-soft p-10 md:p-14">
@@ -474,7 +474,7 @@ function Final() {
   const left = useCountdown();
   const units: [keyof NonNullable<typeof left>, string][] = [["d", "днів"], ["h", "годин"], ["m", "хвилин"], ["s", "секунд"]];
   return (
-    <section className="relative overflow-hidden bg-primary py-32 text-primary-foreground md:py-40">
+    <section className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
       <div className="dot-grid-light absolute inset-0" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">
         <Reveal className="md:col-span-7">
@@ -537,7 +537,7 @@ function Faq() {
     ["Куди підуть кошти?", "Благодійний напрям і рахунок збору ще уточнюються. Їх опублікують після підтвердження разом зі звітом."],
   ];
   return (
-    <section id="faq" className="mx-auto grid max-w-7xl gap-12 px-4 py-32 md:grid-cols-12 md:px-8 md:py-40">
+    <section id="faq" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:px-8 md:py-24">
       <div className="md:col-span-5">
         <div className="md:sticky md:top-32">
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">

@@ -141,7 +141,7 @@ function Nav({ onBid }: { onBid: () => void }) {
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[11px] font-bold tracking-wider text-accent">KSE</span>
             <span className="text-sm font-bold text-primary">Аукціон</span>
           </a>
-          <nav className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
+          <nav className="hidden items-center gap-1 whitespace-nowrap text-sm text-muted-foreground lg:flex">
             {links.map(([h, l]) => (
               <a key={h} href={h} className="rounded-full px-4 py-2 transition-colors duration-300 hover:bg-primary/5 hover:text-primary">
                 {l}
@@ -149,7 +149,7 @@ function Nav({ onBid }: { onBid: () => void }) {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <button onClick={onBid} className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition active:scale-[0.98] sm:block">
+            <button onClick={onBid} className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition active:scale-[0.98] sm:block whitespace-nowrap">
               Зробити ставку
             </button>
             <button aria-label="Меню" onClick={() => setOpen(!open)} className="relative h-10 w-10 rounded-full bg-primary/5 md:hidden">

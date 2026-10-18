@@ -24,7 +24,7 @@ export function SplitWords({ text, className = "", delay = 0 }: { text: string; 
       aria-label={text}
       initial={reduce ? false : "hidden"}
       whileInView="show"
-      viewport={{ once: true, amount: 0.4 }}
+      viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
     >
       {words.map((w, k) => (
         <span key={k} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-bottom">
@@ -50,7 +50,7 @@ export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { child
       className="relative isolate inline-block"
       initial={reduce ? false : "hidden"}
       whileInView="show"
-      viewport={{ once: true, amount: 0.8 }}
+      viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
     >
       <motion.span
         aria-hidden

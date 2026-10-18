@@ -85,7 +85,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
       className={className}
       initial={reduce ? false : { opacity: 0, y: 56, filter: "blur(10px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, amount: 0.25 }}
+      viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
       transition={{ duration: 0.95, delay, ease: [0.32, 0.72, 0, 1] }}
     >
       {children}
@@ -199,7 +199,7 @@ function Hero({ onBid }: { onBid: () => void }) {
   const yGavel = useTransform(scrollY, [0, 700], [0, -160]);
   const rot = useTransform(scrollY, [0, 700], [-4, 4]);
   return (
-    <section id="top" className="dot-grid relative min-h-[100dvh] pt-28 md:pt-32">
+    <section id="top" className="dot-grid relative pt-24 pb-12 md:pt-28">
       <div className="orb pointer-events-none absolute -left-40 top-40 h-[28rem] w-[28rem] rounded-full opacity-40" />
       <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-40 md:pb-24 md:grid-cols-12 md:px-8">
         <div className="relative z-10 md:col-span-7 md:pt-10">
@@ -348,20 +348,20 @@ function Lots({ onBid }: { onBid: () => void }) {
             Кожен слот відкриватиме окремий лот. Фото, назви й описи з'являться після підтвердження Офісом ректора.
           </p>
         </Reveal>
-        <div className="mt-24 grid gap-8 md:grid-cols-3 md:gap-6">
+        <div className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
           {[0, 1, 2].map((k) => (
             <motion.div
               key={k}
               initial={{ opacity: 0, x: (1 - k) * 260, y: 120, rotate: (k - 1) * -18, scale: 0.9 }}
               whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
               transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
             >
               <LotTag k={k} onBid={onBid} />
             </motion.div>
           ))}
         </div>
-        <p className="mt-28 flex items-center gap-2 text-sm text-primary-foreground/45">
+        <p className="mt-12 flex items-center gap-2 text-sm text-primary-foreground/45">
           <Sparkle weight="light" /> Три демонстраційні слоти показують роботу вітрини, а не фактичну кількість лотів.
         </p>
       </div>
@@ -378,7 +378,7 @@ function Steps() {
     { icon: Trophy, t: "Дізнайтеся результат", d: "Після фіналу тут з'являться підсумок і звіт про кошти.", s: "Після фіналу", h: "md:h-[34rem]" },
   ];
   return (
-    <section id="how" className="relative py-32 md:py-40">
+    <section id="how" className="relative py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <Reveal>
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
@@ -394,7 +394,7 @@ function Steps() {
               className="origin-bottom"
               initial={{ opacity: 0, scaleY: 0.4, y: 80 }}
               whileInView={{ opacity: 1, scaleY: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
               transition={{ duration: 1.1, delay: k * 0.18, ease: EASE }}
             >
               <Bezel core={`flex flex-col justify-between p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
@@ -500,7 +500,7 @@ function Final() {
           className="md:col-span-5"
           initial={{ opacity: 0, y: -220, rotate: -25 }}
           whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
           transition={{ type: "spring", stiffness: 90, damping: 11, mass: 1.2, delay: 0.2 }}
         >
           {/* tear-off calendar stack */}

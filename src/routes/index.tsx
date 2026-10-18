@@ -127,6 +127,7 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
 function Nav({ onBid }: { onBid: () => void }) {
   const [open, setOpen] = useState(false);
   const links = [
+    ["#about", "Про аукціон"],
     ["#lots", "Лоти"],
     ["#how", "Як це працює"],
     ["#report", "Звітність"],

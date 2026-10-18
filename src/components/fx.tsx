@@ -17,15 +17,20 @@ export const EASE = [0.32, 0.72, 0, 1] as const;
 export function SplitWords({ text, className = "", as: Tag = "span", delay = 0 }: { text: string; className?: string; as?: ElementType; delay?: number }) {
   const reduce = useReducedMotion();
   const words = text.split(" ");
+  const MTag = motion.create(Tag);
   return (
-    <Tag className={className} aria-label={text}>
+    <MTag
+      className={className}
+      aria-label={text}
+      initial={reduce ? false : "hidden"}
+      whileInView="show"
+      viewport={{ once: true, amount: 0.4 }}
+    >
       {words.map((w, k) => (
         <span key={k} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-bottom">
           <motion.span
             className="inline-block"
-            initial={reduce ? false : { y: "110%", rotate: 6 }}
-            whileInView={{ y: "0%", rotate: 0 }}
-            viewport={{ once: true, amount: 0.6 }}
+            variants={{ hidden: { y: "110%", rotate: 6 }, show: { y: "0%", rotate: 0 } }}
             transition={{ duration: 1.1, delay: delay + k * 0.07, ease: EASE }}
           >
             {w}
@@ -33,7 +38,7 @@ export function SplitWords({ text, className = "", as: Tag = "span", delay = 0 }
           </motion.span>
         </span>
       ))}
-    </Tag>
+    </MTag>
   );
 }
 

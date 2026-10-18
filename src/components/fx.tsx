@@ -1,4 +1,4 @@
-import { useRef, type ReactNode, type ElementType } from "react";
+import { useRef, type ReactNode } from "react";
 import {
   motion,
   useReducedMotion,
@@ -14,13 +14,13 @@ import {
 export const EASE = [0.32, 0.72, 0, 1] as const;
 
 /** Headline: each word rises out of its own mask, staggered. Story: reading rhythm. */
-export function SplitWords({ text, className = "", as: Tag = "span", delay = 0 }: { text: string; className?: string; as?: ElementType; delay?: number }) {
+export function SplitWords({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
   const reduce = useReducedMotion();
   const words = text.split(" ");
-  const MTag = motion.create(Tag);
+
   return (
-    <MTag
-      className={className}
+    <motion.span
+      className={`inline-block ${className}`}
       aria-label={text}
       initial={reduce ? false : "hidden"}
       whileInView="show"
@@ -38,7 +38,7 @@ export function SplitWords({ text, className = "", as: Tag = "span", delay = 0 }
           </motion.span>
         </span>
       ))}
-    </MTag>
+    </motion.span>
   );
 }
 

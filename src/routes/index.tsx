@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode, type CSSProperties } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
-  ArrowDownRight,
   ArrowUpRight,
   Gavel,
   HandPointing,
@@ -628,4 +627,3 @@ function BidModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export { ArrowDownRight };

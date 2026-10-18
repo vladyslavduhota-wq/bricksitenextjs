@@ -153,3 +153,4 @@
 @utility animate-floaty { animation: floaty 7s var(--ease-spring) infinite; }
 @utility animate-pulse-ring { animation: pulse-ring 2.4s cubic-bezier(.23,1,.32,1) infinite; }
 @media (prefers-reduced-motion: reduce) { .animate-marquee, .animate-spin-slow, .animate-floaty, .animate-pulse-ring { animation: none; } }
+@layer base { h1, h2, h3 { text-wrap: balance; } p { text-wrap: pretty; } ::selection { background: var(--accent); color: var(--primary); } }

@@ -553,15 +553,7 @@ function Faq() {
         {qs.map(([q, a], k) => (
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
-              <details className="group px-7 py-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-xl font-bold tracking-tight text-primary">
-                  {q}
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/5 transition-all duration-500 ease-spring group-open:rotate-45 group-open:bg-accent">
-                    <Plus weight="light" size={20} />
-                  </span>
-                </summary>
-                <p className="mt-4 max-w-[56ch] text-muted-foreground">{a}</p>
-              </details>
+              <FaqItem q={q} a={a} />
             </Bezel>
           </Reveal>
         ))}
@@ -645,3 +637,22 @@ function BidModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="px-7 py-6">
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 text-left text-xl font-bold tracking-tight text-primary">
+        {q}
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-all duration-700 ease-spring ${open ? "rotate-[135deg] bg-accent" : "bg-primary/5"}`}>
+          <Plus weight="light" size={20} />
+        </span>
+      </button>
+      <div className={`grid transition-[grid-template-rows,opacity] duration-700 ease-spring ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+        <div className="overflow-hidden">
+          <p className={`max-w-[56ch] pt-4 text-muted-foreground transition-transform duration-700 ease-spring ${open ? "translate-y-0" : "-translate-y-3"}`}>{a}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -64,6 +64,7 @@ function Index() {
       <main>
         <Hero onBid={bid} />
         <Marquee />
+        <About />
         <Lots onBid={bid} />
         <Steps />
         <Report />
@@ -85,7 +86,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
       className={className}
       initial={reduce ? false : { opacity: 0, y: 56, filter: "blur(10px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, amount: 0.25 }}
+      viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
       transition={{ duration: 0.95, delay, ease: [0.32, 0.72, 0, 1] }}
     >
       {children}
@@ -126,6 +127,7 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
 function Nav({ onBid }: { onBid: () => void }) {
   const [open, setOpen] = useState(false);
   const links = [
+    ["#about", "Про аукціон"],
     ["#lots", "Лоти"],
     ["#how", "Як це працює"],
     ["#report", "Звітність"],
@@ -139,7 +141,7 @@ function Nav({ onBid }: { onBid: () => void }) {
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[11px] font-bold tracking-wider text-accent">KSE</span>
             <span className="text-sm font-bold text-primary">Аукціон</span>
           </a>
-          <nav className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
+          <nav className="hidden items-center gap-1 whitespace-nowrap text-sm text-muted-foreground lg:flex">
             {links.map(([h, l]) => (
               <a key={h} href={h} className="rounded-full px-4 py-2 transition-colors duration-300 hover:bg-primary/5 hover:text-primary">
                 {l}
@@ -147,7 +149,7 @@ function Nav({ onBid }: { onBid: () => void }) {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <button onClick={onBid} className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition active:scale-[0.98] sm:block">
+            <button onClick={onBid} className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition active:scale-[0.98] sm:block whitespace-nowrap">
               Зробити ставку
             </button>
             <button aria-label="Меню" onClick={() => setOpen(!open)} className="relative h-10 w-10 rounded-full bg-primary/5 md:hidden">
@@ -199,7 +201,7 @@ function Hero({ onBid }: { onBid: () => void }) {
   const yGavel = useTransform(scrollY, [0, 700], [0, -160]);
   const rot = useTransform(scrollY, [0, 700], [-4, 4]);
   return (
-    <section id="top" className="dot-grid relative min-h-[100dvh] pt-28 md:pt-32">
+    <section id="top" className="dot-grid relative pt-24 pb-12 md:pt-28">
       <div className="orb pointer-events-none absolute -left-40 top-40 h-[28rem] w-[28rem] rounded-full opacity-40" />
       <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-40 md:pb-24 md:grid-cols-12 md:px-8">
         <div className="relative z-10 md:col-span-7 md:pt-10">
@@ -333,7 +335,7 @@ function LotTag({ k, onBid }: { k: number; onBid: () => void }) {
 
 function Lots({ onBid }: { onBid: () => void }) {
   return (
-    <section id="lots" className="relative overflow-hidden bg-primary pb-40 pt-40 text-primary-foreground">
+    <section id="lots" className="relative overflow-hidden bg-primary pb-20 pt-24 text-primary-foreground">
       <div className="orb pointer-events-none absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full opacity-30" />
       <span aria-hidden className="text-outline-light pointer-events-none absolute -left-6 top-24 select-none text-[22vw] font-bold leading-none opacity-60">
         ЛОТИ
@@ -348,20 +350,20 @@ function Lots({ onBid }: { onBid: () => void }) {
             Кожен слот відкриватиме окремий лот. Фото, назви й описи з'являться після підтвердження Офісом ректора.
           </p>
         </Reveal>
-        <div className="mt-24 grid gap-8 md:grid-cols-3 md:gap-6">
+        <div className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
           {[0, 1, 2].map((k) => (
             <motion.div
               key={k}
               initial={{ opacity: 0, x: (1 - k) * 260, y: 120, rotate: (k - 1) * -18, scale: 0.9 }}
               whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
               transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
             >
               <LotTag k={k} onBid={onBid} />
             </motion.div>
           ))}
         </div>
-        <p className="mt-28 flex items-center gap-2 text-sm text-primary-foreground/45">
+        <p className="mt-12 flex items-center gap-2 text-sm text-primary-foreground/45">
           <Sparkle weight="light" /> Три демонстраційні слоти показують роботу вітрини, а не фактичну кількість лотів.
         </p>
       </div>
@@ -378,7 +380,7 @@ function Steps() {
     { icon: Trophy, t: "Дізнайтеся результат", d: "Після фіналу тут з'являться підсумок і звіт про кошти.", s: "Після фіналу", h: "md:h-[34rem]" },
   ];
   return (
-    <section id="how" className="relative py-32 md:py-40">
+    <section id="how" className="relative py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <Reveal>
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
@@ -394,7 +396,7 @@ function Steps() {
               className="origin-bottom"
               initial={{ opacity: 0, scaleY: 0.4, y: 80 }}
               whileInView={{ opacity: 1, scaleY: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
               transition={{ duration: 1.1, delay: k * 0.18, ease: EASE }}
             >
               <Bezel core={`flex flex-col justify-between p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
@@ -420,7 +422,7 @@ function Steps() {
 
 function Report() {
   return (
-    <section id="report" className="px-4 pb-32 md:px-8">
+    <section id="report" className="px-4 pb-16 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-12 md:grid-rows-2">
         <Reveal className="md:col-span-7 md:row-span-2">
           <Bezel core="relative h-full overflow-hidden bg-accent-soft p-10 md:p-14">
@@ -474,7 +476,7 @@ function Final() {
   const left = useCountdown();
   const units: [keyof NonNullable<typeof left>, string][] = [["d", "днів"], ["h", "годин"], ["m", "хвилин"], ["s", "секунд"]];
   return (
-    <section className="relative overflow-hidden bg-primary py-32 text-primary-foreground md:py-40">
+    <section className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
       <div className="dot-grid-light absolute inset-0" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">
         <Reveal className="md:col-span-7">
@@ -500,7 +502,7 @@ function Final() {
           className="md:col-span-5"
           initial={{ opacity: 0, y: -220, rotate: -25 }}
           whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
           transition={{ type: "spring", stiffness: 90, damping: 11, mass: 1.2, delay: 0.2 }}
         >
           {/* tear-off calendar stack */}
@@ -534,10 +536,13 @@ function Faq() {
     ["Коли відкриється аукціон?", "Публічний старт орієнтовно запланований на початок листопада. Точну дату підтвердить Офіс ректора."],
     ["Чому тут поки немає фото й цін?", "Оригінальні фото, назви, описи та стартові ціни має передати й погодити Офіс ректора. Ми не підставляємо вигадані речі."],
     ["Як працюватиме ставка?", "Ставка має бути вищою за поточну щонайменше на крок лота. Захищений сервіс ставок підключать до старту."],
+    ["Хто може взяти участь?", "Аукціон відкритий для всіх охочих: студентів, випускників, партнерів і друзів KSE. Умови реєстрації оголосять до старту."],
+    ["Чи буде офлайн-подія?", "Основний формат - онлайн-завершення торгів. Можливість зустрічі на кампусі KSE уточнюється."],
+    ["Як отримати виграний лот?", "Порядок оплати й передачі речі переможцю погодить Офіс ректора і опублікує разом із правилами."],
     ["Куди підуть кошти?", "Благодійний напрям і рахунок збору ще уточнюються. Їх опублікують після підтвердження разом зі звітом."],
   ];
   return (
-    <section id="faq" className="mx-auto grid max-w-7xl gap-12 px-4 py-32 md:grid-cols-12 md:px-8 md:py-40">
+    <section id="faq" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:px-8 md:py-24">
       <div className="md:col-span-5">
         <div className="md:sticky md:top-32">
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
@@ -554,6 +559,44 @@ function Faq() {
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
               <FaqItem q={q!} a={a!} />
+            </Bezel>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- about ---------- */
+
+function About() {
+  const facts = [
+    ["01", "Особисті речі", "Кожен лот - річ, що має історію поруч із ректором KSE."],
+    ["02", "Онлайн-торги", "Ставки з будь-якої точки світу, без зайвих кроків."],
+    ["03", "Відкритий звіт", "Підсумок збору й використання коштів - публічно."],
+    ["04", "Фінал 14.11", "Завершення торгів 14 листопада 2026 року."],
+  ];
+  return (
+    <section id="about" className="relative px-4 pb-8 pt-20 md:px-8 md:pt-24">
+      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Про аукціон</span>
+          <h2 className="mt-6 text-4xl font-bold tracking-tight text-primary md:text-6xl">
+            <SplitWords text="Речі з історією" className="block" /> <Highlight delay={0.4}><span className="italic">для доброї справи.</span></Highlight>
+          </h2>
+        </div>
+        <div className="space-y-5 text-lg leading-relaxed text-muted-foreground md:col-span-7 md:pt-14">
+          <Reveal><p><b className="font-medium text-primary">Тимофій Брік</b>, ректор Київської школи економіки, передає на благодійний аукціон свої особисті речі. Кожна з них стане окремим лотом, а всі кошти від торгів підуть на спільну справу.</p></Reveal>
+          <Reveal delay={0.08}><p>Ми хочемо, щоб участь була простою, а результат - прозорим: фото, описи й стартові ціни публікуються лише після погодження Офісом ректора, а після фіналу тут з'явиться звіт про збір.</p></Reveal>
+        </div>
+      </div>
+      <div className="mx-auto mt-12 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {facts.map(([n, t, d], k) => (
+          <Reveal key={n} delay={k * 0.07}>
+            <Bezel core="group h-full bg-card p-6 transition-colors duration-500 hover:bg-accent-soft">
+              <span className="text-outline text-4xl font-bold leading-none">{n}</span>
+              <p className="mt-6 text-xl font-bold tracking-tight text-primary">{t}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{d}</p>
             </Bezel>
           </Reveal>
         ))}

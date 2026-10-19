@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { FloatingObjects } from "@/components/objects";
 import { useEffect, useState, type ReactNode, type CSSProperties } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
@@ -241,12 +242,12 @@ function Hero({ onBid }: { onBid: () => void }) {
             <Bezel className="rounded-t-[999px]" core="overflow-hidden rounded-t-[999px] bg-primary">
               <img src={rector.url} alt="Тимофій Брік, ректор KSE" className="aspect-[3/4] w-full object-cover" />
             </Bezel>
-            <div className="absolute -bottom-5 left-1/2 w-max -translate-x-1/2 rounded-full bg-primary px-6 py-3 text-primary-foreground shadow-soft">
+            <div className="absolute -bottom-5 left-1/2 z-30 w-max -translate-x-1/2 rounded-full bg-primary px-6 py-3 text-primary-foreground shadow-soft">
               <b>Тимофій Брік</b>
               <span className="ml-2 text-sm text-primary-foreground/60">ректор KSE</span>
             </div>
           </motion.div>
-          <div className="absolute -left-4 top-0 md:-left-16 md:top-10">
+          <div className="absolute -left-2 -top-6 z-20 scale-75 md:-left-20 md:top-0 md:scale-90">
             <RotatingBadge />
           </div>
           <motion.img
@@ -255,10 +256,10 @@ function Hero({ onBid }: { onBid: () => void }) {
             alt=""
             width={1024}
             height={1024}
-            className="animate-floaty pointer-events-none absolute -right-6 bottom-6 w-44 drop-shadow-2xl md:-right-20 md:bottom-16 md:w-64"
+            className="animate-floaty pointer-events-none absolute -right-2 top-1/3 z-10 w-36 drop-shadow-2xl md:-right-16 md:w-52"
           />
           {/* date ticket */}
-          <div className="enter absolute -bottom-16 -left-2 rotate-[-7deg] md:-left-24 md:bottom-0" style={i(6)}>
+          <div className="enter absolute -bottom-24 right-0 z-30 rotate-[-7deg] md:-bottom-20 md:right-4" style={i(6)}>
             <div className="flex items-stretch overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-primary/10">
               <div className="grid place-items-center bg-accent px-4 text-3xl font-bold text-primary">14</div>
               <div className="border-l-2 border-dashed border-primary/20 px-4 py-2.5 text-xs leading-tight">
@@ -350,7 +351,7 @@ function Lots({ onBid }: { onBid: () => void }) {
             Кожен слот відкриватиме окремий лот. Фото, назви й описи з'являться після підтвердження Офісом ректора.
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-8 md:grid-cols-3 md:gap-6">
+        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {[0, 1, 2].map((k) => (
             <motion.div
               key={k}
@@ -360,6 +361,7 @@ function Lots({ onBid }: { onBid: () => void }) {
               transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
             >
               <LotTag k={k} onBid={onBid} />
+              <Link to="/lots/$id" params={{ id: String(k + 1) }} className="mt-4 flex items-center justify-between rounded-full px-5 py-3 text-sm text-primary-foreground/70 ring-1 ring-primary-foreground/15 transition hover:bg-primary-foreground/10 hover:text-accent">Демонстраційний слот {k + 1} із 3 <ArrowUpRight weight="light" /></Link>
             </motion.div>
           ))}
         </div>
@@ -380,16 +382,17 @@ function Steps() {
     { icon: Trophy, t: "Дізнайтеся результат", d: "Після фіналу тут з'являться підсумок і звіт про кошти.", s: "Після фіналу", h: "md:h-[34rem]" },
   ];
   return (
-    <section id="how" className="relative py-16 md:py-24">
+    <section id="how" className="relative overflow-hidden py-16 md:py-24">
+      <FloatingObjects set="how" />
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <Reveal>
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
-            <SplitWords text="Від речі" className="block" />
+            <span className="block"><SplitWords text="Від речі" /></span>
             <OutlineFill text="до ставки." />
           </h2>
           <p className="mt-6 max-w-[48ch] text-muted-foreground">Кожен крок вище за попередній, як і ставки. Точні правила підтвердять до старту.</p>
         </Reveal>
-        <div className="mt-16 grid items-end gap-5 md:grid-cols-3">
+        <div className="mt-16 grid items-end gap-5 lg:grid-cols-3">
           {steps.map((s, k) => (
             <motion.div
               key={s.t}
@@ -427,6 +430,8 @@ function Report() {
         <Reveal className="md:col-span-7 md:row-span-2">
           <Bezel core="relative h-full overflow-hidden bg-accent-soft p-10 md:p-14">
             <div className="orb absolute -bottom-24 -right-24 h-80 w-80 rounded-full opacity-60" />
+            <span aria-hidden className="text-outline pointer-events-none absolute -right-6 bottom-6 select-none text-[9rem] font-bold leading-none opacity-30 md:text-[12rem]">ЗБІР</span>
+            <motion.img src={gavel} alt="" aria-hidden animate={{ rotate: [-14, 8, -14], y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute right-8 top-8 hidden w-28 md:block" />
             <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Звітність</span>
             <h2 className="relative mt-8 text-5xl font-bold tracking-tight text-primary md:text-6xl">
               <SplitWords text="Збір має бути" /> <Highlight delay={0.5}><span className="italic">прозорим.</span></Highlight>
@@ -478,10 +483,11 @@ function Final() {
   return (
     <section className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
       <div className="dot-grid-light absolute inset-0" />
+      <FloatingObjects set="final" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">
         <Reveal className="md:col-span-7">
           <h2 className="text-6xl font-bold leading-[0.95] tracking-tight md:text-8xl">
-            <SplitWords text="Фінал" className="block" />
+            <span className="block"><SplitWords text="Фінал" /></span>
             <OutlineFill text="14.11" light />
           </h2>
           <p className="mt-8 max-w-[44ch] text-primary-foreground/65">
@@ -542,11 +548,11 @@ function Faq() {
     ["Куди підуть кошти?", "Благодійний напрям і рахунок збору ще уточнюються. Їх опублікують після підтвердження разом зі звітом."],
   ];
   return (
-    <section id="faq" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:px-8 md:py-24">
+    <section id="faq" className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:px-8 md:py-24">
       <div className="md:col-span-5">
         <div className="md:sticky md:top-32">
           <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
-            <SplitWords text="Питання," className="block" />
+            <span className="block"><SplitWords text="Питання," /></span>
             <OutlineFill text="які важливі." />
           </h2>
           <a href={`mailto:${EMAIL}`} className="mt-10 inline-flex items-center gap-2 text-sm font-medium text-primary underline decoration-accent decoration-4 underline-offset-8">
@@ -577,12 +583,13 @@ function About() {
     ["04", "Фінал 14.11", "Завершення торгів 14 листопада 2026 року."],
   ];
   return (
-    <section id="about" className="relative px-4 pb-8 pt-20 md:px-8 md:pt-24">
+    <section id="about" className="relative overflow-hidden px-4 pb-8 pt-20 md:px-8 md:pt-24">
+      <FloatingObjects set="about" />
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-12">
         <div className="md:col-span-5">
           <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Про аукціон</span>
           <h2 className="mt-6 text-4xl font-bold tracking-tight text-primary md:text-6xl">
-            <SplitWords text="Речі з історією" className="block" /> <Highlight delay={0.4}><span className="italic">для доброї справи.</span></Highlight>
+            <span className="block"><SplitWords text="Речі з історією" /></span> <Highlight delay={0.4}><span className="italic">для доброї справи.</span></Highlight>
           </h2>
         </div>
         <div className="space-y-5 text-lg leading-relaxed text-muted-foreground md:col-span-7 md:pt-14">

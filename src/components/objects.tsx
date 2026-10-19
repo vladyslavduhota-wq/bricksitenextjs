@@ -53,7 +53,7 @@ export function FloatingObjects({ set }: { set: keyof typeof SETS }) {
             transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.2 + k * 0.15 }}
           >
             <motion.div
-              animate={reduce ? undefined : { y: [0, -12, 0], rotate: [0, k % 2 ? 6 : -6, 0] }}
+              animate={reduce ? {} : { y: [0, -12, 0], rotate: [0, k % 2 ? 6 : -6, 0] }}
               transition={{ duration: d, repeat: Infinity, ease: "easeInOut" }}
               className="drop-shadow-[0_18px_24px_color-mix(in_oklab,var(--primary)_25%,transparent)]"
             >

@@ -49,6 +49,7 @@ function Index() {
   const [modal, setModal] = useState(false);
   useEffect(() => {
     const on = () => setReady(true);
+    if ((window as unknown as { __ksePre?: boolean }).__ksePre && !document.getElementById("pre")) { document.documentElement.style.overflow = ""; on(); return; }
     document.addEventListener("kse:preloader-exit", on, { once: true });
     const fallback = setTimeout(on, 5000);
     return () => {

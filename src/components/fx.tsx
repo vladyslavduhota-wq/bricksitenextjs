@@ -16,7 +16,7 @@ export const EASE = [0.32, 0.72, 0, 1] as const;
 /** Headline: each word rises out of its own mask, staggered. Story: reading rhythm. */
 export function SplitWords({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
   const reduce = useReducedMotion();
-  const words = text.split(" ");
+    const words = text.split(" ");
 
   return (
     <motion.span

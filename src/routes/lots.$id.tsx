@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight, Eye, Gavel } from "@phosphor-icons/react";
 import gavel from "@/assets/gavel-3d.png";
 import { FloatingObjects } from "@/components/objects";
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/lots/$id")({
 const EASE = [0.32, 0.72, 0, 1] as const;
 
 function Lot() {
+  const reduce = useReducedMotion();
   const { id } = Route.useParams();
   const n = Number(id);
   const prev = String(n === 1 ? 3 : n - 1);
@@ -37,16 +38,16 @@ function Lot() {
   return (
     <main className="grain relative min-h-[100dvh] overflow-hidden bg-background">
       <FloatingObjects set="about" />
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 pt-6 md:px-8">
+      <header className="relative z-10 mx-auto grid max-w-7xl grid-cols-[auto_minmax(0,1fr)] items-center gap-3 px-4 pt-6 md:px-8">
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-medium text-primary shadow-soft ring-1 ring-primary/10 transition hover:-translate-x-1">
           <ArrowLeft weight="light" /> До вітрини
         </Link>
-        <span className="text-sm text-muted-foreground">Демонстраційний слот {id} із 3</span>
+        <span className="min-w-0 text-right text-xs sm:text-sm text-muted-foreground">Демонстраційний слот {id} із 3</span>
       </header>
       <section className="relative z-10 mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-12 md:px-8">
         <motion.div
           key={id}
-          initial={{ opacity: 0, rotate: -8, y: 60 }}
+          initial={reduce ? false : { opacity: 0, rotate: -8, y: 60 }}
           animate={{ opacity: 1, rotate: -2, y: 0 }}
           transition={{ type: "spring", stiffness: 70, damping: 14 }}
           className="md:col-span-6"
@@ -54,14 +55,14 @@ function Lot() {
           <div className="relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[2.25rem] bg-navy-deep dot-grid-light shadow-soft">
             <div className="orb absolute h-72 w-72 rounded-full opacity-30" />
             <span className="text-outline-light text-[14rem] font-bold leading-none">{id}</span>
-            <span className="absolute bottom-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-4 py-2 text-sm text-primary-foreground/80">
+            <span className="absolute bottom-6 left-4 right-4 justify-center text-center inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-4 py-2 text-sm text-primary-foreground/80">
               <Eye weight="light" /> Фото лота буде додано після погодження
             </span>
-            <motion.img src={gavel} alt="" animate={{ rotate: [-10, 10, -10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute right-6 top-6 w-28" />
+            <motion.img src={gavel} alt="" animate={reduce ? {} : { rotate: [-10, 10, -10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute right-6 top-6 w-28" />
           </div>
         </motion.div>
         <div className="md:col-span-6 md:pt-8">
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE }} className="text-5xl font-bold tracking-tight text-primary md:text-6xl">
+          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: EASE }} className="text-4xl sm:text-5xl font-bold text-primary md:text-6xl">
             Назву лота додасть Офіс ректора
           </motion.h1>
           <p className="mt-6 max-w-[48ch] text-lg text-muted-foreground">

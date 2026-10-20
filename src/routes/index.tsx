@@ -229,7 +229,7 @@ function Hero({ onBid }: { onBid: () => void }) {
           </div>
         </div>
         <div className="hero-visual relative min-w-0">
-          <motion.figure style={reduce ? undefined : { y: yImg }} className="enter hero-portrait relative" >
+          <motion.figure style={reduce ? {} : { y: yImg }} className="enter hero-portrait relative" >
             <img src={rector.url} alt="Тимофій Брік, ректор KSE" fetchPriority="high" className="h-full w-full object-cover" />
             <figcaption className="hero-caption absolute bg-primary text-primary-foreground">
               <b className="block">Тимофій Брік</b>
@@ -237,7 +237,7 @@ function Hero({ onBid }: { onBid: () => void }) {
             </figcaption>
           </motion.figure>
           <div className="hero-badge absolute"><RotatingBadge /></div>
-          <motion.div style={reduce ? undefined : { y: yGavel }} className="hero-gavel pointer-events-none absolute">
+          <motion.div style={reduce ? {} : { y: yGavel }} className="hero-gavel pointer-events-none absolute">
             <img src={gavel} alt="" width={1024} height={1024} className="animate-floaty w-full" />
           </motion.div>
           <div className="enter hero-ticket absolute bg-accent text-accent-foreground" style={i(6)}>

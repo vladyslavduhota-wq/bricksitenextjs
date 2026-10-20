@@ -23,7 +23,7 @@ export function SplitWords({ text, className = "", delay = 0 }: { text: string; 
       aria-label={text}
       initial={reduce ? false : "hidden"}
       whileInView="show"
-      animate={reduce ? "show" : undefined}
+      animate={reduce ? "show" : false}
       viewport={{ once: true, amount: 0, margin: "0px" }}
     >
       {words.map((w, k) => (
@@ -50,7 +50,7 @@ export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { child
       className="relative isolate inline-block"
       initial={reduce ? false : "hidden"}
       whileInView="show"
-      animate={reduce ? "show" : undefined}
+      animate={reduce ? "show" : false}
       viewport={{ once: true, amount: 0, margin: "0px" }}
     >
       <motion.span
@@ -73,7 +73,7 @@ export function OutlineFill({ text, className = "", light = false }: { text: str
   return (
     <span ref={ref} className={`relative inline-block ${className}`}>
       <span className={light ? "text-outline-light" : "text-outline"}>{text}</span>
-      <motion.span aria-hidden style={reduce ? undefined : { clipPath: clip }} className={`absolute inset-0 ${light ? "text-accent" : "text-primary"}`}>
+      <motion.span aria-hidden style={reduce ? {} : { clipPath: clip }} className={`absolute inset-0 ${light ? "text-accent" : "text-primary"}`}>
         {text}
       </motion.span>
     </span>

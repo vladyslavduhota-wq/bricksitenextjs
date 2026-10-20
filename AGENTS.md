@@ -9,3 +9,6 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - Preloader is ported verbatim from the client's kse-preloader HTML (src/components/preloader-source.ts) and run once via new Function; why: keeps the original animation intact.
+- Preloader completion is tracked separately from startup and restored after hydration; why: client navigation back home must not replay or leave the screen blocked.
+- First-screen layout uses breakpoint-based fixed typography and separate motion wrappers for portrait and gavel; why: avoid text overflow and competing CSS/scroll transforms.
+- Moving text uses measured pixel travel independent of scroll velocity; why: preserve readable, stable movement at every screen width.

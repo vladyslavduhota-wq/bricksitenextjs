@@ -181,18 +181,21 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero-section { padding: 96px 0 24px; }
   .hero-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .hero-eyebrow { margin-bottom: 14px; }
-  .hero-title { font-size: 56px; line-height: 1; }
-  .hero-title > span:first-child { font-size: 34px; margin-bottom: 6px; }
+  .hero-title { font-size: 50px; line-height: 1; }
+  .hero-title > span:first-child { font-size: 30px; margin-bottom: 6px; }
   .hero-description { margin-top: 18px; font-size: 15px; line-height: 1.55; }
   .hero-actions { margin-top: 18px; gap: 6px; }
+  .hero-actions a { padding-left: 20px; gap: 8px; font-size: 14px; }
+  .hero-actions a > span:last-child { width: 32px; height: 32px; }
+  .hero-actions button { padding-left: 8px; padding-right: 0; font-size: 12px; }
   .hero-details { margin-top: 16px; padding-top: 12px; }
   .hero-visual { padding: 0 24px 18px 0; max-width: 390px; width: 100%; margin: 0 auto; }
-  .hero-portrait { height: 290px; border-radius: 88px 88px 8px 8px; }
+  .hero-portrait { height: 230px; border-radius: 72px 72px 8px 8px; }
   .hero-portrait img { object-position: center 35%; }
   .hero-caption { padding: 12px 18px; }
   .hero-badge { right: 0; top: -4px; transform: scale(.62); }
   .hero-gavel { right: -6px; bottom: 65px; width: 104px; }
-  .hero-ticket { left: auto; right: 0; padding: 9px 12px; }
+  .hero-ticket { display: none; }
   #about { padding-top: 40px; }
   #lots { padding-top: 48px; }
   #how, #faq { padding-top: 48px; padding-bottom: 48px; }

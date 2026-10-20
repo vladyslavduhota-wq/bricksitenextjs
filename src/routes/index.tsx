@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 import { FloatingObjects } from "@/components/objects";
 import { useEffect, useState, type ReactNode, type CSSProperties } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
@@ -49,7 +50,7 @@ function Index() {
   const [modal, setModal] = useState(false);
   useEffect(() => {
     const on = () => setReady(true);
-    if ((window as unknown as { __ksePre?: boolean }).__ksePre && !document.getElementById("pre")) { document.documentElement.style.overflow = ""; on(); return; }
+    if ((window as unknown as { __ksePreDone?: boolean }).__ksePreDone) { document.documentElement.style.overflow = ""; on(); return; }
     document.addEventListener("kse:preloader-exit", on, { once: true });
     const fallback = setTimeout(on, 5000);
     return () => {
@@ -86,9 +87,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 56, filter: "blur(10px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0, margin: "0px" }}
       transition={{ duration: 0.95, delay, ease: [0.32, 0.72, 0, 1] }}
     >
       {children}
@@ -121,7 +122,7 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
     </>
   );
   const c = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
-  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={c}>{body}</button>}</Magnetic>;
+  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <Button onClick={onClick} className={`${c} h-auto`}>{body}</Button>}</Magnetic>;
 }
 
 /* ---------- nav ---------- */
@@ -138,7 +139,7 @@ function Nav({ onBid }: { onBid: () => void }) {
   return (
     <>
       <header className="fixed inset-x-0 top-5 z-40 flex justify-center px-4">
-        <div className="flex w-full max-w-3xl items-center justify-between gap-6 rounded-full bg-background/70 py-2 pl-3 pr-2 shadow-soft ring-1 ring-primary/10 backdrop-blur-xl md:w-max">
+        <div className="grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center justify-between gap-3 lg:flex lg:gap-6 rounded-full bg-background/70 py-2 pl-3 pr-2 shadow-soft ring-1 ring-primary/10 backdrop-blur-xl lg:w-max">
           <a href="#top" className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[11px] font-bold tracking-wider text-accent">KSE</span>
             <span className="text-sm font-bold text-primary">Аукціон</span>
@@ -151,24 +152,24 @@ function Nav({ onBid }: { onBid: () => void }) {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <button onClick={onBid} className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition active:scale-[0.98] sm:block whitespace-nowrap">
+            <Button onClick={onBid} className="hidden h-auto rounded-full px-5 py-2.5 transition active:scale-[0.98] sm:inline-flex">
               Зробити ставку
-            </button>
-            <button aria-label="Меню" onClick={() => setOpen(!open)} className="relative h-10 w-10 rounded-full bg-primary/5 md:hidden">
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Меню" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className="relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden">
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 rotate-45" : "top-[15px]"}`} />
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 -rotate-45" : "top-[23px]"}`} />
-            </button>
+            </Button>
           </div>
         </div>
       </header>
-      <div className={`fixed inset-0 z-30 flex flex-col justify-center gap-2 bg-background/85 px-8 backdrop-blur-3xl transition-opacity duration-500 md:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+      <div id="mobile-menu" inert={!open} className={`fixed inset-0 z-30 flex flex-col justify-center gap-2 bg-background/85 px-8 backdrop-blur-3xl transition-opacity duration-500 lg:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}>
         {links.map(([h, l], k) => (
           <a
             key={h}
             href={h}
             onClick={() => setOpen(false)}
             style={{ transitionDelay: open ? `${100 + k * 60}ms` : "0ms" }}
-            className={`text-5xl font-bold tracking-tight text-primary transition-all duration-700 ease-spring ${open ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+            className={`text-3xl sm:text-5xl font-bold text-primary transition-all duration-700 ease-spring ${open ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
           >
             {l}
           </a>
@@ -198,76 +199,50 @@ function RotatingBadge() {
 }
 
 function Hero({ onBid }: { onBid: () => void }) {
+  const reduce = useReducedMotion();
   const { scrollY } = useScroll();
-  const yImg = useTransform(scrollY, [0, 700], [0, 90]);
-  const yGavel = useTransform(scrollY, [0, 700], [0, -160]);
-  const rot = useTransform(scrollY, [0, 700], [-4, 4]);
+  const yImg = useTransform(scrollY, [0, 700], [0, 24]);
+  const yGavel = useTransform(scrollY, [0, 700], [0, -35]);
   return (
-    <section id="top" className="dot-grid relative pt-24 pb-12 md:pt-28">
-      <div className="orb pointer-events-none absolute -left-40 top-40 h-[28rem] w-[28rem] rounded-full opacity-40" />
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-40 md:pb-24 md:grid-cols-12 md:px-8">
-        <div className="relative z-10 md:col-span-7 md:pt-10">
-          <div className="enter mb-8 inline-flex items-center gap-2 rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10" style={i(0)}>
-            <span className="relative flex h-2 w-2">
-              <span className="animate-pulse-ring absolute inset-0 rounded-full bg-accent" />
-              <span className="relative h-2 w-2 rounded-full bg-accent ring-1 ring-primary/30" />
-            </span>
-            Підготовка каталогу
+    <section id="top" className="hero-section dot-grid relative">
+      <div className="hero-layout relative mx-auto max-w-7xl px-4 md:px-8">
+        <div className="hero-copy relative z-10 min-w-0">
+          <div className="enter hero-eyebrow inline-flex items-center gap-2 text-xs font-medium text-primary" style={i(0)}>
+            <span className="h-2 w-2 shrink-0 rounded-full bg-accent ring-1 ring-primary/20" />
+            Благодійний аукціон KSE
           </div>
-          <h1 className="text-[clamp(3.2rem,9vw,7.6rem)] font-bold leading-[0.9] tracking-[-0.045em] text-primary">
-            <span className="enter block" style={i(1)}>Речі</span>
-            <span className="enter block md:pl-[12%]" style={i(2)}>
-              ректора<span className="text-accent [-webkit-text-stroke:2px_var(--primary)]">.</span>
-            </span>
-            <span className="enter relative mt-2 block md:w-max" style={i(3)}>
-              <span className="text-outline">Спільна</span>{" "}
-              <span className="relative inline-block">
-                <span className="absolute -inset-x-3 bottom-[0.06em] top-[0.18em] -z-10 -rotate-2 rounded-full bg-accent" />
-                справа.
-              </span>
-            </span>
+          <h1 className="hero-title font-bold text-primary">
+            <span className="enter block" style={i(1)}>Речі ректора.</span>
+            <span className="enter hero-outline block" style={i(2)}>Спільна</span>
+            <span className="enter block" style={i(3)}><span className="hero-highlight">справа.</span></span>
           </h1>
-          <p className="enter mt-10 max-w-[40ch] text-lg leading-relaxed text-muted-foreground" style={i(4)}>
-            Благодійний онлайн-аукціон особистих речей Тимофія Бріка, ректора Київської школи економіки.
+          <p className="enter hero-description text-muted-foreground" style={i(4)}>
+            Особисті речі Тимофія Бріка, ректора Київської школи економіки. Історії, що стають частиною спільної справи.
           </p>
-          <div className="enter mt-10 flex flex-wrap items-center gap-4" style={i(5)}>
-            <PillCta href="#lots">Оглянути вітрину</PillCta>
-            <button onClick={onBid} className="rounded-full px-6 py-4 text-sm font-medium text-primary ring-1 ring-primary/15 transition hover:bg-primary/5">
-              Як зробити ставку
-            </button>
+          <div className="enter hero-actions flex flex-wrap items-center gap-3" style={i(5)}>
+            <PillCta href="#lots">Переглянути лоти</PillCta>
+            <Button variant="ghost" onClick={onBid} className="h-auto rounded-full px-3 py-3 text-primary">Як зробити ставку <ArrowUpRight weight="light" /></Button>
+          </div>
+          <div className="enter hero-details grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-primary/15" style={i(6)}>
+            <span className="min-w-0 text-xs text-muted-foreground">Каталог готується</span>
+            <span className="text-xs font-medium text-primary">Фінал <b className="ml-2">14.11.2026</b></span>
           </div>
         </div>
-
-        <div className="relative md:col-span-5">
-          <motion.div style={{ y: yImg, rotate: rot }} className="enter relative mx-auto max-w-sm md:mt-6" >
-            <Bezel className="rounded-t-[999px]" core="overflow-hidden rounded-t-[999px] bg-primary">
-              <img src={rector.url} alt="Тимофій Брік, ректор KSE" className="aspect-[3/4] w-full object-cover" />
-            </Bezel>
-            <div className="absolute -bottom-5 left-1/2 z-30 w-max -translate-x-1/2 rounded-full bg-primary px-6 py-3 text-primary-foreground shadow-soft">
-              <b>Тимофій Брік</b>
-              <span className="ml-2 text-sm text-primary-foreground/60">ректор KSE</span>
-            </div>
+        <div className="hero-visual relative min-w-0">
+          <motion.figure style={reduce ? {} : { y: yImg }} className="enter hero-portrait relative" >
+            <img src={rector.url} alt="Тимофій Брік, ректор KSE" fetchPriority="high" className="h-full w-full object-cover" />
+            <figcaption className="hero-caption absolute bg-primary text-primary-foreground">
+              <b className="block">Тимофій Брік</b>
+              <span className="text-xs text-primary-foreground/70">ректор Київської школи економіки</span>
+            </figcaption>
+          </motion.figure>
+          <div className="hero-badge absolute"><RotatingBadge /></div>
+          <motion.div style={reduce ? {} : { y: yGavel }} className="hero-gavel pointer-events-none absolute">
+            <img src={gavel} alt="" width={1024} height={1024} className="animate-floaty w-full" />
           </motion.div>
-          <div className="absolute -left-2 -top-6 z-20 scale-75 md:-left-20 md:top-0 md:scale-90">
-            <RotatingBadge />
-          </div>
-          <motion.img
-            style={{ y: yGavel }}
-            src={gavel}
-            alt=""
-            width={1024}
-            height={1024}
-            className="animate-floaty pointer-events-none absolute -right-2 top-1/3 z-10 w-36 drop-shadow-2xl md:-right-16 md:w-52"
-          />
-          {/* date ticket */}
-          <div className="enter absolute -bottom-24 right-0 z-30 rotate-[-7deg] md:-bottom-20 md:right-4" style={i(6)}>
-            <div className="flex items-stretch overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-primary/10">
-              <div className="grid place-items-center bg-accent px-4 text-3xl font-bold text-primary">14</div>
-              <div className="border-l-2 border-dashed border-primary/20 px-4 py-2.5 text-xs leading-tight">
-                <b className="block text-sm text-primary">листопада 2026</b>
-                <span className="text-muted-foreground">фінал аукціону</span>
-              </div>
-            </div>
+          <div className="enter hero-ticket absolute bg-accent text-accent-foreground" style={i(6)}>
+            <span className="text-3xl font-bold leading-none">14</span>
+            <span className="text-xs leading-snug"><b className="block">листопада 2026</b>фінал аукціону</span>
           </div>
         </div>
       </div>
@@ -281,12 +256,12 @@ function Marquee() {
   const items = ["Речі ректора", "Спільна справа", "14.11.2026", "Благодійний аукціон KSE", "Прозорий звіт"];
   const row = [...items, ...items];
   return (
-    <div className="relative z-10 -my-6 rotate-[-2deg] bg-accent py-5 text-accent-foreground shadow-soft">
+    <div className="relative z-10 overflow-hidden bg-accent py-3 md:py-4 text-accent-foreground shadow-soft">
       <VelocityMarquee>
         {[0].map((r) => (
           <div key={r} className="flex shrink-0 items-center">
             {row.map((t, k) => (
-              <span key={k} className="flex items-center gap-8 px-8 text-2xl font-bold tracking-tight md:text-4xl">
+              <span key={k} className="flex items-center gap-5 px-5 text-xl font-bold md:text-3xl whitespace-nowrap">
                 {t}
                 <Asterisk weight="bold" />
               </span>
@@ -358,7 +333,7 @@ function Lots({ onBid }: { onBid: () => void }) {
               key={k}
               initial={{ opacity: 0, x: (1 - k) * 260, y: 120, rotate: (k - 1) * -18, scale: 0.9 }}
               whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
+              viewport={{ once: true, amount: 0, margin: "0px" }}
               transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
             >
               <LotTag k={k} onBid={onBid} />
@@ -378,9 +353,9 @@ function Lots({ onBid }: { onBid: () => void }) {
 
 function Steps() {
   const steps = [
-    { icon: HandPointing, t: "Оберіть річ", d: "Фото, опис і стартова ціна з'являться у підтвердженому каталозі.", s: "Каталог готується", h: "md:h-[22rem]" },
-    { icon: Gavel, t: "Зробіть ставку", d: "Ставка має перевищувати поточну щонайменше на крок лота.", s: "Сервіс ще не підключено", h: "md:h-[28rem]" },
-    { icon: Trophy, t: "Дізнайтеся результат", d: "Після фіналу тут з'являться підсумок і звіт про кошти.", s: "Після фіналу", h: "md:h-[34rem]" },
+    { icon: HandPointing, t: "Оберіть річ", d: "Фото, опис і стартова ціна з'являться у підтвердженому каталозі.", s: "Каталог готується", h: "lg:h-[22rem]" },
+    { icon: Gavel, t: "Зробіть ставку", d: "Ставка має перевищувати поточну щонайменше на крок лота.", s: "Сервіс ще не підключено", h: "lg:h-[26rem]" },
+    { icon: Trophy, t: "Дізнайтеся результат", d: "Після фіналу тут з'являться підсумок і звіт про кошти.", s: "Після фіналу", h: "lg:h-[30rem]" },
   ];
   return (
     <section id="how" className="relative overflow-hidden py-16 md:py-24">
@@ -400,7 +375,7 @@ function Steps() {
               className="origin-bottom"
               initial={{ opacity: 0, scaleY: 0.4, y: 80 }}
               whileInView={{ opacity: 1, scaleY: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
+              viewport={{ once: true, amount: 0, margin: "0px" }}
               transition={{ duration: 1.1, delay: k * 0.18, ease: EASE }}
             >
               <Bezel core={`flex flex-col justify-between p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
@@ -429,12 +404,12 @@ function Report() {
     <section id="report" className="px-4 pb-16 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-12 md:grid-rows-2">
         <Reveal className="md:col-span-7 md:row-span-2">
-          <Bezel core="relative h-full overflow-hidden bg-accent-soft p-10 md:p-14">
+          <Bezel core="relative h-full overflow-hidden bg-accent-soft p-6 sm:p-10 lg:p-14">
             <div className="orb absolute -bottom-24 -right-24 h-80 w-80 rounded-full opacity-60" />
             <span aria-hidden className="text-outline pointer-events-none absolute -right-6 bottom-6 select-none text-[9rem] font-bold leading-none opacity-30 md:text-[12rem]">ЗБІР</span>
             <motion.img src={gavel} alt="" aria-hidden animate={{ rotate: [-14, 8, -14], y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute right-8 top-8 hidden w-28 md:block" />
             <span className="inline-flex rounded-full bg-primary/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-primary ring-1 ring-primary/10">Звітність</span>
-            <h2 className="relative mt-8 text-5xl font-bold tracking-tight text-primary md:text-6xl">
+            <h2 className="relative mt-8 text-4xl font-bold text-primary lg:text-6xl">
               <SplitWords text="Збір має бути" /> <Highlight delay={0.5}><span className="italic">прозорим.</span></Highlight>
             </h2>
             <p className="relative mt-6 max-w-[42ch] text-muted-foreground">
@@ -497,8 +472,8 @@ function Final() {
           <div className="mt-12 grid max-w-xl grid-cols-4 gap-3">
             {units.map(([k, l]) => (
               <div key=
-                {k} className="rounded-3xl bg-primary-foreground/5 p-4 text-center ring-1 ring-primary-foreground/10">
-                <div className="text-3xl font-bold tabular-nums md:text-5xl">{left ? <RollDigits value={String(left[k]).padStart(2, "0")} /> : "--"}</div>
+                {k} className="rounded-3xl bg-primary-foreground/5 p-2 sm:p-4 text-center ring-1 ring-primary-foreground/10">
+                <div className="text-2xl font-bold tabular-nums lg:text-5xl">{left ? <RollDigits value={String(left[k]).padStart(2, "0")} /> : "--"}</div>
                 <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-primary-foreground/45">{l}</div>
               </div>
             ))}
@@ -509,7 +484,7 @@ function Final() {
           className="md:col-span-5"
           initial={{ opacity: 0, y: -220, rotate: -25 }}
           whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-          viewport={{ once: true, amount: 0.05, margin: "0px 0px -8% 0px" }}
+          viewport={{ once: true, amount: 0, margin: "0px" }}
           transition={{ type: "spring", stiffness: 90, damping: 11, mass: 1.2, delay: 0.2 }}
         >
           {/* tear-off calendar stack */}
@@ -565,7 +540,7 @@ function Faq() {
         {qs.map(([q, a], k) => (
           <Reveal key={q} delay={k * 0.06}>
             <Bezel>
-              <FaqItem q={q!} a={a!} />
+              <FaqItem q={q ?? ""} a={a ?? ""} />
             </Bezel>
           </Reveal>
         ))}

@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FinalRouteImport } from './routes/final'
 import { Route as LotsIdRouteImport } from './routes/lots.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinalRoute = FinalRouteImport.update({
+  id: '/final',
+  path: '/final',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LotsIdRoute = LotsIdRouteImport.update({
@@ -25,27 +31,31 @@ const LotsIdRoute = LotsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/final': typeof FinalRoute
   '/lots/$id': typeof LotsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/final': typeof FinalRoute
   '/lots/$id': typeof LotsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/final': typeof FinalRoute
   '/lots/$id': typeof LotsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/lots/$id'
+  fullPaths: '/' | '/final' | '/lots/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/lots/$id'
-  id: '__root__' | '/' | '/lots/$id'
+  to: '/' | '/final' | '/lots/$id'
+  id: '__root__' | '/' | '/final' | '/lots/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FinalRoute: typeof FinalRoute
   LotsIdRoute: typeof LotsIdRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/final': {
+      id: '/final'
+      path: '/final'
+      fullPath: '/final'
+      preLoaderRoute: typeof FinalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lots/$id': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FinalRoute: FinalRoute,
   LotsIdRoute: LotsIdRoute,
 }
 export const routeTree = rootRouteImport

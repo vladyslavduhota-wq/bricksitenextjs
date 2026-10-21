@@ -471,6 +471,9 @@ function Final() {
           <p className="mt-8 max-w-[44ch] text-primary-foreground/65">
             Онлайн-завершення торгів є основним форматом. Можливість зустрічі на кампусі уточнюється.
           </p>
+          <Link to="/final" className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground transition active:scale-[0.98]">
+            Сторінка фіналу <ArrowUpRight weight="light" />
+          </Link>
           <div className="mt-12 grid max-w-xl grid-cols-4 gap-3">
             {units.map(([k, l]) => (
               <div key=

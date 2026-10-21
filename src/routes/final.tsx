@@ -1,0 +1,99 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowLeft, Trophy, Heart, Camera, PlayCircle, Broadcast } from "@phosphor-icons/react";
+import { FloatingObjects } from "@/components/objects";
+import { BrandLogo } from "@/components/BrandLogo";
+import { isAuctionClosed } from "@/lib/auction";
+
+export const Route = createFileRoute("/final")({
+  head: () => ({
+    meta: [
+      { title: "Фінал 14.11 · Підсумки аукціону речей ректора KSE" },
+      { name: "description", content: "Підсумкова сума, переможні ставки, подяки, фото й відео з розбиття банки благодійного аукціону KSE." },
+      { property: "og:title", content: "Фінал аукціону «Речі ректора»" },
+      { property: "og:description", content: "Підсумки благодійного аукціону речей Тимофія Бріка: сума, переможці, подяки." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: FinalPage,
+});
+
+const EASE = [0.32, 0.72, 0, 1] as const;
+const LOTS = [1, 2, 3];
+
+function FinalPage() {
+  const reduce = useReducedMotion();
+  const closed = isAuctionClosed();
+  const up = (d = 0) => ({
+    initial: reduce ? false : { opacity: 0, y: 40, filter: "blur(8px)" },
+    whileInView: { opacity: 1, y: 0, filter: "blur(0px)" },
+    viewport: { once: true, amount: 0.1 },
+    transition: { duration: 0.9, ease: EASE, delay: d },
+  });
+  return (
+    <main className="grain relative min-h-[100dvh] overflow-hidden bg-background">
+      <FloatingObjects set="final" />
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 pt-6 md:px-8">
+        <Link to="/"><BrandLogo /></Link>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-medium text-primary shadow-soft ring-1 ring-primary/10 transition hover:-translate-x-1">
+          <ArrowLeft weight="light" /> На головну
+        </Link>
+      </header>
+
+      <section className="relative z-10 mx-auto max-w-7xl px-4 pb-10 pt-12 md:px-8">
+        <motion.p {...up()} className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-xs font-medium uppercase tracking-[0.25em] text-accent-foreground">
+          {closed ? "Ставки закрито" : "Сторінка відкриється 14.11.2026"}
+        </motion.p>
+        <motion.h1 {...up(0.1)} className="mt-6 text-6xl font-bold leading-[0.92] tracking-tight text-primary md:text-8xl">
+          Фінал <span className="text-outline">14.11</span>
+        </motion.h1>
+        <motion.div {...up(0.2)} className="mt-10 overflow-hidden rounded-[2.25rem] bg-primary p-8 text-primary-foreground shadow-soft md:p-12">
+          <p className="text-sm uppercase tracking-[0.3em] text-primary-foreground/60">Підсумкова сума</p>
+          <p className="mt-3 text-5xl font-bold text-accent md:text-7xl">{closed ? "Оголошується" : "₴ ··· ··· ···"}</p>
+          <p className="mt-4 max-w-[52ch] text-primary-foreground/65">Ставки закриваються автоматично у визначений час, переможців фіксує система. Точну суму опублікуємо разом зі звітом.</p>
+        </motion.div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <motion.h2 {...up()} className="flex items-center gap-3 text-3xl font-bold text-primary md:text-5xl"><Trophy weight="light" /> Переможні ставки</motion.h2>
+        <div className="mt-8 grid gap-4">
+          {LOTS.map((n, k) => (
+            <motion.div key={n} {...up(k * 0.08)} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[1.75rem] bg-card p-5 shadow-soft ring-1 ring-primary/10 md:p-6">
+              <span className="text-outline text-5xl font-bold leading-none">{n}</span>
+              <div className="min-w-0">
+                <Link to="/lots/$id" params={{ id: String(n) }} className="font-bold text-primary hover:underline">Демонстраційний слот {n}</Link>
+                <p className="text-sm text-muted-foreground">Переможець: ім'я за згодою учасника</p>
+              </div>
+              <span className="rounded-full bg-accent/40 px-4 py-2 text-sm font-medium text-primary">₴ -</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto grid max-w-7xl gap-6 px-4 py-10 md:grid-cols-2 md:px-8">
+        <motion.div {...up()} className="rounded-[2rem] bg-card p-8 shadow-soft ring-1 ring-primary/10">
+          <Heart weight="light" size={32} className="text-primary" />
+          <h3 className="mt-4 text-3xl font-bold text-primary">Дякуємо</h3>
+          <p className="mt-3 text-muted-foreground">Кожному, хто робив ставки, ділився аукціоном і підтримав спільну справу. Окремі подяки партнерам і переможцям з'являться тут після фіналу.</p>
+        </motion.div>
+        <motion.div {...up(0.1)} className="rounded-[2rem] bg-navy-deep p-8 text-primary-foreground shadow-soft">
+          <Broadcast weight="light" size={32} className="text-accent" />
+          <h3 className="mt-4 text-3xl font-bold">Пряма трансляція</h3>
+          <p className="mt-3 text-primary-foreground/65">У день фіналу тут і на головній можна буде вбудувати YouTube або Instagram Live. Посилання надасть команда.</p>
+        </motion.div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-10 md:px-8">
+        <motion.h2 {...up()} className="text-3xl font-bold text-primary md:text-5xl">Розбиття банки</motion.h2>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[Camera, PlayCircle, Camera].map((Icon, k) => (
+            <motion.div key={k} {...up(k * 0.08)} className="dot-grid-light grid aspect-[4/3] place-items-center rounded-[1.75rem] bg-primary text-primary-foreground/70 shadow-soft">
+              <span className="flex flex-col items-center gap-2 text-sm"><Icon weight="light" size={36} className="text-accent" />{k === 1 ? "Відео з'явиться після фіналу" : "Фото з'явиться після фіналу"}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

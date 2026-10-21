@@ -18,6 +18,8 @@ import {
 import rector from "@/assets/rector.webp.asset.json";
 import gavel from "@/assets/gavel-3d.png";
 import { Preloader } from "@/components/Preloader";
+import { BrandLogo } from "@/components/BrandLogo";
+import { ClosedWindow } from "@/components/ClosedWindow";
 import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, EASE } from "@/components/fx";
 
 export const Route = createFileRoute("/")({
@@ -64,6 +66,7 @@ function Index() {
     <div className={`grain overflow-x-clip ${ready ? "is-ready" : ""}`}>
       <Preloader />
       <Nav onBid={bid} />
+      <ClosedWindow />
       <main>
         <Hero onBid={bid} />
         <Marquee />
@@ -140,9 +143,8 @@ function Nav({ onBid }: { onBid: () => void }) {
     <>
       <header className="fixed inset-x-0 top-5 z-40 flex justify-center px-4">
         <div className="grid w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center justify-between gap-3 lg:flex lg:gap-6 rounded-full bg-background/70 py-2 pl-3 pr-2 shadow-soft ring-1 ring-primary/10 backdrop-blur-xl lg:w-max">
-          <a href="#top" className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[11px] font-bold tracking-wider text-accent">KSE</span>
-            <span className="text-sm font-bold text-primary">Аукціон</span>
+          <a href="#top" className="flex items-center">
+            <BrandLogo />
           </a>
           <nav className="hidden items-center gap-1 whitespace-nowrap text-sm text-muted-foreground lg:flex">
             {links.map(([h, l]) => (

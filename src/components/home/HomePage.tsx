@@ -15,12 +15,14 @@ import {
   Eye,
   Sparkle,
   Asterisk,
+  UserCircle,
 } from "@phosphor-icons/react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { FloatingObjects } from "@/components/objects";
 import { Preloader } from "@/components/Preloader";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ClosedWindow } from "@/components/ClosedWindow";
+import { Bezel } from "@/components/ui";
 import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, EASE } from "@/components/fx";
 import { CONTACT_EMAIL, FINAL_AT, RECTOR_PHOTO } from "@/lib/auction";
 
@@ -82,16 +84,6 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   );
 }
 
-function Bezel({ children, className = "", core = "bg-card", dark = false }: { children: ReactNode; className?: string; core?: string; dark?: boolean }) {
-  return (
-    <div className={`rounded-[2.25rem] p-1.5 ring-1 ${dark ? "bg-primary-foreground/5 ring-primary-foreground/10" : "bg-primary/[0.04] ring-primary/10"} ${className}`}>
-      <div className={`h-full rounded-[calc(2.25rem-0.375rem)] shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--primary-foreground)_40%,transparent)] ${core}`}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 function PillCta({ children, onClick, href, variant = "primary" }: { children: ReactNode; onClick?: () => void; href?: string; variant?: "primary" | "accent" }) {
   const cls =
     variant === "primary"
@@ -143,6 +135,9 @@ function Nav({ onBid }: { onBid: () => void }) {
           </nav>
           <div className="flex items-center gap-2">
             <LocaleSwitch />
+            <Link href="/account" aria-label={t("common.account")} title={t("common.account")} className="grid h-10 w-10 place-items-center rounded-full bg-primary/5 text-primary transition-colors hover:bg-primary/10">
+              <UserCircle size={22} weight="light" />
+            </Link>
             <button onClick={onBid} className={`${BTN} hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex`}>
               {t("common.placeBid")}
             </button>

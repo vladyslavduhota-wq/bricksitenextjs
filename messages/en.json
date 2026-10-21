@@ -10,7 +10,8 @@
     "menu": "Menu",
     "placeBid": "Place a bid",
     "otherLocale": "UA",
-    "otherLocaleLabel": "Українська версія"
+    "otherLocaleLabel": "Українська версія",
+    "account": "My account"
   },
   "nav": {
     "about": "About",
@@ -36,7 +37,13 @@
     "ticketDate": "November 2026",
     "ticketLabel": "auction final"
   },
-  "marquee": ["The Rector's things", "A common cause", "14.11.2026", "KSE charity auction", "Transparent report"],
+  "marquee": [
+    "The Rector's things",
+    "A common cause",
+    "14.11.2026",
+    "KSE charity auction",
+    "Transparent report"
+  ],
   "about": {
     "label": "About the auction",
     "title": "Things with a story",
@@ -45,10 +52,22 @@
     "p1": ", Rector of the Kyiv School of Economics, is giving his personal belongings to a charity auction. Each one becomes a separate lot, and all proceeds go to a common cause.",
     "p2": "We want taking part to be simple and the result to be transparent: photos, descriptions and starting prices are published only after the Rector's Office approves them, and a report on the funds will appear here after the final.",
     "facts": {
-      "01": { "title": "Personal things", "text": "Every lot is something with a story from the KSE Rector's life." },
-      "02": { "title": "Online bidding", "text": "Bid from anywhere in the world, with no extra steps." },
-      "03": { "title": "Open report", "text": "The total raised and how it is spent, made public." },
-      "04": { "title": "Final on 14.11", "text": "Bidding closes on 14 November 2026." }
+      "01": {
+        "title": "Personal things",
+        "text": "Every lot is something with a story from the KSE Rector's life."
+      },
+      "02": {
+        "title": "Online bidding",
+        "text": "Bid from anywhere in the world, with no extra steps."
+      },
+      "03": {
+        "title": "Open report",
+        "text": "The total raised and how it is spent, made public."
+      },
+      "04": {
+        "title": "Final on 14.11",
+        "text": "Bidding closes on 14 November 2026."
+      }
     }
   },
   "lots": {
@@ -70,9 +89,21 @@
     "title2": "to a bid.",
     "intro": "Each step is higher than the last, just like bids. The exact rules will be confirmed before the start.",
     "items": {
-      "choose": { "title": "Pick a thing", "text": "The photo, description and starting price will appear in the confirmed catalogue.", "status": "Catalogue in progress" },
-      "bid": { "title": "Place a bid", "text": "A bid must beat the current one by at least the lot's step.", "status": "Not connected yet" },
-      "result": { "title": "See the result", "text": "After the final, the total and a report on the funds will appear here.", "status": "After the final" }
+      "choose": {
+        "title": "Pick a thing",
+        "text": "The photo, description and starting price will appear in the confirmed catalogue.",
+        "status": "Catalogue in progress"
+      },
+      "bid": {
+        "title": "Place a bid",
+        "text": "A bid must beat the current one by at least the lot's step.",
+        "status": "Not connected yet"
+      },
+      "result": {
+        "title": "See the result",
+        "text": "After the final, the total and a report on the funds will appear here.",
+        "status": "After the final"
+      }
     }
   },
   "report": {
@@ -90,7 +121,12 @@
     "title": "Final",
     "text": "Bidding closes online; that is the main format. A get-together on campus is still to be confirmed.",
     "pageLink": "Final page",
-    "units": { "d": "days", "h": "hours", "m": "minutes", "s": "seconds" },
+    "units": {
+      "d": "days",
+      "h": "hours",
+      "m": "minutes",
+      "s": "seconds"
+    },
     "timeNote": "The exact time of the final is to be confirmed.",
     "calendarMonth": "November 2026",
     "calendarDay": "Saturday"
@@ -100,13 +136,34 @@
     "title2": "that matter.",
     "contact": "Didn't find an answer? Write to us",
     "items": {
-      "start": { "q": "When does the auction open?", "a": "The public start is planned for early November. The Rector's Office will confirm the exact date." },
-      "photos": { "q": "Why are there no photos or prices yet?", "a": "The Rector's Office has to provide and approve the original photos, names, descriptions and starting prices. We don't put up made-up items." },
-      "bidding": { "q": "How will bidding work?", "a": "A bid must beat the current one by at least the lot's step. The secure bidding service will be connected before the start." },
-      "who": { "q": "Who can take part?", "a": "The auction is open to everyone: students, alumni, partners and friends of KSE. Registration terms will be announced before the start." },
-      "offline": { "q": "Will there be an offline event?", "a": "The main format is closing the bidding online. A get-together on the KSE campus is still to be confirmed." },
-      "delivery": { "q": "How do I get a lot I won?", "a": "The Rector's Office will agree how winners pay and receive their items, and publish it together with the rules." },
-      "funds": { "q": "Where will the money go?", "a": "The cause and the account are still being confirmed. They will be published once confirmed, together with the report." }
+      "start": {
+        "q": "When does the auction open?",
+        "a": "The public start is planned for early November. The Rector's Office will confirm the exact date."
+      },
+      "photos": {
+        "q": "Why are there no photos or prices yet?",
+        "a": "The Rector's Office has to provide and approve the original photos, names, descriptions and starting prices. We don't put up made-up items."
+      },
+      "bidding": {
+        "q": "How will bidding work?",
+        "a": "A bid must beat the current one by at least the lot's step. The secure bidding service will be connected before the start."
+      },
+      "who": {
+        "q": "Who can take part?",
+        "a": "The auction is open to everyone: students, alumni, partners and friends of KSE. Registration terms will be announced before the start."
+      },
+      "offline": {
+        "q": "Will there be an offline event?",
+        "a": "The main format is closing the bidding online. A get-together on the KSE campus is still to be confirmed."
+      },
+      "delivery": {
+        "q": "How do I get a lot I won?",
+        "a": "The Rector's Office will agree how winners pay and receive their items, and publish it together with the rules."
+      },
+      "funds": {
+        "q": "Where will the money go?",
+        "a": "The cause and the account are still being confirmed. They will be published once confirmed, together with the report."
+      }
     }
   },
   "footer": {
@@ -138,10 +195,22 @@
     "title": "The Rector's Office will add the lot name",
     "text": "This is the place for a real item from the auction, with no made-up objects, specifications or stories.",
     "rows": {
-      "start": { "label": "Starting price", "value": "after the lot is confirmed" },
-      "step": { "label": "Bid step", "value": "set for each lot" },
-      "final": { "label": "Final", "value": "14 November 2026, time to be confirmed" },
-      "format": { "label": "Format", "value": "bidding closes online" }
+      "start": {
+        "label": "Starting price",
+        "value": "after the lot is confirmed"
+      },
+      "step": {
+        "label": "Bid step",
+        "value": "set for each lot"
+      },
+      "final": {
+        "label": "Final",
+        "value": "14 November 2026, time to be confirmed"
+      },
+      "format": {
+        "label": "Format",
+        "value": "bidding closes online"
+      }
     },
     "notOpenTitle": "Bids aren't open yet",
     "notOpenText": "A bid must beat the current one by at least the lot's step. The secure bidding service will be connected before the start.",
@@ -167,6 +236,136 @@
     "jarTitle": "Breaking the jar",
     "videoPending": "Video after the final",
     "photoPending": "Photo after the final"
+  },
+  "auth": {
+    "metaTitle": "Sign in · KSE Charity Auction",
+    "title": "Sign in without a password",
+    "lead": "We'll email you a code. If you're new here, your account is created automatically.",
+    "email": "Email",
+    "sendCode": "Get a code",
+    "or": "or",
+    "google": "Continue with Google",
+    "codeTitle": "Check your email",
+    "codeLead": "We sent a code to {email}. Enter it here, or just tap the link in the email.",
+    "code": "Code from the email",
+    "verify": "Sign in",
+    "resend": "Send the code again",
+    "resendIn": "You can request a new code in {s} s",
+    "changeEmail": "Use another email",
+    "legal": "By continuing you agree to the <rules>auction rules</rules> and the <privacy>privacy policy</privacy>.",
+    "notConfigured": "Sign-in will work once the site is connected to its database.",
+    "home": "Home",
+    "errors": {
+      "email": "Please check the email address.",
+      "rateLimit": "Too many attempts. Wait a minute and try again.",
+      "code": "The code is wrong or has expired. Request a new one.",
+      "captcha": "Please confirm you're not a robot and try again.",
+      "link": "The sign-in link didn't work or has expired. Please sign in again.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "profile": {
+    "metaTitle": "Sign up · KSE Charity Auction",
+    "welcomeTitle": "A few more details",
+    "welcomeLead": "Only the Rector's Office sees your name and phone, to contact you if you win a lot. We never share your data with third parties.",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "phoneHint": "So we can contact you if you win.",
+    "displayName": "Nickname (optional)",
+    "displayNameHint": "Shown in the bid history instead of your name.",
+    "publicAs": "In the bid history: {name}",
+    "anonymousName": "anonymous bidder",
+    "anonymous": "Show my bids anonymously",
+    "photoConsent": "You may publish a photo of me with the lot I win on the final page (optional)",
+    "adult": "I am 18 or older",
+    "rules": "I agree to the <rules>auction rules</rules> and the <privacy>privacy policy</privacy>",
+    "submit": "Continue",
+    "save": "Save",
+    "saved": "Saved",
+    "errors": {
+      "fullName": "Enter your full name (2–100 characters).",
+      "phone": "Enter a phone number, e.g. +380 50 123 45 67.",
+      "displayName": "A nickname needs 2–40 characters.",
+      "adult": "You must be 18 or older to take part.",
+      "rules": "Please agree to the rules and the privacy policy.",
+      "generic": "Couldn't save. Please try again."
+    }
+  },
+  "account": {
+    "metaTitle": "My account · KSE Charity Auction",
+    "title": "My account",
+    "signedInAs": "Signed in as {email}",
+    "signOut": "Sign out",
+    "admin": "Admin panel",
+    "blocked": "Your account is blocked, so you can't bid. If this is a mistake, please write to the Rector's Office."
+  },
+  "legal": {
+    "draft": "Draft. The final text is being prepared by KSE's lawyer.",
+    "updated": "Version of 23.10.2026",
+    "rules": {
+      "metaTitle": "Auction rules · KSE Charity Auction",
+      "title": "Auction rules",
+      "sections": [
+        {
+          "h": "Who can take part",
+          "p": "Anyone aged 18 or over who has registered on the site and agreed to these rules."
+        },
+        {
+          "h": "Bids",
+          "p": "Each bid must beat the current one by at least the lot's step. The starting price and step are shown on each lot page. A bid placed in the last 5 minutes extends that lot's closing time by 5 minutes."
+        },
+        {
+          "h": "A bid is a commitment",
+          "p": "By bidding you commit to buy the lot if your bid wins. Refusing to pay leads to your account being blocked."
+        },
+        {
+          "h": "Closing",
+          "p": "Bidding closes automatically at the stated time, by the server clock. The highest valid bid at closing wins."
+        },
+        {
+          "h": "Payment",
+          "p": "The winner pays within 7 days of closing by bank transfer to the fundraising account. The Rector's Office will send the details."
+        },
+        {
+          "h": "Handover",
+          "p": "Pick-up from the KSE Rector's Office in Kyiv, or Nova Poshta delivery at the buyer's expense. International delivery by arrangement."
+        },
+        {
+          "h": "If the winner doesn't pay",
+          "p": "The lot may be offered to the bidder with the next highest bid."
+        },
+        {
+          "h": "Changes",
+          "p": "The auction may be changed or cancelled for objective reasons, including the war or the security situation."
+        }
+      ]
+    },
+    "privacy": {
+      "metaTitle": "Privacy policy · KSE Charity Auction",
+      "title": "Privacy policy",
+      "sections": [
+        {
+          "h": "What we collect",
+          "p": "Your name, email and phone, and your bids. A nickname, anonymity setting and consent to publish a photo are optional."
+        },
+        {
+          "h": "Why",
+          "p": "So you can bid and get notifications about your bids, and so the Rector's Office can contact winners about payment and handover."
+        },
+        {
+          "h": "Who sees it",
+          "p": "Only the auction's administrators at the KSE Rector's Office see your contacts. The public bid history shows only your nickname, your first name with a surname initial, or \"anonymous\", as you choose."
+        },
+        {
+          "h": "Storage",
+          "p": "Data is stored on secure servers in the EU and is never shared with third parties."
+        },
+        {
+          "h": "Deletion",
+          "p": "You can ask us to delete your data by writing to the Rector's Office. After the auction ends, data is deleted within an agreed period."
+        }
+      ]
+    }
   },
   "notFound": {
     "title": "Page not found",

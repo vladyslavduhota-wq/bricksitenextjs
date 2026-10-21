@@ -1,26 +1,35 @@
-# Brik Wow
+# KSE Rector's Charity Auction
 
-Зроби мені готовйи mvp react сайт на основі наданих файлів і прикладів /skill:design-taste-frontend
+Online charity auction of Tymofiy Brik's personal belongings. Next.js (App Router) + Supabase.
 
-This project was built with [Lovable](https://lovable.dev).
+> This is the `nextjs-rebuild` branch. `main` is the Lovable prototype and stays untouched.
 
-**Live app**: https://brik-wow.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/9c2acdd6-d7cf-4622-9252-e1f30ff3a8fe).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Run locally
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
+cp .env.example .env.local   # fill in the Supabase values
 npm run dev
 ```
+
+UA is served at `/`, EN at `/en`.
+
+## Database
+
+Migrations are in `supabase/migrations`. The bidding rules (minimum step, anti-sniping, closing on server time, rate limit, duplicate protection) are all inside the `place_bid()` function.
+
+Tests run the migrations against a throwaway local Postgres database and exercise them as real `anon` / `authenticated` users:
+
+```sh
+npm test
+```
+
+By default they use `postgres://localhost:5432/brik_auction_test`; set `TEST_DATABASE_URL` to change it. The database name must end in `_test` because it is dropped on every run.
+
+## Layout
+
+- `src/app/[locale]` – pages
+- `src/components` – UI; `preloader-source.ts` is the client's preloader, ported verbatim
+- `messages/` – all copy, UA and EN
+- `supabase/migrations` – schema, access rules, bidding functions, cron jobs
+- `tests/db` – bidding and access-rule tests

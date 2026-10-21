@@ -1,3 +1,5 @@
+"use client";
+
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 

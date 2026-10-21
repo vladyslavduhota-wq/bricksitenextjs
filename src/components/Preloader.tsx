@@ -1,3 +1,5 @@
+"use client";
+
 import { memo, useEffect, useState } from "react";
 import { preloaderHtml, preloaderScript } from "./preloader-source";
 

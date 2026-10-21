@@ -1,11 +1,15 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "motion/react";
 import { Trophy, X, ArrowUpRight } from "@phosphor-icons/react";
+import { Link } from "@/i18n/navigation";
 import { isAuctionClosed } from "@/lib/auction";
 
 /** Window shown on the home page once bidding has closed (preview with ?closed=1). */
 export function ClosedWindow() {
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const force = new URLSearchParams(window.location.search).has("closed");
@@ -29,14 +33,14 @@ export function ClosedWindow() {
             className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-soft"
           >
             <div className="dot-grid-light absolute inset-0 opacity-60" />
-            <button onClick={close} aria-label="Закрити" className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-primary-foreground/10"><X weight="light" /></button>
+            <button onClick={close} aria-label={t("common.close")} className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-primary-foreground/10"><X weight="light" /></button>
             <div className="relative">
               <span className="grid h-14 w-14 place-items-center rounded-full bg-accent text-accent-foreground"><Trophy weight="light" size={28} /></span>
-              <p className="mt-6 text-xs font-medium uppercase tracking-[0.3em] text-accent">14.11.2026</p>
-              <h2 id="closed-title" className="mt-2 text-4xl font-bold leading-tight">Аукціон завершено</h2>
-              <p className="mt-4 text-primary-foreground/70">Ставки закрито автоматично, переможців зафіксовано. Дякуємо всім, хто долучився до спільної справи.</p>
-              <Link to="/final" onClick={close} className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-accent-foreground transition active:scale-[0.98]">
-                Підсумки фіналу <ArrowUpRight weight="light" />
+              <p className="mt-6 text-xs font-medium uppercase tracking-[0.3em] text-accent">{t("closed.date")}</p>
+              <h2 id="closed-title" className="mt-2 text-4xl font-bold leading-tight">{t("closed.title")}</h2>
+              <p className="mt-4 text-primary-foreground/70">{t("closed.text")}</p>
+              <Link href="/final" onClick={close} className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-accent-foreground transition active:scale-[0.98]">
+                {t("closed.results")} <ArrowUpRight weight="light" />
               </Link>
             </div>
           </motion.div>

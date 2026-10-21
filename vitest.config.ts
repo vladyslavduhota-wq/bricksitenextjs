@@ -1,16 +1,13 @@
 import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  plugins: [react()],
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
-  },
-  resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    include: ["tests/**/*.test.ts"],
+    globalSetup: ["tests/db/global-setup.ts"],
+    // DB tests share one database and reset it per file, so run files one at a time.
+    fileParallelism: false,
+    testTimeout: 20000,
   },
 });

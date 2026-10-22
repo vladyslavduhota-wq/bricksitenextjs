@@ -23,12 +23,13 @@ import { Preloader } from "@/components/Preloader";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ClosedWindow } from "@/components/ClosedWindow";
 import { Bezel } from "@/components/ui";
+import { cn } from "@/lib/utils";
 import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, EASE } from "@/components/fx";
 import { CONTACT_EMAIL, FINAL_AT, RECTOR_PHOTO } from "@/lib/auction";
 
 const GAVEL = "/images/gavel-3d.png";
 const i = (n: number) => ({ ["--i" as string]: n }) as CSSProperties;
-// Base styles the Lovable version took from the shadcn Button.
+// Base styles the prototype took from the shadcn Button.
 const BTN = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
 export function HomePage() {
@@ -99,7 +100,7 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
     </>
   );
   const c = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
-  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={`${BTN} ${c} h-auto`}>{body}</button>}</Magnetic>;
+  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={cn(BTN, c, "h-auto")}>{body}</button>}</Magnetic>;
 }
 
 /* ---------- nav ---------- */
@@ -138,10 +139,10 @@ function Nav({ onBid }: { onBid: () => void }) {
             <Link href="/account" aria-label={t("common.account")} title={t("common.account")} className="grid h-10 w-10 place-items-center rounded-full bg-primary/5 text-primary transition-colors hover:bg-primary/10">
               <UserCircle size={22} weight="light" />
             </Link>
-            <button onClick={onBid} className={`${BTN} hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex`}>
+            <button onClick={onBid} className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
               {t("common.placeBid")}
             </button>
-            <button aria-label={t("common.menu")} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className={`${BTN} relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden`}>
+            <button aria-label={t("common.menu")} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className={cn(BTN, "relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden")}>
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 rotate-45" : "top-[15px]"}`} />
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 -rotate-45" : "top-[23px]"}`} />
             </button>
@@ -208,7 +209,7 @@ function Hero({ onBid }: { onBid: () => void }) {
           </p>
           <div className="enter hero-actions flex flex-wrap items-center gap-3" style={i(5)}>
             <PillCta href="#lots">{t("viewLots")}</PillCta>
-            <button onClick={onBid} className={`${BTN} h-auto rounded-full px-3 py-3 text-primary hover:bg-accent hover:text-accent-foreground`}>{t("howToBid")} <ArrowUpRight weight="light" /></button>
+            <button onClick={onBid} className={cn(BTN, "h-auto rounded-full px-3 py-3 text-primary hover:bg-accent hover:text-accent-foreground")}>{t("howToBid")} <ArrowUpRight weight="light" /></button>
           </div>
           <div className="enter hero-details grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-primary/15" style={i(6)}>
             <span className="min-w-0 text-xs text-muted-foreground">{t("catalogStatus")}</span>

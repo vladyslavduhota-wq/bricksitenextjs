@@ -13,7 +13,7 @@ export async function LegalPage({ kind }: { kind: "rules" | "privacy" }) {
     <main className="grain relative min-h-[100dvh] bg-background">
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pt-6 md:px-8">
         <Link href="/"><BrandLogo /></Link>
-        <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-medium text-primary shadow-soft ring-1 ring-primary/10 transition hover:-translate-x-1">
+        <Link href="/" className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-card px-4 py-2 text-sm font-medium text-primary shadow-soft ring-1 ring-primary/10 transition hover:-translate-x-1">
           <ArrowLeft weight="light" /> {home("home")}
         </Link>
       </header>

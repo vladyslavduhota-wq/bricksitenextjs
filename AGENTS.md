@@ -1,16 +1,6 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
-
-## Branch `nextjs-rebuild`
-- This branch is the Next.js + Supabase rebuild. Never merge it into `main`: Lovable syncs `main`, and a different framework there breaks the Lovable editor.
+## Git
+- Remotes: `vlad` (vladyslavduhota-wq/bricksitenextjs) is this project's home; `main` there mirrors `nextjs-rebuild`. `origin` (Alexpro121/brik-wow) holds the old prototype on its `main`.
+- Never push or merge this branch into `origin`'s `main`, and never rewrite pushed history (force push, rebase, amend); why: the old prototype and its history must stay intact.
 - Bidding rules live in Postgres (`supabase/migrations`), in `place_bid()`. The app never decides whether a bid is valid or a lot is closed; why: server time is the only source of truth and bids must not be lost or duplicated.
 - Every change to bidding SQL needs a test in `tests/db` (`npm test`, uses a local Postgres database ending in `_test`).
 - All public-site text goes in `messages/uk.json` and `messages/en.json`; Ukrainian is the default locale at `/`, English at `/en`. The admin panel (`/admin`) is Ukrainian only, with text inline; why: only the Rector's Office uses it.

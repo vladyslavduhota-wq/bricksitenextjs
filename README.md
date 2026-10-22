@@ -2,7 +2,7 @@
 
 Online charity auction of Tymofiy Brik's personal belongings. Next.js (App Router) + Supabase.
 
-> This is the `nextjs-rebuild` branch. `main` is the Lovable prototype and stays untouched.
+> Developed on `nextjs-rebuild`, mirrored to `main` in vladyslavduhota-wq/bricksitenextjs.
 
 ## Run locally
 

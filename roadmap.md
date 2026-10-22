@@ -2,7 +2,7 @@
 
 Staging for the Rector's Office: 29.10. Public start: ~02.11. Final: 14.11.
 
-- [x] Next.js app with UA/EN, Lovable design ported (home, demo lot page, final page).
+- [x] Next.js app with UA/EN, prototype design ported (home, demo lot page, final page).
 - [x] Database: lots, bids, profiles, settings, outbox, audit log, access rules.
 - [x] `place_bid` with step, max amount, rate limit, anti-sniping, duplicate protection; closing and reminder jobs; tests.
 - [ ] Supabase project in the EU; apply migrations; Storage bucket for lot photos.

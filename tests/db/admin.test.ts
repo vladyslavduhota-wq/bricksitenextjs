@@ -35,6 +35,25 @@ describe("admin views", () => {
   });
 });
 
+describe("privileges", () => {
+  it("gives visitors nothing on admin views and signed-in users read-only access", async () => {
+    const rows = await sql<{ grantee: string; table_name: string; privilege_type: string }>(
+      `select grantee, table_name, privilege_type from information_schema.role_table_grants
+       where table_schema = 'public' and table_name like 'admin\\_%' and grantee in ('anon', 'authenticated')`,
+    );
+    expect(rows.filter((r) => r.grantee === "anon")).toEqual([]);
+    expect(new Set(rows.map((r) => r.privilege_type))).toEqual(new Set(["SELECT"]));
+  });
+
+  it("lets visitors call no function except the helpers RLS needs", async () => {
+    const rows = await sql<{ routine_name: string }>(
+      `select distinct routine_name from information_schema.role_routine_grants
+       where routine_schema = 'public' and grantee = 'anon' order by 1`,
+    );
+    expect(rows.map((r) => r.routine_name)).toEqual(["current_role_name", "is_admin", "is_staff"]);
+  });
+});
+
 describe("admin lot management", () => {
   it("closing a lot early fixes the current leader as winner and logs who did it", async () => {
     const admin = await createUser({ role: "admin" });

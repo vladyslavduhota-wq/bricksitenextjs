@@ -5,5 +5,4 @@ export const isAuctionClosed = (now: Date = new Date()) => now.getTime() >= FINA
 
 export const CONTACT_EMAIL = "ashmaliuk@kse.org.ua";
 
-// Hosted by Lovable until the original file is added to public/images.
-export const RECTOR_PHOTO = "https://brik-wow.lovable.app/__l5e/assets-v1/93b78c26-a5e8-42ca-a91b-3570d517cabf/rector.webp";
+export const RECTOR_PHOTO = "/images/rector.webp";

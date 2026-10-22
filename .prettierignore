@@ -1,8 +1,4 @@
 node_modules
-dist
-.output
-.vinxi
-pnpm-lock.yaml
+.next
 package-lock.json
-bun.lock
-routeTree.gen.ts
+src/components/preloader-source.ts

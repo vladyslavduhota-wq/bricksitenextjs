@@ -112,10 +112,7 @@ export function Tabs({ items, current, base, param, query }: { items: { value: s
 
 /** CSV downloads must be a plain link: client-side navigation would try to render the file as a page. */
 export function DownloadLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
-  return (
-    // eslint-disable-next-line @next/next/no-html-link-for-pages
-    <a href={href} download className={className}>{children}</a>
-  );
+  return <a href={href} download className={className}>{children}</a>;
 }
 
 export const PAGE_SIZE = 50;

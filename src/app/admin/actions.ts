@@ -9,6 +9,7 @@ import { fromKyivInput } from "@/lib/time";
 import { slugify } from "@/lib/format";
 import type { LotStatus, Role } from "@/lib/types";
 
+// Every action below refreshes the whole site (revalidatePath("/", "layout")): admin pages and the cached public pages alike.
 export type ActionState = { ok?: string; error?: string; fields?: Record<string, string>; at?: number };
 
 const ok = (message: string): ActionState => ({ ok: message, at: Date.now() });
@@ -65,13 +66,13 @@ export async function saveLot(_: ActionState, form: FormData): Promise<ActionSta
     }
     const { error } = await supabase.from("lots").update(row).eq("id", id);
     if (error) return error.code === "23505" ? fail("Така адреса вже є в іншого лота.", { slug: "Адреса зайнята." }) : fail("Не вдалося зберегти лот.");
-    revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return ok("Лот збережено.");
   }
 
   const { data, error } = await supabase.from("lots").insert(row).select("id").single();
   if (error) return error.code === "23505" ? fail("Така адреса вже є в іншого лота.", { slug: "Адреса зайнята." }) : fail("Не вдалося створити лот.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   redirect(`/admin/lots/${data.id}?created=1`);
 }
 
@@ -80,7 +81,7 @@ export async function closeLotNow(lotId: string, _?: ActionState, __?: FormData)
   const supabase = await createClient();
   const { data, error } = await supabase.from("lots").update({ status: "closed" }).eq("id", lotId).eq("status", "active").select("id");
   if (error || !data?.length) return fail("Не вдалося закрити лот. Можливо, він уже закритий.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Лот закрито, переможця зафіксовано.");
 }
 
@@ -92,7 +93,7 @@ export async function deleteLot(lotId: string, _?: ActionState, __?: FormData): 
   const { data, error } = await supabase.from("lots").delete().eq("id", lotId).select("id");
   if (error || !data?.length) return fail("Видалити можна лише лот без ставок.");
   if (images?.length) await supabase.storage.from(LOTS_BUCKET).remove(images.map((i) => i.path));
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   redirect("/admin/lots");
 }
 
@@ -108,7 +109,7 @@ export async function addPhoto(lotId: string, path: string, width: number, heigh
     await supabase.storage.from(LOTS_BUCKET).remove([path]);
     return fail("Не вдалося додати фото.");
   }
-  revalidatePath(`/admin/lots/${lotId}`);
+  revalidatePath("/", "layout");
   return ok("Фото додано.");
 }
 
@@ -117,7 +118,7 @@ export async function reorderPhotos(lotId: string, ids: string[]): Promise<Actio
   const supabase = await createClient();
   const results = await Promise.all(ids.map((id, i) => supabase.from("lot_images").update({ sort_order: i }).eq("id", id).eq("lot_id", lotId)));
   if (results.some((r) => r.error)) return fail("Не вдалося змінити порядок.");
-  revalidatePath(`/admin/lots/${lotId}`);
+  revalidatePath("/", "layout");
   return ok("Порядок збережено.");
 }
 
@@ -127,7 +128,7 @@ export async function deletePhoto(imageId: string, _?: ActionState, __?: FormDat
   const { data, error } = await supabase.from("lot_images").delete().eq("id", imageId).select("lot_id, path").single();
   if (error || !data) return fail("Не вдалося видалити фото.");
   await supabase.storage.from(LOTS_BUCKET).remove([data.path]);
-  revalidatePath(`/admin/lots/${data.lot_id}`);
+  revalidatePath("/", "layout");
   return ok("Фото видалено.");
 }
 
@@ -138,7 +139,7 @@ export async function cancelBid(bidId: string, _: ActionState, form: FormData): 
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_bid", { p_bid_id: bidId, p_reason: text(form, "reason") });
   if (error) return fail("Не вдалося скасувати ставку.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Ставку скасовано, ціну лота перераховано.");
 }
 
@@ -147,7 +148,7 @@ export async function setBlocked(userId: string, blocked: boolean, _?: ActionSta
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_user_blocked", { p_user_id: userId, p_blocked: blocked });
   if (error) return fail("Не вдалося змінити статус учасника.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok(blocked ? "Учасника заблоковано." : "Учасника розблоковано.");
 }
 
@@ -158,7 +159,7 @@ export async function setRole(userId: string, _: ActionState, form: FormData): P
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_user_role", { p_user_id: userId, p_role: role });
   if (error) return fail(error.message === "cannot_change_own_role" ? "Свою роль змінити не можна." : "Не вдалося змінити роль.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Роль змінено.");
 }
 
@@ -203,7 +204,7 @@ export async function saveSettings(_: ActionState, form: FormData): Promise<Acti
   const supabase = await createClient();
   const { error } = await supabase.from("settings").update(values).eq("id", true);
   if (error) return fail("Не вдалося зберегти налаштування.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Налаштування збережено.");
 }
 
@@ -214,7 +215,7 @@ export async function addDonation(_: ActionState, form: FormData): Promise<Actio
   const supabase = await createClient();
   const { error } = await supabase.from("donations").insert({ amount, note: text(form, "note").slice(0, 200) || null });
   if (error) return fail("Не вдалося додати донат.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Донат додано до лічильника.");
 }
 
@@ -223,6 +224,6 @@ export async function deleteDonation(id: string, _?: ActionState, __?: FormData)
   const supabase = await createClient();
   const { error } = await supabase.from("donations").delete().eq("id", id);
   if (error) return fail("Не вдалося видалити донат.");
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   return ok("Донат видалено.");
 }

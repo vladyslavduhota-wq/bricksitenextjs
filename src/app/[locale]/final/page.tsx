@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FinalPage } from "@/components/final/FinalPage";
+import { getAuctionStats, getLeaderNames, getPublicLots } from "@/lib/lots";
+
+// The total and prices stay live through Realtime; winners refresh at most every 30 s.
+export const revalidate = 30;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -12,5 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Final({ params }: Props) {
   setRequestLocale((await params).locale);
-  return <FinalPage />;
+  const [lots, stats] = await Promise.all([getPublicLots(), getAuctionStats()]);
+  const leaders = await getLeaderNames(lots.flatMap((l) => (l.status === "closed" && l.leading_bid_id ? [l.leading_bid_id] : [])));
+  return <FinalPage lots={lots} stats={stats} leaders={leaders} />;
 }

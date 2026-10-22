@@ -1,17 +1,25 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, Trophy, Heart, Camera, PlayCircle, Broadcast } from "@phosphor-icons/react";
 import { Link } from "@/i18n/navigation";
 import { FloatingObjects } from "@/components/objects";
 import { BrandLogo } from "@/components/BrandLogo";
 import { isAuctionClosed } from "@/lib/auction";
+import { useLiveLots } from "@/components/auction/live";
+import { formatUah } from "@/lib/format";
+import { lotTitle } from "@/lib/lot-text";
+import type { AuctionStats, PublicLot } from "@/lib/types";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
-const LOTS = [1, 2, 3];
 
-export function FinalPage() {
+export function FinalPage({ lots: initialLots, stats, leaders }: { lots: PublicLot[]; stats: AuctionStats | null; leaders: Record<string, string | null> }) {
+  const tl = useTranslations("lot");
+  const locale = useLocale();
+  const lots = useLiveLots(initialLots);
+  const sum = (ls: PublicLot[]) => ls.reduce((n, l) => n + (l.current_amount ?? 0), 0);
+  const raised = (stats?.total_raised ?? 0) - sum(initialLots) + sum(lots);
   const t = useTranslations("finalPage");
   const reduce = useReducedMotion();
   const closed = isAuctionClosed();
@@ -40,7 +48,7 @@ export function FinalPage() {
         </motion.h1>
         <motion.div {...up(0.2)} className="mt-10 overflow-hidden rounded-[2.25rem] bg-primary p-8 text-primary-foreground shadow-soft md:p-12">
           <p className="text-sm uppercase tracking-[0.3em] text-primary-foreground/60">{t("totalLabel")}</p>
-          <p className="mt-3 text-5xl font-bold text-accent md:text-7xl">{closed ? t("totalAnnounced") : "₴ ··· ··· ···"}</p>
+          <p className="mt-3 text-5xl font-bold text-accent md:text-7xl">{formatUah(raised)}</p>
           <p className="mt-4 max-w-[52ch] text-primary-foreground/65">{t("totalText")}</p>
         </motion.div>
       </section>
@@ -48,14 +56,20 @@ export function FinalPage() {
       <section className="relative z-10 mx-auto max-w-7xl px-4 py-10 md:px-8">
         <motion.h2 {...up()} className="flex items-center gap-3 text-3xl font-bold text-primary md:text-5xl"><Trophy weight="light" /> {t("winners")}</motion.h2>
         <div className="mt-8 grid gap-4">
-          {LOTS.map((n, k) => (
-            <motion.div key={n} {...up(k * 0.08)} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[1.75rem] bg-card p-5 shadow-soft ring-1 ring-primary/10 md:p-6">
-              <span className="text-outline text-5xl font-bold leading-none">{n}</span>
+          {lots.map((lot, k) => (
+            <motion.div key={lot.id} {...up(k * 0.08)} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[1.75rem] bg-card p-5 shadow-soft ring-1 ring-primary/10 md:p-6">
+              <span className="text-outline text-5xl font-bold leading-none">{k + 1}</span>
               <div className="min-w-0">
-                <Link href={`/lots/${n}`} className="font-bold text-primary hover:underline">{t("slot", { n })}</Link>
-                <p className="text-sm text-muted-foreground">{t("winnerPending")}</p>
+                <Link href={`/lots/${lot.slug}`} className="font-bold text-primary hover:underline">{lotTitle(lot, locale)}</Link>
+                <p className="text-sm text-muted-foreground">
+                  {lot.status !== "closed"
+                    ? tl("bids", { n: lot.bid_count })
+                    : lot.leading_bid_id
+                      ? `${tl("winner")}: ${leaders[lot.leading_bid_id] ?? tl("anonymous")}`
+                      : tl("noWinner")}
+                </p>
               </div>
-              <span className="rounded-full bg-accent/40 px-4 py-2 text-sm font-medium text-primary">₴ -</span>
+              <span className="whitespace-nowrap rounded-full bg-accent/40 px-4 py-2 text-sm font-medium tabular-nums text-primary">{formatUah(lot.current_amount ?? lot.start_price)}</span>
             </motion.div>
           ))}
         </div>

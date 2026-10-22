@@ -112,3 +112,28 @@ export type AuditEntry = {
 };
 
 export type Donation = { id: string; amount: number; note: string | null; received_at: string };
+
+// Public read models: what the catalogue and lot pages need, nothing more.
+export type PublicImage = { path: string; width: number | null; height: number | null };
+
+export type PublicLot = {
+  id: string;
+  slug: string;
+  title_uk: string;
+  title_en: string;
+  description_uk: string;
+  description_en: string;
+  start_price: number;
+  bid_step: number;
+  ends_at: string;
+  status: Exclude<LotStatus, "draft">;
+  current_amount: number | null;
+  bid_count: number;
+  leading_bid_id: string | null;
+  images: PublicImage[];
+};
+
+/** The fields the database broadcasts on every change ("lot" event). */
+export type LotPatch = Pick<PublicLot, "id" | "status" | "ends_at" | "current_amount" | "bid_count">;
+
+export type PublicBid = { id: string; lot_id: string; amount: number; public_name: string | null; created_at: string };

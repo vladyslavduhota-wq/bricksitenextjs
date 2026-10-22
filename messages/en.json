@@ -28,7 +28,7 @@
     "description": "Personal belongings of Tymofiy Brik, Rector of the Kyiv School of Economics. Stories that become part of a common cause.",
     "viewLots": "View the lots",
     "howToBid": "How to bid",
-    "catalogStatus": "Catalogue in progress",
+    "catalogStatus": "Raised",
     "final": "Final",
     "photoAlt": "Tymofiy Brik, Rector of KSE",
     "name": "Tymofiy Brik",
@@ -75,14 +75,9 @@
     "title1": "On the table:",
     "title2": "Tymofiy's",
     "title3": "things.",
-    "intro": "Each slot will open a separate lot. Photos, names and descriptions will appear once the Rector's Office confirms them.",
-    "photoPending": "Photo after approval",
-    "placeholderTitle": "The Rector's Office will add the lot name",
-    "placeholderText": "No made-up items, specifications or stories.",
-    "start": "Start",
-    "startPending": "after confirmation",
-    "slotLink": "Demo slot {n} of 3",
-    "note": "Three demo slots show how the showcase works, not the actual number of lots."
+    "intro": "Each thing is a separate lot. Prices update live, and bidding takes three taps.",
+    "all": "All lots",
+    "empty": "Lots will appear here soon."
   },
   "steps": {
     "title1": "From a thing",
@@ -91,18 +86,18 @@
     "items": {
       "choose": {
         "title": "Pick a thing",
-        "text": "The photo, description and starting price will appear in the confirmed catalogue.",
-        "status": "Catalogue in progress"
+        "text": "Open a lot: photos, description, starting price and the current bid.",
+        "status": "Catalogue open"
       },
       "bid": {
         "title": "Place a bid",
         "text": "A bid must beat the current one by at least the lot's step.",
-        "status": "Not connected yet"
+        "status": "Three taps"
       },
       "result": {
         "title": "See the result",
         "text": "After the final, the total and a report on the funds will appear here.",
-        "status": "After the final"
+        "status": "14.11.2026"
       }
     }
   },
@@ -141,12 +136,12 @@
         "a": "The public start is planned for early November. The Rector's Office will confirm the exact date."
       },
       "photos": {
-        "q": "Why are there no photos or prices yet?",
-        "a": "The Rector's Office has to provide and approve the original photos, names, descriptions and starting prices. We don't put up made-up items."
+        "q": "What does a bid mean?",
+        "a": "A bid is a commitment to buy the lot if it wins. Payment is due within 7 days of closing."
       },
       "bidding": {
         "q": "How will bidding work?",
-        "a": "A bid must beat the current one by at least the lot's step. The secure bidding service will be connected before the start."
+        "a": "Sign in by email or with Google, open a lot and place a bid: it must beat the current one by at least the lot's step. A bid in the last minutes extends bidding so everyone can respond."
       },
       "who": {
         "q": "Who can take part?",
@@ -174,47 +169,11 @@
     "site": "Official website",
     "note": "Materials and results will appear once confirmed by the Rector's Office."
   },
-  "bidModal": {
-    "title": "Bids aren't open yet.",
-    "text": "The site doesn't collect personal data, send bids or take payments yet. Lots and rules will be added once confirmed.",
-    "write": "Write to us",
-    "ok": "Got it"
-  },
   "closed": {
     "date": "14.11.2026",
     "title": "The auction is over",
     "text": "Bidding closed automatically and the winners are recorded. Thank you to everyone who joined the common cause.",
     "results": "Final results"
-  },
-  "lotPage": {
-    "metaTitle": "Demo slot {id} · KSE Charity Auction",
-    "metaDescription": "A lot page of the charity auction of Tymofiy Brik's belongings. The Rector's Office will add the photo, name and starting price.",
-    "back": "Back to the showcase",
-    "slotOf": "Demo slot {id} of 3",
-    "photoPending": "The lot photo will be added after approval",
-    "title": "The Rector's Office will add the lot name",
-    "text": "This is the place for a real item from the auction, with no made-up objects, specifications or stories.",
-    "rows": {
-      "start": {
-        "label": "Starting price",
-        "value": "after the lot is confirmed"
-      },
-      "step": {
-        "label": "Bid step",
-        "value": "set for each lot"
-      },
-      "final": {
-        "label": "Final",
-        "value": "14 November 2026, time to be confirmed"
-      },
-      "format": {
-        "label": "Format",
-        "value": "bidding closes online"
-      }
-    },
-    "notOpenTitle": "Bids aren't open yet",
-    "notOpenText": "A bid must beat the current one by at least the lot's step. The secure bidding service will be connected before the start.",
-    "slot": "Slot {id}"
   },
   "finalPage": {
     "metaTitle": "Final 14.11 · KSE Rector's Auction Results",
@@ -227,7 +186,6 @@
     "totalAnnounced": "To be announced",
     "totalText": "Bidding closes automatically at the set time and the system records the winners. We'll publish the exact total together with the report.",
     "winners": "Winning bids",
-    "slot": "Demo slot {n}",
     "winnerPending": "Winner: name shown with their consent",
     "thanksTitle": "Thank you",
     "thanksText": "To everyone who bid, shared the auction and supported the common cause. Special thanks to partners and winners will appear here after the final.",
@@ -367,6 +325,95 @@
       ]
     }
   },
+  "time": {
+    "d": "d",
+    "h": "h",
+    "m": "min",
+    "s": "s",
+    "ended": "ended",
+    "left": "left"
+  },
+  "catalog": {
+    "metaTitle": "Lots · KSE Charity Auction",
+    "metaDescription": "All of the KSE Rector's things in the charity auction: photos, current bids, time left.",
+    "eyebrow": "Catalogue",
+    "title": "All lots",
+    "intro": "Prices and bids update live. Tap an item to see the photos and place a bid.",
+    "filters": {
+      "all": "All",
+      "withBids": "With bids",
+      "noBids": "No bids yet"
+    },
+    "sort": {
+      "label": "Sort",
+      "ending": "Ending soonest",
+      "priceAsc": "Lowest price first",
+      "priceDesc": "Highest price first"
+    },
+    "empty": "Lots will appear here soon.",
+    "emptyFilter": "No lots match this filter."
+  },
+  "lot": {
+    "metaFallback": "A lot in the charity auction of the KSE Rector's things.",
+    "back": "All lots",
+    "current": "Current bid",
+    "start": "Starting price",
+    "step": "Step",
+    "bids": "{n, plural, =0 {No bids yet} one {# bid} other {# bids}}",
+    "endsIn": "Ends in",
+    "ended": "Bidding closed",
+    "finalPrice": "Winning bid",
+    "winner": "Winner",
+    "noWinner": "No bids were placed",
+    "anonymous": "Anonymous bidder",
+    "history": "Bid history",
+    "noBids": "Be the first to bid.",
+    "photo": "Photo {n} of {total}",
+    "prev": "Previous photo",
+    "next": "Next photo",
+    "noPhoto": "Photo coming soon",
+    "snipeNote": "A bid in the last {window} min extends bidding to {extend} min after that bid.",
+    "live": "Live",
+    "open": "Bidding open",
+    "view": "View lot"
+  },
+  "bid": {
+    "signIn": "Sign in to bid",
+    "signInNote": "No password: a code by email, or Google.",
+    "finishProfile": "Finish signing up",
+    "blocked": "Your account is blocked, so you can't bid.",
+    "amount": "Your bid, ₴",
+    "minHint": "Minimum {min}",
+    "less": "Decrease by one step",
+    "more": "Increase by one step",
+    "place": "Place a bid",
+    "confirmTitle": "Confirm your bid",
+    "confirmLot": "Lot",
+    "commitment": "A bid is a commitment to buy the lot if it wins. Payment is due within 7 days of closing.",
+    "bigJump": "That's {diff} above the minimum bid. Please check the amount.",
+    "confirm": "Confirm {amount}",
+    "cancel": "Change",
+    "sending": "Sending…",
+    "success": "Bid accepted. You're in the lead!",
+    "leading": "Your bid is leading",
+    "outbid": "You've been outbid",
+    "closed": "This lot no longer accepts bids.",
+    "errors": {
+      "amount_too_low": "Someone has already bid more. The minimum bid is now {min}.",
+      "amount_too_high": "That's above the maximum allowed ({max}). If it's not a mistake, please write to the Rector's Office.",
+      "already_leading": "Your bid is already in the lead.",
+      "rate_limited": "Too many bids in a row. Wait a few seconds.",
+      "lot_closed": "Bidding on this lot has closed.",
+      "lot_not_found": "This lot isn't available.",
+      "user_blocked": "Your account is blocked, so you can't bid.",
+      "profile_required": "Please finish signing up first.",
+      "not_authenticated": "Sign in to place a bid.",
+      "invalid": "Enter a whole number.",
+      "generic": "Couldn't send your bid. Please try again."
+    }
+  },
+  "raised": "Raised",
+  "goalOf": "of {goal}",
   "notFound": {
     "title": "Page not found",
     "text": "It may have moved, or the link is out of date.",

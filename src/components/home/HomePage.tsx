@@ -2,39 +2,44 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactNode, type CSSProperties } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
   ArrowUpRight,
   Gavel,
   HandPointing,
   Trophy,
-  X,
-  Plus,
-  EnvelopeSimple,
-  Eye,
-  Sparkle,
   Asterisk,
-  UserCircle,
+  Plus,
 } from "@phosphor-icons/react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { FloatingObjects } from "@/components/objects";
 import { Preloader } from "@/components/Preloader";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ClosedWindow } from "@/components/ClosedWindow";
 import { Bezel } from "@/components/ui";
+import { AccountLink, LocaleSwitch } from "@/components/SiteBar";
+import { LotCard } from "@/components/auction/LotCard";
+import { useLiveLots } from "@/components/auction/live";
+import { formatUah } from "@/lib/format";
+import type { AuctionStats, PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, EASE } from "@/components/fx";
 import { CONTACT_EMAIL, FINAL_AT, RECTOR_PHOTO } from "@/lib/auction";
 
 const GAVEL = "/images/gavel-3d.png";
+// The prototype's playful tilt, kept for the real cards on wide screens.
+const TILT = ["md:-rotate-[3deg] md:translate-y-8", "md:rotate-[2deg] md:-translate-y-3", "md:-rotate-[1deg] md:translate-y-12"];
 const i = (n: number) => ({ ["--i" as string]: n }) as CSSProperties;
 // Base styles the prototype took from the shadcn Button.
 const BTN = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
-export function HomePage() {
+export function HomePage({ lots: initialLots, stats }: { lots: PublicLot[]; stats: AuctionStats | null }) {
   const [ready, setReady] = useState(false);
-  const [modal, setModal] = useState(false);
+  const lots = useLiveLots(initialLots);
+  // The total moves with every bid: start from the server's figure and add what changed since.
+  const sum = (ls: PublicLot[]) => ls.reduce((n, l) => n + (l.current_amount ?? 0), 0);
+  const raised = (stats?.total_raised ?? 0) - sum(initialLots) + sum(lots);
   useEffect(() => {
     const on = () => setReady(true);
     if ((window as unknown as { __ksePreDone?: boolean }).__ksePreDone) { document.documentElement.style.overflow = ""; on(); return; }
@@ -45,25 +50,22 @@ export function HomePage() {
       clearTimeout(fallback);
     };
   }, []);
-  const bid = () => setModal(true);
-
   return (
     <div className={`grain overflow-x-clip ${ready ? "is-ready" : ""}`}>
       <Preloader />
-      <Nav onBid={bid} />
+      <Nav />
       <ClosedWindow />
       <main>
-        <Hero onBid={bid} />
+        <Hero raised={raised} />
         <Marquee />
         <About />
-        <Lots onBid={bid} />
+        <Lots lots={lots} />
         <Steps />
         <Report />
         <Final />
         <Faq />
       </main>
       <Footer />
-      {modal && <BidModal onClose={() => setModal(false)} />}
     </div>
   );
 }
@@ -100,23 +102,14 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
     </>
   );
   const c = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
-  return <Magnetic>{href ? <a href={href} className={c}>{body}</a> : <button onClick={onClick} className={cn(BTN, c, "h-auto")}>{body}</button>}</Magnetic>;
+  // Site paths go through the locale-aware Link; anchors and mailto stay plain links.
+  const link = href?.startsWith("/") ? <Link href={href} className={c}>{body}</Link> : <a href={href} className={c}>{body}</a>;
+  return <Magnetic>{href ? link : <button onClick={onClick} className={cn(BTN, c, "h-auto")}>{body}</button>}</Magnetic>;
 }
 
 /* ---------- nav ---------- */
 
-function LocaleSwitch() {
-  const t = useTranslations("common");
-  const locale = useLocale();
-  const pathname = usePathname();
-  return (
-    <Link href={pathname} locale={locale === "uk" ? "en" : "uk"} aria-label={t("otherLocaleLabel")} className="grid h-10 min-w-10 place-items-center rounded-full bg-primary/5 px-3 text-xs font-bold tracking-[0.12em] text-primary transition-colors hover:bg-primary/10">
-      {t("otherLocale")}
-    </Link>
-  );
-}
-
-function Nav({ onBid }: { onBid: () => void }) {
+function Nav() {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const links = (["about", "lots", "how", "report", "faq"] as const).map((k) => [`#${k}`, t(`nav.${k}`)] as const);
@@ -136,12 +129,10 @@ function Nav({ onBid }: { onBid: () => void }) {
           </nav>
           <div className="flex items-center gap-2">
             <LocaleSwitch />
-            <Link href="/account" aria-label={t("common.account")} title={t("common.account")} className="grid h-10 w-10 place-items-center rounded-full bg-primary/5 text-primary transition-colors hover:bg-primary/10">
-              <UserCircle size={22} weight="light" />
-            </Link>
-            <button onClick={onBid} className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
+            <AccountLink />
+            <Link href="/lots" className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
               {t("common.placeBid")}
-            </button>
+            </Link>
             <button aria-label={t("common.menu")} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className={cn(BTN, "relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden")}>
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 rotate-45" : "top-[15px]"}`} />
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 -rotate-45" : "top-[23px]"}`} />
@@ -185,7 +176,7 @@ function RotatingBadge() {
   );
 }
 
-function Hero({ onBid }: { onBid: () => void }) {
+function Hero({ raised }: { raised: number }) {
   const t = useTranslations("hero");
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
@@ -209,10 +200,10 @@ function Hero({ onBid }: { onBid: () => void }) {
           </p>
           <div className="enter hero-actions flex flex-wrap items-center gap-3" style={i(5)}>
             <PillCta href="#lots">{t("viewLots")}</PillCta>
-            <button onClick={onBid} className={cn(BTN, "h-auto rounded-full px-3 py-3 text-primary hover:bg-accent hover:text-accent-foreground")}>{t("howToBid")} <ArrowUpRight weight="light" /></button>
+            <a href="#how" className={cn(BTN, "h-auto rounded-full px-3 py-3 text-primary hover:bg-accent hover:text-accent-foreground")}>{t("howToBid")} <ArrowUpRight weight="light" /></a>
           </div>
           <div className="enter hero-details grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-primary/15" style={i(6)}>
-            <span className="min-w-0 text-xs text-muted-foreground">{t("catalogStatus")}</span>
+            <span className="min-w-0 text-xs text-muted-foreground">{t("catalogStatus")} <b className="ml-1 text-sm tabular-nums text-primary">{formatUah(raised)}</b></span>
             <span className="text-xs font-medium text-primary">{t("final")} <b className="ml-2">14.11.2026</b></span>
           </div>
         </div>
@@ -264,43 +255,7 @@ function Marquee() {
 
 /* ---------- lots ---------- */
 
-function LotTag({ k, onBid }: { k: number; onBid: () => void }) {
-  const t = useTranslations();
-  const tilt = ["md:-rotate-[5deg] md:translate-y-10", "md:rotate-[2deg] md:-translate-y-4", "md:-rotate-[1deg] md:translate-y-16"][k];
-  return (
-    <div className={`group transition-transform duration-700 ease-spring hover:z-10 md:hover:-translate-y-6 md:hover:rotate-0 ${tilt}`}>
-      <Bezel dark core="relative overflow-hidden bg-navy-deep">
-        {/* tag hole */}
-        <div className="absolute left-1/2 top-4 z-10 h-4 w-4 -translate-x-1/2 rounded-full bg-primary ring-4 ring-primary-foreground/10" />
-        <div className="relative m-3 mt-12 grid aspect-[4/5] place-items-center overflow-hidden rounded-[1.6rem] dot-grid-light">
-          <div className="orb absolute h-40 w-40 rounded-full opacity-25 transition-transform duration-1000 ease-spring group-hover:scale-150" />
-          {/* "covered lot" cloth */}
-          <div className="relative text-center">
-            <span className="text-outline-light block text-[9rem] font-bold leading-none">{k + 1}</span>
-            <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-4 py-2 text-xs text-primary-foreground/80 backdrop-blur">
-              <Eye weight="light" /> {t("lots.photoPending")}
-            </span>
-          </div>
-        </div>
-        <div className="px-6 pb-6 text-primary-foreground">
-          <h3 className="text-xl font-bold">{t("lots.placeholderTitle")}</h3>
-          <p className="mt-2 text-sm text-primary-foreground/55">{t("lots.placeholderText")}</p>
-          <div className="mt-6 flex items-center justify-between">
-            <div>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-primary-foreground/40">{t("lots.start")}</span>
-              <p className="text-sm font-medium">{t("lots.startPending")}</p>
-            </div>
-            <button onClick={onBid} aria-label={t("common.placeBid")} className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground transition-transform duration-500 ease-spring group-hover:rotate-45 active:scale-95">
-              <Plus weight="bold" />
-            </button>
-          </div>
-        </div>
-      </Bezel>
-    </div>
-  );
-}
-
-function Lots({ onBid }: { onBid: () => void }) {
+function Lots({ lots }: { lots: PublicLot[] }) {
   const t = useTranslations("lots");
   return (
     <section id="lots" className="relative overflow-hidden bg-primary pb-20 pt-24 text-primary-foreground">
@@ -318,23 +273,27 @@ function Lots({ onBid }: { onBid: () => void }) {
             {t("intro")}
           </p>
         </Reveal>
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {[0, 1, 2].map((k) => (
-            <motion.div
-              key={k}
-              initial={{ opacity: 0, x: (1 - k) * 260, y: 120, rotate: (k - 1) * -18, scale: 0.9 }}
-              whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0, margin: "0px" }}
-              transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + k * 0.12 }}
-            >
-              <LotTag k={k} onBid={onBid} />
-              <Link href={`/lots/${k + 1}`} className="mt-4 flex items-center justify-between rounded-full px-5 py-3 text-sm text-primary-foreground/70 ring-1 ring-primary-foreground/15 transition hover:bg-primary-foreground/10 hover:text-accent">{t("slotLink", { n: k + 1 })} <ArrowUpRight weight="light" /></Link>
-            </motion.div>
-          ))}
+        {lots.length ? (
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {lots.slice(0, 6).map((lot, k) => (
+              <motion.div
+                key={lot.id}
+                initial={{ opacity: 0, x: (1 - (k % 3)) * 260, y: 120, rotate: ((k % 3) - 1) * -18, scale: 0.9 }}
+                whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0, margin: "0px" }}
+                transition={{ type: "spring", stiffness: 70, damping: 16, mass: 1.1, delay: 0.15 + (k % 3) * 0.12 }}
+                className={TILT[k % 3]}
+              >
+                <LotCard lot={lot} />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-12 text-primary-foreground/65">{t("empty")}</p>
+        )}
+        <div className="mt-14 flex justify-center">
+          <PillCta href="/lots" variant="accent">{t("all")}</PillCta>
         </div>
-        <p className="mt-12 flex items-center gap-2 text-sm text-primary-foreground/45">
-          <Sparkle weight="light" /> {t("note")}
-        </p>
       </div>
     </section>
   );
@@ -603,50 +562,6 @@ function Footer() {
         KSE
       </div>
     </footer>
-  );
-}
-
-/* ---------- modal ---------- */
-
-function BidModal({ onClose }: { onClose: () => void }) {
-  const t = useTranslations();
-  useEffect(() => {
-    const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    addEventListener("keydown", k);
-    return () => removeEventListener("keydown", k);
-  }, [onClose]);
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-primary/60 p-4 backdrop-blur-md" onClick={onClose}>
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        initial={{ opacity: 0, y: 40, scale: 0.94, rotate: -2 }}
-        animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 220, damping: 22 }}
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md"
-      >
-        <Bezel core="relative overflow-hidden bg-card p-8">
-          <div className="orb absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-50" />
-          <button aria-label={t("common.close")} onClick={onClose} className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-primary/5 text-primary">
-            <X weight="light" />
-          </button>
-          <Image src={GAVEL} alt="" width={1024} height={1024} sizes="112px" className="relative -ml-2 w-28" />
-          <h3 className="relative mt-2 text-3xl font-bold tracking-tight text-primary">{t("bidModal.title")}</h3>
-          <p className="relative mt-3 text-muted-foreground">
-            {t("bidModal.text")}
-          </p>
-          <div className="relative mt-8 flex flex-wrap items-center gap-3">
-            <PillCta href={`mailto:${CONTACT_EMAIL}`}>
-              <span className="inline-flex items-center gap-2"><EnvelopeSimple weight="light" /> {t("bidModal.write")}</span>
-            </PillCta>
-            <button onClick={onClose} className="rounded-full px-5 py-3 text-sm font-medium text-primary ring-1 ring-primary/15">
-              {t("bidModal.ok")}
-            </button>
-          </div>
-        </Bezel>
-      </motion.div>
-    </div>
   );
 }
 

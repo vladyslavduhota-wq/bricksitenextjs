@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import { DownloadSimple, Prohibit, ProhibitInset, XCircle } from "@phosphor-icons/react/dist/ssr";
 import { BidStatusBadge, Empty, PAGE_SIZE, PageHeader, Pager, Panel, Table, Tabs, pageFrom, td, th, tr, DownloadLink } from "@/components/admin/kit";
@@ -41,14 +42,14 @@ export default async function BidsPage({ searchParams }: Props) {
       <Panel flush title={
         <div className="flex flex-wrap items-center gap-3">
           <Tabs base="/admin/bids" param="status" current={status} query={{ lot: q.lot }} items={[{ value: "", label: "Усі" }, { value: "valid", label: "Дійсні" }, { value: "cancelled", label: "Скасовані" }]} />
-          <form action="/admin/bids" className="flex items-center gap-2">
+          <Form action="/admin/bids" className="flex items-center gap-2">
             {status && <input type="hidden" name="status" value={status} />}
             <AutoSubmitSelect name="lot" defaultValue={q.lot ?? ""} aria-label="Лот" className="w-64 text-sm">
               <option value="">Усі лоти</option>
               {(lots ?? []).map((l) => <option key={l.id} value={l.id}>{l.title_uk}</option>)}
             </AutoSubmitSelect>
             <noscript><button className={buttonClass("ghost", "sm")}>Показати</button></noscript>
-          </form>
+          </Form>
         </div>
       }>
         {!bids?.length ? <Empty>Ставок за цим фільтром немає.</Empty> : (

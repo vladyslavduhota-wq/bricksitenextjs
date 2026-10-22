@@ -1,3 +1,4 @@
+import Form from "next/form";
 import { MagnifyingGlass, Prohibit, ProhibitInset } from "@phosphor-icons/react/dist/ssr";
 import { Empty, PAGE_SIZE, PageHeader, Pager, Panel, RoleBadge, Table, Tabs, pageFrom, td, th, tr } from "@/components/admin/kit";
 import { ConfirmAction } from "@/components/admin/ConfirmAction";
@@ -41,11 +42,11 @@ export default async function UsersPage({ searchParams }: Props) {
           <Tabs base="/admin/users" param="filter" current={filter} query={{ q: search || undefined }} items={[
             { value: "", label: "Усі" }, { value: "bidders", label: "Зі ставками" }, { value: "blocked", label: "Заблоковані" }, { value: "staff", label: "Команда" },
           ]} />
-          <form action="/admin/users" className="relative">
+          <Form action="/admin/users" className="relative">
             {filter && <input type="hidden" name="filter" value={filter} />}
             <MagnifyingGlass size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input name="q" defaultValue={search} placeholder={isAdmin ? "Ім'я, email або телефон" : "Ім'я або нік"} aria-label="Пошук" className={`${inputClass} h-11 w-64 py-0 pl-11 text-sm`} />
-          </form>
+          </Form>
         </div>
       }>
         {!users?.length ? <Empty>{search ? `Нікого не знайдено за «${search}».` : "Учасників за цим фільтром немає."}</Empty> : (

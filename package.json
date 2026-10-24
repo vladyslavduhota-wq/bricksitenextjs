@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "vitest run",
-    "test:db": "vitest run tests/db"
+    "test": "vitest run --config tests/vitest.config.ts",
+    "test:db": "vitest run --config tests/vitest.config.ts tests/db"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

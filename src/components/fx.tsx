@@ -10,9 +10,12 @@ import {
   useSpring,
   useAnimationFrame,
   AnimatePresence,
+  type MotionValue,
 } from "motion/react";
 
 export const EASE = [0.32, 0.72, 0, 1] as const;
+/** Fire once, when the element is a little way into the screen rather than at its first pixel. */
+export const VIEW = { once: true, amount: 0, margin: "0px 0px -12% 0px" } as const;
 
 /** Headline: each word rises out of its own mask, staggered. Story: reading rhythm. */
 export function SplitWords({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
@@ -26,7 +29,7 @@ export function SplitWords({ text, className = "", delay = 0 }: { text: string; 
       initial={reduce ? false : "hidden"}
       whileInView="show"
       animate={reduce ? "show" : false}
-      viewport={{ once: true, amount: 0, margin: "0px" }}
+      viewport={VIEW}
     >
       {words.map((w, k) => (
         <span key={k} aria-hidden className="inline-block overflow-hidden pb-[0.12em] align-bottom">
@@ -53,7 +56,7 @@ export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { child
       initial={reduce ? false : "hidden"}
       whileInView="show"
       animate={reduce ? "show" : false}
-      viewport={{ once: true, amount: 0, margin: "0px" }}
+      viewport={VIEW}
     >
       <motion.span
         aria-hidden
@@ -66,16 +69,23 @@ export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { child
   );
 }
 
-/** Outlined text that fills with ink as you scroll past it. Story: progress. */
-export function OutlineFill({ text, className = "", light = false }: { text: string; className?: string; light?: boolean }) {
+/**
+ * Outlined text that fills with ink once, shortly after it enters view. Story: progress.
+ * Time-based on purpose: a scroll-scrubbed fill stopped half way whenever the reader did, and read as not loaded.
+ */
+export function OutlineFill({ text, className = "", light = false, delay = 0.35 }: { text: string; className?: string; light?: boolean; delay?: number }) {
   const reduce = useReducedMotion();
-  const ref = useRef<HTMLSpanElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 90%", "start 35%"] });
-  const clip = useTransform(scrollYProgress, [0, 1], ["inset(0 100% 0 0)", "inset(0 0% 0 0)"]);
   return (
-    <span ref={ref} className={`relative inline-block ${className}`}>
+    <span className={`relative inline-block ${className}`}>
       <span className={light ? "text-outline-light" : "text-outline"}>{text}</span>
-      <motion.span aria-hidden style={reduce ? {} : { clipPath: clip }} className={`absolute inset-0 ${light ? "text-accent" : "text-primary"}`}>
+      <motion.span
+        aria-hidden
+        initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
+        whileInView={{ clipPath: "inset(0 0% 0 0)" }}
+        viewport={VIEW}
+        transition={{ duration: 0.9, delay, ease: EASE }}
+        className={`absolute inset-0 ${light ? "text-accent" : "text-primary"}`}
+      >
         {text}
       </motion.span>
     </span>
@@ -139,10 +149,10 @@ export function RollDigits({ value }: { value: string }) {
             <motion.span
               key={d}
               className="inline-block"
-              initial={{ y: "-100%", opacity: 0, filter: "blur(4px)" }}
-              animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-              exit={{ y: "100%", opacity: 0, filter: "blur(4px)" }}
-              transition={{ duration: 0.55, ease: EASE }}
+              initial={{ y: "-100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ duration: 0.45, ease: EASE }}
             >
               {d}
             </motion.span>
@@ -151,4 +161,28 @@ export function RollDigits({ value }: { value: string }) {
       ))}
     </span>
   );
+}
+
+/** A paragraph that lights up word by word as it is scrolled through. Story: reading along. */
+export function ScrollWords({ text, className = "" }: { text: string; className?: string }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 85%", "end 55%"] });
+  const words = text.split(" ");
+  if (reduce) return <span className={className}>{text}</span>;
+  return (
+    <span ref={ref} className={className}>
+      {words.map((w, k) => (
+        <LitWord key={k} progress={scrollYProgress} range={[k / words.length, (k + 1) / words.length]}>
+          {w}
+          {k < words.length - 1 ? " " : ""}
+        </LitWord>
+      ))}
+    </span>
+  );
+}
+
+function LitWord({ progress, range, children }: { progress: MotionValue<number>; range: [number, number]; children: ReactNode }) {
+  const opacity = useTransform(progress, range, [0.2, 1]);
+  return <motion.span style={{ opacity }}>{children}</motion.span>;
 }

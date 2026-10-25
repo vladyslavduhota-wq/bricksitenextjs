@@ -1,6 +1,6 @@
-# KSE Rector's Charity Auction
+# KSE Rector's Auction
 
-Online charity auction of Tymofiy Brik's personal belongings. Next.js (App Router) + Supabase.
+Online auction of Tymofiy Brik's personal belongings. Next.js (App Router) + Supabase.
 
 > Developed on `nextjs-rebuild`, mirrored to `main` in vladyslavduhota-wq/bricksitenextjs.
 

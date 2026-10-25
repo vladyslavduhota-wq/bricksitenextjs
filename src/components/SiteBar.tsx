@@ -2,15 +2,22 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, UserCircle } from "@phosphor-icons/react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
 
+/**
+ * Switches language on the same page. The other language is fetched only when the visitor shows
+ * intent (hover, focus, touch), not prefetched on every page view by a switch that is always on screen.
+ */
 export function LocaleSwitch() {
   const t = useTranslations("common");
   const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
+  const other = locale === "uk" ? "en" : "uk";
+  const warm = () => router.prefetch(pathname, { locale: other });
   return (
-    <Link href={pathname} locale={locale === "uk" ? "en" : "uk"} aria-label={t("otherLocaleLabel")} className="grid h-10 min-w-10 place-items-center rounded-full bg-primary/5 px-3 text-xs font-bold tracking-[0.12em] text-primary transition-colors hover:bg-primary/10">
+    <Link href={pathname} locale={other} prefetch={false} onPointerEnter={warm} onFocus={warm} onTouchStart={warm} aria-label={t("otherLocaleLabel")} className="grid h-10 min-w-10 place-items-center rounded-full bg-primary/5 px-3 text-xs font-bold tracking-[0.12em] text-primary transition-colors hover:bg-primary/10">
       {t("otherLocale")}
     </Link>
   );

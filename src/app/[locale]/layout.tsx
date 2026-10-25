@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
+import { ClientMessages } from "@/i18n/client-messages";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -19,7 +20,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: t("description"),
     openGraph: { title: t("ogTitle"), description: t("ogDescription"), type: "website" },
     twitter: { card: "summary_large_image" },
-    alternates: { languages: { uk: "/", en: "/en" } },
   };
 }
 
@@ -33,10 +33,13 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   return (
     <html lang={locale}>
       <head>
+        {/* Both weights the preloader waits for before it starts drawing. */}
         <link rel="preload" href="/fonts/kse-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/kse-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/* Base copy only; each section's layout or page adds the namespaces it needs. */}
+        <ClientMessages namespaces={[]}>{children}</ClientMessages>
       </body>
     </html>
   );

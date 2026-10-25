@@ -129,6 +129,8 @@
 .ol{fill:none;stroke:var(--cyan);stroke-width:calc(var(--hair)*1.6px);stroke-linecap:round;stroke-linejoin:round}
 .tx{font-family:"KSE Sans","Montserrat","Helvetica Neue",Arial,sans-serif}
 .bd{visibility:hidden}
+/* Outlines start hidden: the script reveals them as it draws. Before it runs, the fully drawn letters used to flash and then vanish. */
+.pre .ol{visibility:hidden}
 .pre.p #scene{width:min(92vw,560px)}
 
 /* ---------- creative layer ---------- */
@@ -157,7 +159,6 @@
 /* First screen: compact editorial title with independently framed portrait. */
 .hero-section { padding: 108px 0 32px; }
 .hero-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; gap: 36px; }
-.hero-eyebrow { margin-bottom: 20px; }
 .hero-title { font-size: 80px; line-height: 1.02; letter-spacing: 0; }
 .hero-title > span:first-child { font-size: 48px; margin-bottom: 8px; }
 .hero-outline { color: transparent; -webkit-text-stroke: 1.5px var(--primary); }
@@ -166,37 +167,48 @@
 .hero-description { margin-top: 24px; max-width: 43ch; font-size: 17px; line-height: 1.65; }
 .hero-actions { margin-top: 22px; }
 .hero-details { margin-top: 24px; padding-top: 16px; max-width: 440px; }
-.hero-visual { padding: 0 22px 58px 18px; }
-.hero-portrait { height: 480px; overflow: hidden; border-radius: 160px 160px 12px 12px; background: var(--primary); }
-.hero-caption { inset: auto 0 0; padding: 16px 24px; }
+.hero-visual { --stage-h: 560px; --gavel-w: 124px; --plinth-label: 64px; padding: 0 22px 0 18px; }
+/* The Rector sits on a plinth like a lot on display; his name is the plinth's label. */
+.rector-stage { position: relative; height: var(--stage-h); }
+.rector-plinth { position: absolute; left: 0; right: 0; bottom: 0; top: calc((100% - var(--plinth-label)) * .6); border-radius: 26px 26px 10px 10px; background: var(--primary); }
+.rector-label { position: absolute; left: 0; right: 0; bottom: 0; height: var(--plinth-label); padding-bottom: 12px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; color: var(--primary-foreground); }
+.rector-figure { position: absolute; top: calc((100% - var(--plinth-label)) * .06); left: 50%; height: calc(100% - var(--plinth-label)); aspect-ratio: 1010 / 1780; transform: translateX(-50%); }
+.rector-figure img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* One photo in three cuts: the body stays, each shin swings from its knee. */
+.rector-body { clip-path: inset(0 0 42% 0); }
+.rector-shin { clip-path: inset(55% 64% 0 0); transform-origin: 20% 56.5%; animation: dangle 2.1s cubic-bezier(.45,0,.55,1) infinite; }
+.rector-shin.is-right { clip-path: inset(55% 0 0 64%); transform-origin: 79% 56.5%; animation-name: dangle-r; animation-delay: -1.05s; }
+@keyframes dangle { 0%, 100% { transform: rotate(0) scaleY(1); } 30% { transform: rotate(9deg) scaleY(.93); } 62% { transform: rotate(-4deg) scaleY(1); } }
+@keyframes dangle-r { 0%, 100% { transform: rotate(0) scaleY(1); } 30% { transform: rotate(-9deg) scaleY(.93); } 62% { transform: rotate(4deg) scaleY(1); } }
 .hero-badge { top: -16px; right: -12px; z-index: 10; transform: scale(.78); transform-origin: top right; }
-.hero-gavel { width: 138px; bottom: 66px; right: -28px; z-index: 10; }
+.hero-gavel { width: var(--gavel-w); top: calc((var(--stage-h) - var(--plinth-label)) * .6 - var(--gavel-w) * .9); right: -14px; z-index: 10; }
 .hero-ticket { bottom: 0; left: -4px; display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 8px; transform: rotate(-4deg); }
 section[id] { scroll-margin-top: 100px; }
 button, a { -webkit-tap-highlight-color: transparent; }
-@media (min-width: 1280px) { .hero-title { font-size: 96px; } .hero-title > span:first-child { font-size: 60px; } .hero-portrait { height: 510px; } }
-@media (min-width: 640px) and (max-width: 1023px) { .hero-layout { gap: 20px; } .hero-title { font-size: 62px; } .hero-title > span:first-child { font-size: 36px; } .hero-portrait { height: 410px; } .hero-description { font-size: 15px; } .hero-actions { gap: 8px; } .hero-gavel { width: 104px; right: -16px; } }
+@media (min-width: 1280px) { .hero-title { font-size: 96px; } .hero-title > span:first-child { font-size: 60px; } .hero-visual { --stage-h: 605px; } }
+@media (min-width: 640px) and (max-width: 1023px) { .hero-layout { gap: 20px; } .hero-title { font-size: 62px; } .hero-title > span:first-child { font-size: 36px; } .hero-visual { --stage-h: 475px; --gavel-w: 98px; } .hero-description { font-size: 15px; } .hero-actions { gap: 8px; } }
 @media (max-width: 639px) {
-  .hero-section { padding: 96px 0 24px; }
-  .hero-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .hero-eyebrow { margin-bottom: 14px; }
+  .hero-section { padding: 88px 0 20px; }
+  /* Phone order: title, text, action, then the Rector on his plinth, then the raised total and the date. */
+  .hero-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .hero-copy { display: contents; }
+  .hero-visual { order: 1; margin-top: 28px; }
+  .hero-details { order: 2; }
   .hero-title { font-size: 50px; line-height: 1; }
   .hero-title > span:first-child { font-size: 30px; margin-bottom: 6px; }
   .hero-description { margin-top: 18px; font-size: 15px; line-height: 1.55; }
   .hero-actions { margin-top: 18px; gap: 6px; }
   .hero-actions a { padding-left: 20px; gap: 8px; font-size: 14px; }
   .hero-actions a > span:last-child { width: 32px; height: 32px; }
-  .hero-actions button { padding-left: 8px; padding-right: 0; font-size: 12px; }
-  .hero-details { margin-top: 16px; padding-top: 12px; }
-  .hero-visual { padding: 0 24px 18px 0; max-width: 390px; width: 100%; margin: 0 auto; }
-  .hero-portrait { height: 230px; border-radius: 72px 72px 8px 8px; }
-  .hero-portrait img { object-position: center 35%; }
-  .hero-caption { padding: 12px 18px; }
+  .hero-actions .hero-howto { padding: 10px 6px; font-size: 13px; }
+  .hero-details { margin-top: 22px; padding-top: 12px; }
+  .hero-visual { --stage-h: 380px; --gavel-w: 80px; --plinth-label: 56px; padding: 0; max-width: 390px; width: 100%; margin-left: auto; margin-right: auto; }
+  .rector-plinth { border-radius: 20px 20px 8px 8px; }
   .hero-badge { right: 0; top: -4px; transform: scale(.62); }
-  .hero-gavel { right: -6px; bottom: 65px; width: 104px; }
+  .hero-gavel { right: 6px; }
   .hero-ticket { display: none; }
-  #about { padding-top: 40px; }
-  #lots { padding-top: 48px; }
+  #about { padding-top: 48px; }
+  #lots { padding-top: 56px; padding-bottom: 56px; }
   #how, #faq { padding-top: 48px; padding-bottom: 48px; }
   h2.text-5xl { font-size: 36px; }
   h2.text-6xl { font-size: 48px; }
@@ -204,10 +216,59 @@ button, a { -webkit-tap-highlight-color: transparent; }
   #faq > div { min-width: 0; }
   #faq button { font-size: 18px; }
   #faq button + div p { font-size: 15px; line-height: 1.6; }
+  #faq .px-7 { padding: 18px 18px 18px 22px; }
 }
 @media (max-width: 359px) { .hero-title { font-size: 48px; } .hero-title > span:first-child { font-size: 30px; } .hero-actions { flex-direction: column; align-items: flex-start; } }
 @media (prefers-reduced-motion: reduce) {
   .enter { opacity: 1; transform: none; filter: none; transition: none; }
   html { scroll-behavior: auto; }
-  .hero-badge svg, .hero-gavel img { animation: none; }
+  .hero-badge svg, .hero-gavel img, .rector-shin { animation: none; }
 }
+
+/* ---------- logo ---------- */
+/* The cyan bar draws in once the preloader lifts on the home page, and redraws on hover anywhere. */
+.brand-bar { stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+a:hover > .brand-logo .brand-bar { animation: brand-bar .8s var(--ease-spring); }
+.home:not(.is-ready) .brand-bar { stroke-dashoffset: 1; }
+.home.is-ready .brand-bar { transition: stroke-dashoffset 1s var(--ease-spring) .35s; }
+@keyframes brand-bar { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* ---------- hero: the gavel strikes once the title is up; the strike stamps the date and marks "справа." ---------- */
+:root { --strike-at: 1.05s; --impact: .6s; }
+.gavel-btn { display: block; width: 100%; cursor: pointer; pointer-events: auto; border-radius: 30%; }
+.gavel-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.gavel-layers { position: relative; aspect-ratio: 1; }
+.gavel-layers img { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* One picture, cut in two: the hammer swings from the end of its handle, the block takes the blow. */
+.gavel-hammer { clip-path: polygon(0 0, 100% 0, 100% 100%, 64% 100%, 64% 64%, 0 64%); transform-origin: 94% 65%; }
+.gavel-block { clip-path: polygon(0 64%, 64% 64%, 64% 100%, 0 100%); transform-origin: 33% 80%; }
+.gavel-ring { position: absolute; left: 10%; top: 60%; width: 46%; height: 16%; border-radius: 50%; border: 3px solid var(--accent); opacity: 0; pointer-events: none; }
+.is-ready .gavel-hammer { animation: strike 1.15s var(--ease-spring) var(--d, var(--strike-at)) both; }
+.is-ready .gavel-block { animation: thud .5s var(--ease-out) calc(var(--d, var(--strike-at)) + var(--impact)) both; }
+.is-ready .gavel-ring { animation: ring .8s var(--ease-out) calc(var(--d, var(--strike-at)) + var(--impact)) both; }
+.gavel-btn:hover .gavel-hammer { rotate: 4deg; transition: rotate .4s var(--ease-spring); }
+.gavel-hammer { transition: rotate .4s var(--ease-spring); }
+@keyframes strike { 0% { transform: rotate(0); } 34% { transform: rotate(18deg); } 52% { transform: rotate(-3deg); } 62% { transform: rotate(1.5deg); } 100% { transform: rotate(0); } }
+@keyframes thud { 0% { transform: none; } 30% { transform: scale(1.04, .9); } 100% { transform: none; } }
+@keyframes ring { 0% { opacity: .9; transform: scale(.7); } 100% { opacity: 0; transform: scale(1.9); } }
+
+.hero-ticket { opacity: 0; }
+.is-ready .hero-ticket { animation: stamp .55s cubic-bezier(.2,.9,.3,1.25) calc(var(--d, var(--strike-at)) + var(--impact)) both; }
+@keyframes stamp { 0% { opacity: 0; transform: rotate(-16deg) scale(1.7); } 60% { opacity: 1; } 100% { opacity: 1; transform: rotate(-4deg) scale(1); } }
+
+.hero-highlight::before { transform: rotate(-2deg) scaleX(0); transform-origin: left center; }
+.is-ready .hero-highlight::before { transform: rotate(-2deg) scaleX(1); transition: transform .7s var(--ease-spring) calc(var(--strike-at) + var(--impact)); }
+
+.badge-burst { display: block; }
+.is-ready .badge-burst { animation: burst 1.4s var(--ease-out) calc(var(--d, var(--strike-at)) + var(--impact)) both; }
+@keyframes burst { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-bar, .home:not(.is-ready) .brand-bar { stroke-dashoffset: 0; animation: none !important; }
+  .gavel-hammer, .gavel-block, .gavel-ring, .hero-ticket, .badge-burst { animation: none !important; }
+  .hero-ticket { opacity: 1; }
+  .hero-highlight::before, .is-ready .hero-highlight::before { transform: rotate(-2deg); transition: none; }
+}
+
+/* Horizontal rows that scroll by swipe, without a scrollbar track. */
+@utility no-scrollbar { scrollbar-width: none; &::-webkit-scrollbar { display: none; } }

@@ -38,7 +38,6 @@ export function LotView({ initialLot, initialBids, rules }: { initialLot: Public
 
         <div className="lg:col-span-5 lg:sticky lg:top-8 lg:self-start">
           <p className={cn("inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium", open ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground")}>
-            {open && <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative h-2 w-2 rounded-full bg-primary" /></span>}
             {open ? `${t("open")} · ${t("live")}` : t("ended")}
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-primary md:text-5xl">{title}</h1>

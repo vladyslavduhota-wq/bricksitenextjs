@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { alternates } from "@/i18n/alternates";
 import { LotView } from "@/components/auction/LotView";
 import { getPublicLot, getPublicLots, getPublicSettings } from "@/lib/lots";
 import { lotDescription, lotTitle } from "@/lib/lot-text";
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cover = data.lot.images[0];
   return {
     title: `${title} · KSE`,
+    alternates: alternates(`/lots/${slug}`, locale),
     description,
     openGraph: { title, description, type: "article", images: cover ? [{ url: photoUrl(cover.path), width: cover.width ?? undefined, height: cover.height ?? undefined }] : [] },
   };

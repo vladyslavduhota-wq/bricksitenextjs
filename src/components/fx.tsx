@@ -75,20 +75,18 @@ export function Highlight({ children, delay = 0.4, tone = "bg-accent" }: { child
  */
 export function OutlineFill({ text, className = "", light = false, delay = 0.35 }: { text: string; className?: string; light?: boolean; delay?: number }) {
   const reduce = useReducedMotion();
+  // The outlined word is watched, not the clipped fill: a fully clipped element never reports itself as on screen.
   return (
-    <span className={`relative inline-block ${className}`}>
+    <motion.span className={`relative inline-block ${className}`} initial={reduce ? false : "hidden"} whileInView="show" animate={reduce ? "show" : undefined} viewport={VIEW}>
       <span className={light ? "text-outline-light" : "text-outline"}>{text}</span>
       <motion.span
         aria-hidden
-        initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
-        whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-        viewport={VIEW}
-        transition={{ duration: 0.9, delay, ease: EASE }}
+        variants={{ hidden: { clipPath: "inset(0 100% 0 0)" }, show: { clipPath: "inset(0 0% 0 0)", transition: { duration: 0.9, delay, ease: EASE } } }}
         className={`absolute inset-0 ${light ? "text-accent" : "text-primary"}`}
       >
         {text}
       </motion.span>
-    </span>
+    </motion.span>
   );
 }
 

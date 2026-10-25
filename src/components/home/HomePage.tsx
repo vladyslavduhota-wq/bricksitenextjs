@@ -381,7 +381,8 @@ function Steps() {
           </h2>
           <p className="mt-6 max-w-[48ch] text-muted-foreground">{t("intro")}</p>
         </Reveal>
-        <div className="mt-10 grid items-end gap-4 sm:mt-16 sm:gap-5 lg:grid-cols-3">
+        {/* The grid is what gets watched: a fully clipped bar never reports itself as on screen. */}
+        <motion.div className="mt-10 grid items-end gap-4 sm:mt-16 sm:gap-5 lg:grid-cols-3" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
           {steps.map((s, k) => (
             <LadderStep key={s.key} k={k} wide={wide} reduce={!!reduce}>
               <Bezel core={`flex flex-col justify-between p-6 sm:p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
@@ -397,7 +398,7 @@ function Steps() {
               </Bezel>
             </LadderStep>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -407,23 +408,23 @@ function Steps() {
  * One rung of the bid ladder. On wide screens the bars grow out of the floor once they are in view,
  * each a beat after the one before, like bids climbing; on phones (stacked) each simply rises in.
  * Played once rather than scrubbed, so a reader who stops scrolling never sees a half-built ladder.
+ * The two versions are keyed apart: `wide` is false while hydrating and flips right after, and without
+ * a remount the phone version's starting opacity of 0 stuck on the wide one, leaving an empty gap.
  */
 function LadderStep({ k, wide, reduce, children }: { k: number; wide: boolean; reduce: boolean; children: ReactNode }) {
   if (wide && !reduce) {
     const at = { duration: 0.95, delay: 0.15 + k * 0.2, ease: EASE };
     return (
       <motion.div
-        initial={{ clipPath: "inset(100% 0% 0% 0% round 2.25rem)" }}
-        whileInView={{ clipPath: "inset(0% 0% 0% 0% round 2.25rem)" }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={at}
+        key="wide"
+        variants={{ hidden: { clipPath: "inset(100% 0% 0% 0% round 2.25rem)" }, show: { clipPath: "inset(0% 0% 0% 0% round 2.25rem)", transition: at } }}
       >
-        <motion.div initial={{ y: 60 }} whileInView={{ y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={at}>{children}</motion.div>
+        <motion.div variants={{ hidden: { y: 60 }, show: { y: 0, transition: at } }}>{children}</motion.div>
       </motion.div>
     );
   }
   return (
-    <motion.div initial={reduce ? false : { opacity: 0, y: 72 }} whileInView={{ opacity: 1, y: 0 }} viewport={VIEW} transition={{ duration: 0.9, ease: EASE }}>
+    <motion.div key="narrow" initial={reduce ? false : { opacity: 0, y: 72 }} whileInView={{ opacity: 1, y: 0 }} viewport={VIEW} transition={{ duration: 0.9, ease: EASE }}>
       {children}
     </motion.div>
   );

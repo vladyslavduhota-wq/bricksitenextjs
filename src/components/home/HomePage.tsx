@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type CSSProperties, type PointerEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
+import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
 import {
   ArrowUpRight,
   Gavel,
@@ -111,10 +111,61 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
 
 /* ---------- nav ---------- */
 
+const SECTIONS = ["about", "lots", "how", "report", "faq"] as const;
+type Section = (typeof SECTIONS)[number];
+
+/**
+ * Which section the visitor is reading, for the header. One IntersectionObserver watches a thin band
+ * across the upper middle of the screen, so nothing runs on scroll and state changes only when the
+ * section under the band does. The hero and the countdown are not in the menu, so over them the pill
+ * goes out; past the last section (the footer) the last one stays lit.
+ * A click locks the target until its smooth scroll ends, so the highlight doesn't hop through every
+ * section on the way.
+ */
+function useActiveSection() {
+  // `from` is the section lit before this one, so the pill knows whether to slide or to appear.
+  const [{ active, from }, setSpot] = useState<{ active: Section | null; from: Section | null }>({ active: null, from: null });
+  const setActive = (next: Section | null) => setSpot((s) => (s.active === next ? s : { active: next, from: s.active }));
+  const lock = useRef<Section | null>(null);
+  useEffect(() => {
+    const targets = ["top", ...SECTIONS, "countdown"].map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    const crossing = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) (e.isIntersecting ? crossing.add(e.target) : crossing.delete(e.target));
+        if (lock.current) return;
+        const hit = targets.find((el) => crossing.has(el));
+        if (hit) setActive((SECTIONS as readonly string[]).includes(hit.id) ? (hit.id as Section) : null);
+      },
+      { rootMargin: "-40% 0px -59% 0px" },
+    );
+    targets.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  const jumpTo = (id: Section) => {
+    lock.current = id;
+    setActive(id);
+    const release = () => { lock.current = null; };
+    window.addEventListener("scrollend", release, { once: true });
+    setTimeout(release, 1400); // no scroll happens when the section is already in place
+  };
+  return { active, from, jumpTo };
+}
+
+const PILL = { type: "spring", stiffness: 420, damping: 36, mass: 0.8 } as const;
+// On exit, `next` is the section taking over: then the pill simply hands over (no ghost fading behind).
+const PILL_STATES = {
+  here: { opacity: 1, scale: 1 },
+  away: (next: Section | null) => (next ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, scale: 0.85 }),
+};
+
 function Nav() {
   const t = useTranslations();
+  const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const links = (["about", "lots", "how", "report", "faq"] as const).map((k) => [`#${k}`, t(`nav.${k}`)] as const);
+  const { active, from, jumpTo } = useActiveSection();
+  const links = SECTIONS.map((k) => [k, `#${k}`, t(`nav.${k}`)] as const);
+  const pillMove = reduce ? { duration: 0 } : PILL;
   return (
     <>
       <header className="fixed inset-x-0 top-5 z-40 flex justify-center px-4">
@@ -123,8 +174,28 @@ function Nav() {
             <BrandLogo />
           </a>
           <nav className="hidden items-center gap-1 whitespace-nowrap text-sm text-muted-foreground lg:flex">
-            {links.map(([h, l]) => (
-              <a key={h} href={h} className="rounded-full px-4 py-2 transition-colors duration-300 hover:bg-primary/5 hover:text-primary">
+            {links.map(([k, h, l]) => (
+              <a
+                key={h}
+                href={h}
+                onClick={() => jumpTo(k)}
+                aria-current={active === k ? "location" : undefined}
+                className={cn("relative isolate rounded-full px-4 py-2 transition-colors duration-300", active === k ? "text-accent-foreground" : "hover:bg-primary/5 hover:text-primary")}
+              >
+                {/* One cyan pill that slides between links (shared layout, transforms only); it fades only into and out of the hero. */}
+                <AnimatePresence custom={active}>
+                  {active === k && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 -z-10 rounded-full bg-accent"
+                      variants={PILL_STATES}
+                      initial={from ? false : "away"}
+                      animate="here"
+                      exit="away"
+                      transition={pillMove}
+                    />
+                  )}
+                </AnimatePresence>
                 {l}
               </a>
             ))}
@@ -143,14 +214,19 @@ function Nav() {
         </div>
       </header>
       <div id="mobile-menu" inert={!open} className={`fixed inset-0 z-30 flex flex-col justify-center gap-2 bg-background/85 px-8 backdrop-blur-3xl transition-opacity duration-500 lg:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}>
-        {links.map(([h, l], k) => (
+        {links.map(([key, h, l], k) => (
           <a
             key={h}
             href={h}
-            onClick={() => setOpen(false)}
+            onClick={() => { jumpTo(key); setOpen(false); }}
+            aria-current={active === key ? "location" : undefined}
             style={{ transitionDelay: open ? `${100 + k * 60}ms` : "0ms" }}
-            className={`text-3xl sm:text-5xl font-bold text-primary transition-all duration-700 ease-spring ${open ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+            className={`relative flex items-center gap-4 text-3xl sm:text-5xl font-bold transition-all duration-700 ease-spring ${active === key ? "text-primary" : "text-primary/45"} ${open ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
           >
+            {/* The current section is marked by a cyan bar that slides to it. */}
+            <span className="relative h-[0.7em] w-1.5 shrink-0">
+              {active === key && <motion.span layoutId="menu-active" className="absolute inset-0 rounded-full bg-accent" transition={pillMove} />}
+            </span>
             {l}
           </a>
         ))}
@@ -504,7 +580,7 @@ function Final() {
   const left = useCountdown();
   const units = ["d", "h", "m", "s"] as const;
   return (
-    <section className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
+    <section id="countdown" className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
       <div className="dot-grid-light absolute inset-0" />
       <FloatingObjects set="final" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">

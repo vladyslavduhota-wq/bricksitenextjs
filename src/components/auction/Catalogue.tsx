@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CaretDown } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "motion/react";
+import { EASE, VIEW } from "@/components/fx";
 import { SiteBar } from "@/components/SiteBar";
 import { microLabel } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -17,10 +19,10 @@ const price = (l: PublicLot) => l.current_amount ?? l.start_price;
 /** Spec 5.2: grid with a filter (all / with bids / without) and sorting (price, time left). */
 export function Catalogue({ initial }: { initial: PublicLot[] }) {
   const t = useTranslations("catalog");
-  const tl = useTranslations("lot");
   const lots = useLiveLots(initial);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("ending");
+  const reduce = useReducedMotion();
 
   const shown = useMemo(() => {
     const list = lots.filter((l) => (filter === "withBids" ? l.bid_count > 0 : filter === "noBids" ? l.bid_count === 0 : true));
@@ -35,22 +37,18 @@ export function Catalogue({ initial }: { initial: PublicLot[] }) {
       <div className="orb pointer-events-none absolute -right-40 -top-40 h-[30rem] w-[30rem] rounded-full opacity-25" />
       <SiteBar />
       <section className="relative mx-auto max-w-7xl px-4 pb-24 pt-12 md:px-8 md:pt-16">
-        <p className="inline-flex items-center gap-2 text-xs font-medium text-primary">
-          <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" /><span className="relative h-2 w-2 rounded-full bg-accent ring-1 ring-primary/20" /></span>
-          {t("eyebrow")} · {tl("live")}
-        </p>
-        <h1 className="mt-4 text-5xl font-bold tracking-tight text-primary md:text-7xl">{t("title")}</h1>
+        <h1 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">{t("title")}</h1>
         <p className="mt-4 max-w-[52ch] text-muted-foreground">{t("intro")}</p>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-          <div role="tablist" aria-label={t("title")} className="flex flex-wrap gap-1.5">
+          <div role="tablist" aria-label={t("title")} className="no-scrollbar flex gap-1.5 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:overflow-x-auto max-sm:px-4 sm:flex-wrap">
             {(["all", "withBids", "noBids"] as const).map((f) => (
               <button
                 key={f}
                 role="tab"
                 aria-selected={filter === f}
                 onClick={() => setFilter(f)}
-                className={cn("h-10 rounded-full px-4 text-sm font-medium transition", filter === f ? "bg-primary text-primary-foreground" : "text-primary ring-1 ring-primary/15 hover:bg-primary/5")}
+                className={cn("h-10 shrink-0 whitespace-nowrap rounded-full px-4 text-sm font-medium transition", filter === f ? "bg-primary text-primary-foreground" : "text-primary ring-1 ring-primary/15 hover:bg-primary/5")}
               >
                 {t(`filters.${f}`)}
               </button>
@@ -66,8 +64,19 @@ export function Catalogue({ initial }: { initial: PublicLot[] }) {
         </div>
 
         {shown.length ? (
-          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-            {shown.map((lot, k) => <LotCard key={lot.id} lot={lot} priority={k < 3} />)}
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-8 lg:grid-cols-3 lg:gap-6">
+            {shown.map((lot, k) => (
+              // Keyed by filter so a new filter replays the rise; the column decides the stagger.
+              <motion.div
+                key={`${filter}-${lot.id}`}
+                initial={reduce ? false : { opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={VIEW}
+                transition={{ duration: 0.7, delay: (k % 2) * 0.08, ease: EASE }}
+              >
+                <LotCard lot={lot} priority={k < 3} dense />
+              </motion.div>
+            ))}
           </div>
         ) : (
           <p className="mt-16 text-center text-muted-foreground">{lots.length ? t("emptyFilter") : t("empty")}</p>

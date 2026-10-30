@@ -22,17 +22,17 @@ const Spark = () => (
 
 const SETS = {
   about: [
-    { C: Tag, c: "right-[4%] top-10 w-28 md:w-36", r: -14, d: 7 },
-    { C: Coin, c: "left-[46%] top-6 w-12 md:w-16", r: 10, d: 5 },
+    { C: Tag, c: "right-[4%] top-10 hidden w-28 md:block md:w-36", r: -14, d: 7 },
+    { C: Coin, c: "left-[46%] top-6 hidden w-12 md:block md:w-16", r: 10, d: 5 },
     { C: Spark, c: "right-[30%] bottom-4 w-8 md:w-10", r: 0, d: 4 },
   ],
   how: [
     { C: Paddle, c: "right-[6%] top-12 w-16 md:w-24", r: 12, d: 6 },
     { C: Ticket, c: "right-[26%] top-28 hidden w-32 md:block", r: -8, d: 8 },
-    { C: Coin, c: "left-[40%] top-10 w-10", r: -6, d: 5 },
+    { C: Coin, c: "left-[40%] top-10 hidden w-10 md:block", r: -6, d: 5 },
   ],
   final: [
-    { C: Coin, c: "left-[6%] bottom-10 w-14 md:w-20", r: 8, d: 6 },
+    { C: Coin, c: "left-[6%] bottom-10 hidden w-14 md:block md:w-20", r: 8, d: 6 },
     { C: Spark, c: "left-[52%] top-10 w-10", r: 0, d: 4 },
     { C: Tag, c: "right-[8%] bottom-6 hidden w-28 md:block", r: 18, d: 7 },
   ],

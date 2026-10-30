@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "The Rector's Things. A Common Cause. KSE Charity Auction",
-    "description": "A charity online auction of personal belongings of Tymofiy Brik, Rector of KSE. Final on 14 November 2026.",
+    "title": "The Rector's Things. A Common Cause. KSE Auction",
+    "description": "An online auction of personal belongings of Tymofiy Brik, Rector of KSE. Final on 14 November 2026.",
     "ogTitle": "The Rector's Things. A Common Cause.",
-    "ogDescription": "A charity online auction of Tymofiy Brik's personal belongings. Final on 14.11.2026."
+    "ogDescription": "An online auction of Tymofiy Brik's personal belongings. Final on 14.11.2026."
   },
   "common": {
     "close": "Close",
@@ -21,7 +21,6 @@
     "faq": "FAQ"
   },
   "hero": {
-    "eyebrow": "KSE charity auction",
     "line1": "The Rector's things.",
     "line2": "A common",
     "line3": "cause.",
@@ -33,23 +32,23 @@
     "photoAlt": "Tymofiy Brik, Rector of KSE",
     "name": "Tymofiy Brik",
     "role": "Rector of the Kyiv School of Economics",
-    "badge": "KSE CHARITY AUCTION • THE RECTOR'S THINGS • ",
+    "badge": "KSE AUCTION • THE RECTOR'S THINGS • 14.11 • ",
     "ticketDate": "November 2026",
-    "ticketLabel": "auction final"
+    "ticketLabel": "auction final",
+    "strike": "Strike the gavel"
   },
   "marquee": [
     "The Rector's things",
     "A common cause",
     "14.11.2026",
-    "KSE charity auction",
+    "KSE auction",
     "Transparent report"
   ],
   "about": {
-    "label": "About the auction",
     "title": "Things with a story",
     "titleHighlight": "for a good cause.",
     "p1Name": "Tymofiy Brik",
-    "p1": ", Rector of the Kyiv School of Economics, is giving his personal belongings to a charity auction. Each one becomes a separate lot, and all proceeds go to a common cause.",
+    "p1": ", Rector of the Kyiv School of Economics, is giving his personal belongings to an auction. Each one becomes a separate lot, and all proceeds go to a common cause.",
     "p2": "We want taking part to be simple and the result to be transparent: photos, descriptions and starting prices are published only after the Rector's Office approves them, and a report on the funds will appear here after the final.",
     "facts": {
       "01": {
@@ -75,8 +74,8 @@
     "title1": "On the table:",
     "title2": "Tymofiy's",
     "title3": "things.",
-    "intro": "Each thing is a separate lot. Prices update live, and bidding takes three taps.",
-    "all": "All lots",
+    "intro": "The three lots drawing the most bids right now. Prices update live, and bidding takes three taps.",
+    "all": "All lots · {n}",
     "empty": "Lots will appear here soon."
   },
   "steps": {
@@ -103,7 +102,6 @@
   },
   "report": {
     "watermark": "FUND",
-    "label": "Transparency",
     "title": "Fundraising should be",
     "titleHighlight": "transparent.",
     "text": "After the final, the total raised and a report on how the money is used will appear here. No unverified numbers.",
@@ -177,7 +175,7 @@
   },
   "finalPage": {
     "metaTitle": "Final 14.11 · KSE Rector's Auction Results",
-    "metaDescription": "The total raised, winning bids, thanks, and photos and video of breaking the jar at the KSE charity auction.",
+    "metaDescription": "The total raised, winning bids, thanks, and photos and video of breaking the jar at the KSE auction.",
     "home": "Home",
     "closed": "Bidding closed",
     "opensOn": "This page opens on 14.11.2026",
@@ -196,7 +194,7 @@
     "photoPending": "Photo after the final"
   },
   "auth": {
-    "metaTitle": "Sign in · KSE Charity Auction",
+    "metaTitle": "Sign in · KSE Auction",
     "title": "Sign in without a password",
     "lead": "We'll email you a code. If you're new here, your account is created automatically.",
     "email": "Email",
@@ -223,7 +221,7 @@
     }
   },
   "profile": {
-    "metaTitle": "Sign up · KSE Charity Auction",
+    "metaTitle": "Sign up · KSE Auction",
     "welcomeTitle": "A few more details",
     "welcomeLead": "Only the Rector's Office sees your name and phone, to contact you if you win a lot. We never share your data with third parties.",
     "fullName": "Full name",
@@ -250,7 +248,7 @@
     }
   },
   "account": {
-    "metaTitle": "My account · KSE Charity Auction",
+    "metaTitle": "My account · KSE Auction",
     "title": "My account",
     "signedInAs": "Signed in as {email}",
     "signOut": "Sign out",
@@ -261,7 +259,7 @@
     "draft": "Draft. The final text is being prepared by KSE's lawyer.",
     "updated": "Version of 23.10.2026",
     "rules": {
-      "metaTitle": "Auction rules · KSE Charity Auction",
+      "metaTitle": "Auction rules · KSE Auction",
       "title": "Auction rules",
       "sections": [
         {
@@ -299,7 +297,7 @@
       ]
     },
     "privacy": {
-      "metaTitle": "Privacy policy · KSE Charity Auction",
+      "metaTitle": "Privacy policy · KSE Auction",
       "title": "Privacy policy",
       "sections": [
         {
@@ -334,9 +332,8 @@
     "left": "left"
   },
   "catalog": {
-    "metaTitle": "Lots · KSE Charity Auction",
-    "metaDescription": "All of the KSE Rector's things in the charity auction: photos, current bids, time left.",
-    "eyebrow": "Catalogue",
+    "metaTitle": "Lots · KSE Auction",
+    "metaDescription": "All of the KSE Rector's things in the auction: photos, current bids, time left.",
     "title": "All lots",
     "intro": "Prices and bids update live. Tap an item to see the photos and place a bid.",
     "filters": {
@@ -354,7 +351,7 @@
     "emptyFilter": "No lots match this filter."
   },
   "lot": {
-    "metaFallback": "A lot in the charity auction of the KSE Rector's things.",
+    "metaFallback": "A lot in the auction of the KSE Rector's things.",
     "back": "All lots",
     "current": "Current bid",
     "start": "Starting price",

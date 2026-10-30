@@ -1,56 +1,119 @@
-# KSE Rector's Charity Auction
+# Сайт благодійного аукціону речей Тимофія Бріка
 
-Online charity auction of Tymofiy Brik's personal belongings. Next.js (App Router) + Supabase.
+Версія 1.0 · 15.10.2026
 
-> Developed on `nextjs-rebuild`, mirrored to `main` in vladyslavduhota-wq/bricksitenextjs.
+Замовник: Офіс ректора KSE (контакт: Аліна Шмалюк, ashmaliuk@kse.org.ua)
 
-## Run locally
+Онлайн-аукціон особистих речей ректора KSE: каталог лотів, ставки в реальному часі, лічильник зібраних коштів, сторінка фіналу та адмін-панель для Офісу ректора.
+
+## Стек
+
+- **Next.js 16** (App Router), **React 19**, **TypeScript**
+- **Tailwind CSS 4**, анімації на **Motion**
+- **next-intl**: дві мови, українська на `/`, англійська на `/en`
+- **Supabase**: база даних Postgres, вхід (код на email або Google), сховище фото, оновлення в реальному часі
+- **pg_cron**: автоматичне закриття лотів щохвилини
+- **Vitest**: тести правил ставок на локальному Postgres
+- **Vercel**: хостинг, регіон Франкфурт (`fra1`)
+
+## Що потрібно
+
+- Node.js 20.9 або новіший
+- npm
+- Проєкт Supabase (для роботи сайту)
+- Локальний PostgreSQL (лише для тестів)
+
+## Запуск локально
+
+1. Встановити залежності:
+
+   ```sh
+   npm install
+   ```
+
+2. Створити файл зі змінними середовища:
+
+   ```sh
+   cp .env.example .env.local
+   ```
+
+3. Заповнити `.env.local` значеннями з Supabase (Project Settings в панелі Supabase або змінні проєкту у Vercel):
+
+   | Змінна | Що це |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | адреса проєкту Supabase |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | публічний ключ (publishable або anon) |
+   | `SUPABASE_DB_URL` | рядок підключення до бази, потрібен лише для міграцій |
+   | `NEXT_PUBLIC_SITE_URL` | адреса сайту, локально `http://localhost:3000` |
+   | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | необов'язково: ключ захисту від ботів Cloudflare Turnstile |
+
+4. Запустити:
+
+   ```sh
+   npm run dev
+   ```
+
+   Сайт відкриється на http://localhost:3000, адмін-панель на http://localhost:3000/admin.
+
+## Команди
+
+| Команда | Що робить |
+|---|---|
+| `npm run dev` | запуск у режимі розробки |
+| `npm run build` | збірка для продакшну |
+| `npm start` | запуск зібраної версії |
+| `npm test` | усі тести |
+| `npm run lint` | перевірка коду |
+| `npm run typecheck` | перевірка типів |
+
+## База даних
+
+Схема, правила доступу та логіка ставок лежать у `supabase/migrations`. Їх застосовують по черзі, від найстарішого файлу до найновішого, через SQL Editor у Supabase або так:
 
 ```sh
-npm install
-cp .env.example .env.local   # fill in the Supabase values
-npm run dev
+psql "$SUPABASE_DB_URL" -f supabase/migrations/<файл>.sql
 ```
 
-UA is served at `/`, EN at `/en`.
+Усі правила ставок (мінімальний крок, максимальна сума, анти-снайпінг, закриття за часом сервера, захист від подвійних ставок) виконує функція `place_bid()` у базі, а не сайт.
 
-## Database
+### Налаштування Supabase
 
-Migrations are in `supabase/migrations`. The bidding rules (minimum step, anti-sniping, closing on server time, rate limit, duplicate protection) are all inside the `place_bid()` function.
+1. Authentication → URL Configuration: вказати адресу сайту в Site URL і додати `https://<сайт>/**` та `http://localhost:3000/**` у Redirect URLs.
+2. Authentication → Emails → Magic Link: вставити шаблон `supabase/templates/magic_link.html`.
+3. Authentication → Sign In / Providers → Google: додати ключі Google.
+4. Перший адміністратор: увійти на сайт один раз, заповнити реєстрацію, потім виконати в SQL Editor:
 
-Tests run the migrations against a throwaway local Postgres database and exercise them as real `anon` / `authenticated` users:
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'name@kse.org.ua');
+   ```
+
+   Інших адміністраторів і модераторів призначають в адмін-панелі, розділ «Учасники».
+
+## Тести
+
+Тести перевіряють правила ставок і доступу на тимчасовій базі в локальному PostgreSQL. За замовчуванням використовується `postgres://localhost:5432/brik_auction_test`; змінити можна через `TEST_DATABASE_URL`. Назва бази має закінчуватися на `_test`, бо вона видаляється при кожному запуску.
 
 ```sh
 npm test
 ```
 
-By default they use `postgres://localhost:5432/brik_auction_test`; set `TEST_DATABASE_URL` to change it. The database name must end in `_test` because it is dropped on every run.
+## Ролі
 
-## Connecting Supabase
+- **Учасник**: робить ставки, редагує свій профіль.
+- **Модератор**: бачить ставки й учасників (без контактів), скасовує ставки, блокує учасників.
+- **Адміністратор**: усе, включно з лотами, фото, налаштуваннями, донатами, експортом CSV з контактами та журналом дій.
 
-1. Fill in `.env.local` (see the notes in it).
-2. Apply the migrations in `supabase/migrations` in order (SQL editor or `psql "$SUPABASE_DB_URL" -f …`).
-3. Database → Extensions: enable `pg_cron` if the schedules migration could not.
-4. Authentication → URL Configuration: Site URL = your site, and add `http://localhost:3000/auth/callback` plus the production `/auth/callback` to Redirect URLs.
-5. Authentication → Emails → Magic Link: paste `supabase/templates/magic_link.html` (it contains both the code and the link).
-6. Authentication → Sign In / Providers → Google: add the Google OAuth client ID and secret.
-7. Optional bot check: create a Cloudflare Turnstile site, put its secret in Authentication → Attack Protection, and its site key in `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
-8. Make the first admin after they have signed in once:
-   ```sql
-   update public.profiles set role = 'admin' where id = (select id from auth.users where email = 'name@kse.org.ua');
-   ```
-   Further admins and moderators are assigned in Admin → Учасники.
+## Структура
 
-## Roles
+- `src/app/[locale]` — сторінки сайту
+- `src/app/admin` — адмін-панель
+- `src/components` — компоненти інтерфейсу
+- `messages` — тексти сайту українською та англійською
+- `supabase/migrations` — схема бази, правила доступу, функції ставок, розклад
+- `supabase/templates` — шаблон листа для входу
+- `tests` — тести
 
-- **Participant**: bids, edits their own profile.
-- **Moderator**: sees bids and participants (without contacts), cancels bids, blocks participants.
-- **Admin**: everything, including lots, photos, settings, donations, CSV exports with contacts, and the audit log.
+## Git
 
-## Layout
-
-- `src/app/[locale]` – pages
-- `src/components` – UI; `preloader-source.ts` is the client's preloader, ported verbatim
-- `messages/` – all copy, UA and EN
-- `supabase/migrations` – schema, access rules, bidding functions, cron jobs
-- `tests/db` – bidding and access-rule tests
+Основний репозиторій: `vladyslavduhota-wq/bricksitenextjs`. Робоча гілка `nextjs-rebuild`, гілка `main` повторює її.

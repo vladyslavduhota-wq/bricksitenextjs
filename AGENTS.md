@@ -1,6 +1,7 @@
 ## Git
-- Remotes: `vlad` (vladyslavduhota-wq/bricksitenextjs) is this project's home; `main` there mirrors `nextjs-rebuild`. `origin` (Alexpro121/brik-wow) holds the old prototype on its `main`.
-- Never push or merge this branch into `origin`'s `main`, and never rewrite pushed history (force push, rebase, amend); why: the old prototype and its history must stay intact.
+- Remotes: `origin` (KSE-Websites/rector-auction) is this project's home; push `nextjs-rebuild` to its `main`. `vlad` (vladyslavduhota-wq/bricksitenextjs) is a personal mirror. `prototype` (Alexpro121/brik-wow) holds the old Lovable prototype; never push there.
+- Never rewrite pushed history (force push, rebase, amend); why: collaborators and deployments depend on stable commits.
+- No Claude co-author or "Generated with" lines in commits or PRs.
 - Bidding rules live in Postgres (`supabase/migrations`), in `place_bid()`. The app never decides whether a bid is valid or a lot is closed; why: server time is the only source of truth and bids must not be lost or duplicated.
 - Every change to bidding SQL needs a test in `tests/db` (`npm test`, uses a local Postgres database ending in `_test`).
 - All public-site text goes in `messages/uk.json` and `messages/en.json`; Ukrainian is the default locale at `/`, English at `/en`. The admin panel (`/admin`) is Ukrainian only, with text inline; why: only the Rector's Office uses it.

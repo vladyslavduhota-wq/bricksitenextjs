@@ -11,21 +11,19 @@ import { formatUah } from "@/lib/format";
 import { lotTitle } from "@/lib/lot-text";
 import { cn } from "@/lib/utils";
 import type { LotPatch, PublicLot } from "@/lib/types";
-import { isOpen, useServerNow } from "./live";
 
 type Viewer = { state: "loading" } | { state: "anon" } | { state: "noProfile" } | { state: "blocked" } | { state: "ready"; mine: Set<string> };
 type PlaceResult = { bid_id: string; amount: number; lot: LotPatch; duplicate: boolean };
-const KNOWN = ["amount_too_low", "amount_too_high", "already_leading", "rate_limited", "lot_closed", "lot_not_found", "user_blocked", "profile_required", "not_authenticated"] as const;
+const KNOWN = ["amount_too_low", "amount_too_high", "already_leading", "rate_limited", "lot_closed", "lot_not_live", "lot_not_found", "user_blocked", "profile_required", "not_authenticated"] as const;
 type ErrorKey = (typeof KNOWN)[number] | "invalid" | "generic";
 
 const minNext = (lot: PublicLot) => (lot.current_amount == null ? lot.start_price : lot.current_amount + lot.bid_step);
 
 /** Spec 5.3–5.4: three clicks (bid → check amount → confirm), with the commitment stated on the form. */
-export function BidPanel({ lot, maxBid, onPlaced }: { lot: PublicLot; maxBid: number | null; onPlaced: (patch: LotPatch & { leading_bid_id: string }) => void }) {
+export function BidPanel({ lot, open, maxBid, onPlaced }: { lot: PublicLot; open: boolean; maxBid: number | null; onPlaced: (patch: LotPatch & { leading_bid_id: string }) => void }) {
   const t = useTranslations("bid");
   const locale = useLocale();
   const path = usePathname();
-  const now = useServerNow();
   const dialog = useRef<HTMLDialogElement>(null);
   const clientKey = useRef<string | null>(null);
   const [viewer, setViewer] = useState<Viewer>({ state: "loading" });
@@ -62,7 +60,7 @@ export function BidPanel({ lot, maxBid, onPlaced }: { lot: PublicLot; maxBid: nu
     setRaw(String(Math.max(min, (Number.isNaN(amount) ? min : amount) + d * lot.bid_step)));
   };
 
-  if (!isOpen(lot, now)) return <Notice>{t("closed")}</Notice>;
+  if (!open) return <Notice>{t("closed")}</Notice>;
 
   if (viewer.state === "loading") return <div className="h-[8.5rem] animate-pulse rounded-3xl bg-primary/5" />;
   if (viewer.state === "anon" || viewer.state === "noProfile") {

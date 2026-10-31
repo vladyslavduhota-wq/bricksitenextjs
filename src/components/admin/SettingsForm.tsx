@@ -20,14 +20,12 @@ function SaveBar({ pending, ok, error, at, label }: { pending: boolean; ok?: str
   );
 }
 
-/** Every number the spec leaves to the admin: goal (5.5), anti-sniping (5.3), max bid (5.3), bid rate, jar (5.6), stream (5.7). */
+/** What the admin controls: goal (5.5), max bid (5.3), bid rate, jar (5.6), stream (5.7). Lots close by hand during the show. */
 export function SettingsForm({ settings }: { settings: Settings }) {
   const { state, onSubmit, pending } = useFormAction(saveSettings);
   const f = state.fields ?? {};
   const [goal, setGoal] = useState(String(settings.goal_amount));
   const [maxBid, setMaxBid] = useState(String(settings.max_bid_amount));
-  const [windowMin, setWindowMin] = useState(String(settings.snipe_window_seconds / 60));
-  const [extendMin, setExtendMin] = useState(String(settings.snipe_extend_seconds / 60));
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
@@ -41,25 +39,15 @@ export function SettingsForm({ settings }: { settings: Settings }) {
         </Field>
       </fieldset>
 
-      <fieldset className="grid gap-5 border-t border-primary/10 pt-8 @lg:grid-cols-2 @4xl:grid-cols-4">
+      <fieldset className="grid gap-5 border-t border-primary/10 pt-8 @lg:grid-cols-2">
         <legend className="mb-4 text-lg font-bold tracking-tight text-primary">Правила ставок</legend>
-        <Field label="Анти-снайпінг: вікно, хв" hint="Ставка в останні N хвилин продовжує лот." error={f.snipe_window_minutes}>
-          <input name="snipe_window_minutes" inputMode="decimal" className={inputClass} value={windowMin} onChange={(e) => setWindowMin(e.target.value)} aria-invalid={!!f.snipe_window_minutes} />
-        </Field>
-        <Field label="Анти-снайпінг: продовження, хв" hint="До скількох хвилин від ставки." error={f.snipe_extend_minutes}>
-          <input name="snipe_extend_minutes" inputMode="decimal" className={inputClass} value={extendMin} onChange={(e) => setExtendMin(e.target.value)} aria-invalid={!!f.snipe_extend_minutes} />
-        </Field>
         <Field label="Максимальна ставка, ₴" hint="Захист від помилкових сум." error={f.max_bid_amount}>
           <input name="max_bid_amount" inputMode="numeric" className={inputClass} value={maxBid} onChange={(e) => setMaxBid(digits(e.target.value))} aria-invalid={!!f.max_bid_amount} />
         </Field>
         <Field label="Пауза між ставками, с" hint="Для одного учасника." error={f.min_seconds_between_bids}>
           <input name="min_seconds_between_bids" inputMode="numeric" className={inputClass} defaultValue={settings.min_seconds_between_bids} aria-invalid={!!f.min_seconds_between_bids} />
         </Field>
-        <p className="text-sm text-muted-foreground @lg:col-span-2 @4xl:col-span-4">
-          {Number(windowMin) > 0
-            ? `Зараз: ставка за ${windowMin} хв до закриття продовжує лот до ${extendMin} хв від моменту ставки.`
-            : "Анти-снайпінг вимкнено: лоти закриваються рівно в зазначений час."}
-        </p>
+        <p className="text-sm text-muted-foreground @lg:col-span-2">Лоти закриваються вручну під час ефіру, кнопкою «Завершити лот».</p>
       </fieldset>
 
       <fieldset className="grid gap-5 border-t border-primary/10 pt-8 @lg:grid-cols-2">

@@ -5,6 +5,8 @@ Disallow: /auth
 Disallow: /login
 Disallow: /welcome
 Disallow: /account
+Disallow: /screen
+Disallow: /en/screen
 Disallow: /en/login
 Disallow: /en/welcome
 Disallow: /en/account

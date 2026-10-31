@@ -7,8 +7,8 @@ import type messages from "../../messages/uk.json";
 // uk.json is the source of truth for namespace names.
 type Namespace = keyof typeof messages;
 
-/** What every page's client components need: the site bar and countdowns. */
-export const BASE_NAMESPACES = ["common", "time"] as const satisfies Namespace[];
+/** What every page's client components need: the site bar. */
+export const BASE_NAMESPACES = ["common"] as const satisfies Namespace[];
 
 /**
  * Sends the browser only the message namespaces this route's client components read,

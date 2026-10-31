@@ -20,9 +20,9 @@ import { ClosedWindow } from "@/components/ClosedWindow";
 import { Bezel } from "@/components/ui";
 import { AccountLink, LocaleSwitch } from "@/components/SiteBar";
 import { LotCard } from "@/components/auction/LotCard";
-import { useLiveLots } from "@/components/auction/live";
+import { useLiveShow } from "@/components/auction/live";
 import { formatUah } from "@/lib/format";
-import type { AuctionStats, PublicLot } from "@/lib/types";
+import type { LiveState, PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, ScrollWords, EASE, VIEW } from "@/components/fx";
 import { CONTACT_EMAIL, FINAL_AT } from "@/lib/auction";
@@ -36,12 +36,10 @@ const i = (n: number) => ({ ["--i" as string]: n }) as CSSProperties;
 // Base styles the prototype took from the shadcn Button.
 const BTN = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
-export function HomePage({ lots: initialLots, stats }: { lots: PublicLot[]; stats: AuctionStats | null }) {
+export function HomePage({ live }: { live: LiveState }) {
   const [ready, setReady] = useState(false);
-  const lots = useLiveLots(initialLots);
-  // The total moves with every bid: start from the server's figure and add what changed since.
-  const sum = (ls: PublicLot[]) => ls.reduce((n, l) => n + (l.current_amount ?? 0), 0);
-  const raised = (stats?.total_raised ?? 0) - sum(initialLots) + sum(lots);
+  // Follows the presenter: the lot on air and the total raised, both live.
+  const { lot, total } = useLiveShow(live);
   useEffect(() => {
     const on = () => setReady(true);
     if ((window as unknown as { __ksePreDone?: boolean }).__ksePreDone) { document.documentElement.style.overflow = ""; on(); return; }
@@ -58,10 +56,10 @@ export function HomePage({ lots: initialLots, stats }: { lots: PublicLot[]; stat
       <Nav />
       <ClosedWindow />
       <main>
-        <Hero raised={raised} />
+        <Hero raised={total} />
         <Marquee />
         <About />
-        <Lots lots={lots} />
+        <Lots lot={lot} />
         <Steps />
         <Report />
         <Final />
@@ -203,7 +201,7 @@ function Nav() {
           <div className="flex items-center gap-2">
             <LocaleSwitch />
             <AccountLink />
-            <Link href="/lots" className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
+            <Link href="/live" className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
               {t("common.placeBid")}
             </Link>
             <button aria-label={t("common.menu")} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className={cn(BTN, "relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden")}>
@@ -375,15 +373,11 @@ function Marquee() {
 
 /* ---------- lots ---------- */
 
-// Most bids first; ties go to the higher current price, then the earlier deadline.
-const byActivity = (a: PublicLot, b: PublicLot) =>
-  b.bid_count - a.bid_count || (b.current_amount ?? 0) - (a.current_amount ?? 0) || a.ends_at.localeCompare(b.ends_at);
-
-function Lots({ lots }: { lots: PublicLot[] }) {
+/** Only the lot on air: viewers follow the show, not a catalogue. */
+function Lots({ lot }: { lot: PublicLot | null }) {
   const t = useTranslations("lots");
   const reduce = useReducedMotion();
-  const open = lots.filter((l) => l.status === "active");
-  const top = [...(open.length >= 3 ? open : lots)].sort(byActivity).slice(0, 3);
+  const top = lot ? [lot] : [];
   return (
     <section id="lots" className="relative overflow-hidden bg-primary pb-20 pt-24 text-primary-foreground">
       <div className="orb pointer-events-none absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full opacity-30" />
@@ -402,11 +396,11 @@ function Lots({ lots }: { lots: PublicLot[] }) {
         </Reveal>
         {top.length ? (
           // Phones: a swipeable row with the next tag peeking in, instead of three screen-tall cards.
-          <div className="no-scrollbar mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 max-sm:-mx-4 max-sm:mt-6 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-6 max-sm:pt-6">
+          <div className="mx-auto mt-12 w-full max-w-sm max-sm:mt-8">
             {top.map((lot, k) => (
               // A price tag hung by its hole: it drops onto the hook, swings and settles; a nudge on hover.
               // The tilt lives on its own wrapper so the swing never fights it.
-              <div key={lot.id} className={cn(TILT[k], "max-sm:w-[78%] max-sm:shrink-0 max-sm:snap-center")}>
+              <div key={lot.id} className={TILT[1]}>
                 <motion.div
                   style={{ transformOrigin: "50% 1.9rem" }}
                   initial={reduce ? false : { opacity: 0, y: -90, rotate: (k - 1) * 9 + 7 }}
@@ -428,7 +422,7 @@ function Lots({ lots }: { lots: PublicLot[] }) {
           <p className="mt-12 text-primary-foreground/65">{t("empty")}</p>
         )}
         <div className="mt-14 flex justify-center max-sm:mt-6">
-          <PillCta href="/lots" variant="accent">{t("all", { n: lots.length })}</PillCta>
+          <PillCta href="/live" variant="accent">{t("all")}</PillCta>
         </div>
       </div>
     </section>

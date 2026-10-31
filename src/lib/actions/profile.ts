@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getViewer, safeNext } from "@/lib/auth";
 
-export type ProfileField = "fullName" | "phone" | "displayName" | "adult" | "rules" | "generic";
+export type ProfileField = "fullName" | "phone" | "adult" | "rules" | "generic";
 export type ProfileState = { errors?: Partial<Record<ProfileField, true>>; saved?: number };
 
 // Mirrors the CHECK constraints on public.profiles.
@@ -14,13 +14,11 @@ const PHONE = /^\+?[0-9 ()-]{7,20}$/;
 function readProfile(form: FormData) {
   const full_name = String(form.get("full_name") ?? "").trim().replace(/\s+/g, " ");
   const phone = String(form.get("phone") ?? "").trim();
-  const display_name = String(form.get("display_name") ?? "").trim() || null;
   const errors: ProfileState["errors"] = {};
   if (full_name.length < 2 || full_name.length > 100) errors.fullName = true;
   if (!PHONE.test(phone)) errors.phone = true;
-  if (display_name && (display_name.length < 2 || display_name.length > 40)) errors.displayName = true;
   return {
-    values: { full_name, phone, display_name, show_anonymously: form.get("show_anonymously") === "on", photo_consent: form.get("photo_consent") === "on" },
+    values: { full_name, phone },
     errors,
   };
 }

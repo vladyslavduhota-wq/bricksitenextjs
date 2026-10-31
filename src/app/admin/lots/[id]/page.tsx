@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, LockSimple, Trash } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, Broadcast, LockSimple, Trash } from "@phosphor-icons/react/dist/ssr";
 import { LotStatusBadge, PageHeader, Panel } from "@/components/admin/kit";
 import { LotForm } from "@/components/admin/LotForm";
 import { PhotoManager } from "@/components/admin/PhotoManager";
 import { ConfirmAction } from "@/components/admin/ConfirmAction";
-import { Notice, microLabel } from "@/components/ui";
-import { closeLotNow, deleteLot } from "@/app/admin/actions";
+import { Badge, Notice, microLabel } from "@/components/ui";
+import { closeLotNow, deleteLot, showLot } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatUah } from "@/lib/format";
-import { formatKyiv, formatKyivPrecise, formatTimeLeft, toKyivInput } from "@/lib/time";
+import { formatKyiv, formatKyivPrecise } from "@/lib/time";
 import type { AdminBid, Lot, LotImage } from "@/lib/types";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> };
@@ -33,12 +33,14 @@ export default async function LotPage({ params, searchParams }: Props) {
   ]);
   if (!lot) notFound();
   const leader = bids?.[0];
+  const { data: show } = await supabase.from("settings").select("current_lot_id").single();
+  const onAir = show?.current_lot_id === lot.id;
   const created = (await searchParams).created;
 
   return (
     <>
       <Link href="/admin/lots" className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"><ArrowLeft /> Усі лоти</Link>
-      <PageHeader title={lot.title_uk} description={<span className="inline-flex items-center gap-2"><LotStatusBadge status={lot.status} /> /lots/{lot.slug}</span>} />
+      <PageHeader title={lot.title_uk} description={<span className="inline-flex items-center gap-2"><LotStatusBadge status={lot.status} />{onAir && <Badge tone="accent">В ефірі</Badge>}</span>} />
       {created && <div className="mb-6"><Notice tone="success">Лот створено. Додайте фото і, коли все готово, зробіть його активним.</Notice></div>}
 
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
@@ -47,11 +49,11 @@ export default async function LotPage({ params, searchParams }: Props) {
             <PhotoManager lotId={lot.id} title={lot.title_uk} images={images ?? []} />
           </Panel>
           <Panel>
-            <LotForm key={lot.ends_at + lot.status} lot={lot} endsAtDefault={toKyivInput(lot.ends_at)} />
+            <LotForm key={lot.status} lot={lot} />
           </Panel>
         </div>
 
-        {/* Price, closing and actions come first when the layout stacks; a sticky side column on wide screens. */}
+        {/* Price and actions come first when the layout stacks; a sticky side column on wide screens. */}
         <div className="order-first grid gap-6 md:grid-cols-2 xl:sticky xl:top-10 xl:order-none xl:grid-cols-1">
 
           <Panel>
@@ -60,17 +62,20 @@ export default async function LotPage({ params, searchParams }: Props) {
             <dl className="mt-5 space-y-2 text-sm">
               <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Ставок</dt><dd className="font-medium tabular-nums">{lot.bid_count}</dd></div>
               <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Лідер</dt><dd className="truncate font-medium">{leader?.bidder_name ?? "—"}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Закриття</dt><dd className="text-right font-medium tabular-nums">{formatKyiv(lot.ends_at)}</dd></div>
-              {lot.status === "active" && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Залишилось</dt><dd className="font-medium">{formatTimeLeft(lot.ends_at)}</dd></div>}
               {lot.closed_at && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Закрито</dt><dd className="font-medium tabular-nums">{formatKyiv(lot.closed_at)}</dd></div>}
             </dl>
+            {lot.status === "active" && !onAir && (
+              <ConfirmAction action={showLot.bind(null, lot.id)} variant="accent" size="md" className="mt-6 w-full" title="Показати лот в ефірі?" description="Глядачі на сайті й на екрані трансляції одразу побачать цей лот, і ставки відкриються." confirmLabel="Показати">
+                <Broadcast size={18} weight="light" /> Показати в ефірі
+              </ConfirmAction>
+            )}
             {lot.status === "active" && (
               <ConfirmAction
                 action={closeLotNow.bind(null, lot.id)}
                 variant="primary"
                 size="md"
-                className="mt-6 w-full"
-                title="Закрити лот достроково?"
+                className="mt-3 w-full"
+                title="Закрити лот?"
                 description={leader ? `Ставки зупиняться зараз. Переможцем стане ${leader.bidder_name} зі ставкою ${formatUah(leader.amount)}, йому надійде лист.` : "Ставки зупиняться зараз. На лот поки немає ставок."}
                 confirmLabel="Закрити зараз"
               >

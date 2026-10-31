@@ -49,15 +49,3 @@ export const formatKyiv = (value: string | Date) => dateTime.format(new Date(val
 /** 14.11, 11:59:58 — for bids, where seconds matter. */
 export const formatKyivPrecise = (value: string | Date) => dateTimeSec.format(new Date(value));
 
-/** "2 год 15 хв", "4 хв", "завершено" */
-export function formatTimeLeft(until: string | Date, now = new Date()) {
-  const ms = new Date(until).getTime() - now.getTime();
-  if (ms <= 0) return "завершено";
-  const min = Math.ceil(ms / 60000);
-  const d = Math.floor(min / 1440);
-  const h = Math.floor((min % 1440) / 60);
-  const m = min % 60;
-  if (d) return `${d} д ${h} год`;
-  if (h) return `${h} год ${m} хв`;
-  return `${m} хв`;
-}

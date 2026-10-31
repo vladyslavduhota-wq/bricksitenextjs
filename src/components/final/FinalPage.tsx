@@ -14,7 +14,7 @@ import type { AuctionStats, PublicLot } from "@/lib/types";
 
 const EASE = [0.32, 0.72, 0, 1] as const;
 
-export function FinalPage({ lots: initialLots, stats, leaders }: { lots: PublicLot[]; stats: AuctionStats | null; leaders: Record<string, string | null> }) {
+export function FinalPage({ lots: initialLots, stats, winners }: { lots: PublicLot[]; stats: AuctionStats | null; winners: Record<string, string> }) {
   const tl = useTranslations("lot");
   const locale = useLocale();
   const lots = useLiveLots(initialLots);
@@ -60,12 +60,12 @@ export function FinalPage({ lots: initialLots, stats, leaders }: { lots: PublicL
             <motion.div key={lot.id} {...up(k * 0.08)} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[1.75rem] bg-card p-5 shadow-soft ring-1 ring-primary/10 md:p-6">
               <span className="text-outline text-5xl font-bold leading-none">{k + 1}</span>
               <div className="min-w-0">
-                <Link href={`/lots/${lot.slug}`} className="font-bold text-primary hover:underline">{lotTitle(lot, locale)}</Link>
+                <p className="font-bold text-primary">{lotTitle(lot, locale)}</p>
                 <p className="text-sm text-muted-foreground">
                   {lot.status !== "closed"
                     ? tl("bids", { n: lot.bid_count })
-                    : lot.leading_bid_id
-                      ? `${tl("winner")}: ${leaders[lot.leading_bid_id] ?? tl("anonymous")}`
+                    : winners[lot.id]
+                      ? `${tl("winner")}: ${winners[lot.id]}`
                       : tl("noWinner")}
                 </p>
               </div>

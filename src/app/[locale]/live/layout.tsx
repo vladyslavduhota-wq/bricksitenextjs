@@ -3,5 +3,5 @@ import { ClientMessages } from "@/i18n/client-messages";
 
 // Only the copy this section's client components read reaches the browser.
 export default function Layout({ children }: { children: ReactNode }) {
-  return <ClientMessages namespaces={["catalog", "lot", "bid"]}>{children}</ClientMessages>;
+  return <ClientMessages namespaces={["live", "lot", "bid"]}>{children}</ClientMessages>;
 }

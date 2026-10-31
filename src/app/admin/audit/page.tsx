@@ -17,7 +17,7 @@ const FIELD: Record<string, string> = {
   ends_at: "закриття", status: "статус", sort_order: "порядок", slug: "адреса", is_blocked: "блокування", role: "роль",
   cancel_reason: "причина", goal_amount: "ціль", max_bid_amount: "макс. ставка", snipe_window_seconds: "вікно анти-снайпінгу",
   snipe_extend_seconds: "продовження", min_seconds_between_bids: "пауза", donate_url: "банка", stream_url: "трансляція",
-  final_published: "підсумки", amount: "сума", note: "примітка",
+  final_published: "підсумки", current_lot_id: "лот в ефірі", amount: "сума", note: "примітка",
 };
 // Bookkeeping columns that change on their own and only add noise.
 const SKIP = new Set(["updated_at", "created_at", "current_amount", "bid_count", "leading_bid_id", "winner_bid_id", "closed_at", "reminder_sent_at", "cancelled_at", "cancelled_by", "id"]);

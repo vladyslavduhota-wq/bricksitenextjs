@@ -3,10 +3,10 @@ import { setRequestLocale } from "next-intl/server";
 import { alternates } from "@/i18n/alternates";
 import { ClientMessages } from "@/i18n/client-messages";
 import { HomePage } from "@/components/home/HomePage";
-import { getAuctionStats, getPublicLots } from "@/lib/lots";
+import { getLiveState } from "@/lib/lots";
 
-// Prices and the total stay live through Realtime; the page refreshes at most every 30 s.
-export const revalidate = 30;
+// The lot on air and the total stay live through Realtime; this only bounds the first paint.
+export const revalidate = 10;
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -16,10 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Home({ params }: Props) {
   setRequestLocale((await params).locale);
-  const [lots, stats] = await Promise.all([getPublicLots(), getAuctionStats()]);
+  const live = await getLiveState();
   return (
-    <ClientMessages namespaces={["nav", "hero", "marquee", "about", "lots", "steps", "report", "final", "faq", "footer", "closed", "lot"]}>
-      <HomePage lots={lots} stats={stats} />
+    <ClientMessages namespaces={["nav", "hero", "marquee", "about", "lots", "steps", "report", "final", "faq", "footer", "closed", "lot", "live"]}>
+      <HomePage live={live} />
     </ClientMessages>
   );
 }

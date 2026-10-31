@@ -6,7 +6,6 @@ import { ArrowRight, Check as CheckIcon } from "@phosphor-icons/react";
 import { Link } from "@/i18n/navigation";
 import { Button, Check, Field, Notice, inputClass } from "@/components/ui";
 import type { ProfileState } from "@/lib/actions/profile";
-import { publicName } from "@/lib/public-name";
 import type { Profile } from "@/lib/types";
 
 type Action = (state: ProfileState, form: FormData) => Promise<ProfileState>;
@@ -16,15 +15,11 @@ export function ProfileForm({ action, mode, profile }: { action: Action; mode: "
   const t = useTranslations("profile");
   const [state, formAction, pending] = useActionState(action, {});
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
-  const [nick, setNick] = useState(profile?.display_name ?? "");
-  const [anonymous, setAnonymous] = useState(profile?.show_anonymously ?? false);
   // Controlled on purpose: React resets uncontrolled fields after a form action, which would wipe input on an error.
   const [phone, setPhone] = useState(profile?.phone ?? "+380 ");
-  const [photo, setPhoto] = useState(profile?.photo_consent ?? false);
   const [adult, setAdult] = useState(false);
   const [rules, setRules] = useState(false);
   const e = state.errors ?? {};
-  const shown = publicName({ full_name: fullName || "—", display_name: nick, show_anonymously: anonymous }) ?? t("anonymousName");
   const link = (href: "/rules" | "/privacy") =>
     function LegalLink(c: React.ReactNode) {
       return <Link href={href} target="_blank" className="text-primary underline decoration-accent decoration-2 underline-offset-4">{c}</Link>;
@@ -38,23 +33,14 @@ export function ProfileForm({ action, mode, profile }: { action: Action; mode: "
       <Field label={t("phone")} hint={t("phoneHint")} error={e.phone && t("errors.phone")}>
         <input name="phone" type="tel" className={inputClass} value={phone} onChange={(ev) => setPhone(ev.target.value)} autoComplete="tel" inputMode="tel" required maxLength={20} aria-invalid={!!e.phone} />
       </Field>
-      <Field label={t("displayName")} hint={t("displayNameHint")} error={e.displayName && t("errors.displayName")}>
-        <input name="display_name" className={inputClass} value={nick} onChange={(ev) => setNick(ev.target.value)} maxLength={40} autoComplete="nickname" aria-invalid={!!e.displayName} />
-      </Field>
-
-      <div className="-mx-3 space-y-1">
-        <Check name="show_anonymously" checked={anonymous} onChange={(ev) => setAnonymous(ev.target.checked)}>{t("anonymous")}</Check>
-        <p className="px-3 pb-2 text-xs text-muted-foreground">{t("publicAs", { name: shown })}</p>
-        <Check name="photo_consent" checked={photo} onChange={(ev) => setPhoto(ev.target.checked)}>{t("photoConsent")}</Check>
-        {mode === "create" && (
-          <>
-            <Check name="adult" checked={adult} onChange={(ev) => setAdult(ev.target.checked)} aria-invalid={!!e.adult}>{t("adult")}</Check>
-            {e.adult && <p className="px-3 text-xs text-destructive">{t("errors.adult")}</p>}
-            <Check name="rules" checked={rules} onChange={(ev) => setRules(ev.target.checked)} aria-invalid={!!e.rules}>{t.rich("rules", { rules: link("/rules"), privacy: link("/privacy") })}</Check>
-            {e.rules && <p className="px-3 text-xs text-destructive">{t("errors.rules")}</p>}
-          </>
-        )}
-      </div>
+      {mode === "create" && (
+        <div className="-mx-3 space-y-1">
+          <Check name="adult" checked={adult} onChange={(ev) => setAdult(ev.target.checked)} aria-invalid={!!e.adult}>{t("adult")}</Check>
+          {e.adult && <p className="px-3 text-xs text-destructive">{t("errors.adult")}</p>}
+          <Check name="rules" checked={rules} onChange={(ev) => setRules(ev.target.checked)} aria-invalid={!!e.rules}>{t.rich("rules", { rules: link("/rules"), privacy: link("/privacy") })}</Check>
+          {e.rules && <p className="px-3 text-xs text-destructive">{t("errors.rules")}</p>}
+        </div>
+      )}
 
       {e.generic && <Notice tone="error">{t("errors.generic")}</Notice>}
       <div className="flex flex-wrap items-center gap-4">

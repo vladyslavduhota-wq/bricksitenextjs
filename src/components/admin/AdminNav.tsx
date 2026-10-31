@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClockCounterClockwise, Gavel, GearSix, Package, SquaresFour, UsersThree, type Icon } from "@phosphor-icons/react";
+import { Broadcast, ClockCounterClockwise, Gavel, GearSix, Package, SquaresFour, UsersThree, type Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const ITEMS: { href: string; label: string; icon: Icon; adminOnly?: boolean }[] = [
   { href: "/admin", label: "Огляд", icon: SquaresFour },
+  { href: "/admin/live", label: "Ефір", icon: Broadcast, adminOnly: true },
   { href: "/admin/lots", label: "Лоти", icon: Package, adminOnly: true },
   { href: "/admin/bids", label: "Ставки", icon: Gavel },
   { href: "/admin/users", label: "Учасники", icon: UsersThree },

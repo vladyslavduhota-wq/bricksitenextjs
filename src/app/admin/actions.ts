@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { requireAdmin, requireStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LOTS_BUCKET } from "@/lib/supabase/env";
-import { fromKyivInput } from "@/lib/time";
 import { slugify } from "@/lib/format";
 import type { LotStatus, Role } from "@/lib/types";
 
 // Every action below refreshes the whole site (revalidatePath("/", "layout")): admin pages and the cached public pages alike.
-export type ActionState = { ok?: string; error?: string; fields?: Record<string, string>; at?: number };
+/** `next` carries a fresh request key after a manual bid succeeds, so its form starts over. */
+export type ActionState = { ok?: string; error?: string; fields?: Record<string, string>; at?: number; next?: string };
 
 const ok = (message: string): ActionState => ({ ok: message, at: Date.now() });
 const fail = (message: string, fields?: Record<string, string>): ActionState => ({ error: message, fields, at: Date.now() });
@@ -41,7 +41,6 @@ export async function saveLot(_: ActionState, form: FormData): Promise<ActionSta
     sort_order: Number.parseInt(text(form, "sort_order") || "0", 10),
     slug: slugify(text(form, "slug")) || slugify(text(form, "title_uk")),
   };
-  const endsAt = fromKyivInput(text(form, "ends_at"));
 
   const fields: Record<string, string> = {};
   if (!values.title_uk) fields.title_uk = "Вкажіть назву українською.";
@@ -51,12 +50,10 @@ export async function saveLot(_: ActionState, form: FormData): Promise<ActionSta
   if (!(values.bid_step > 0 && values.bid_step <= MAX_UAH)) fields.bid_step = "Ціле число гривень, більше 0.";
   if (!STATUSES.includes(values.status)) fields.status = "Оберіть статус.";
   if (!Number.isFinite(values.sort_order)) values.sort_order = 0;
-  if (!endsAt) fields.ends_at = "Вкажіть дату й час закриття.";
-  else if (values.status === "active" && endsAt.getTime() <= Date.now()) fields.ends_at = "Для активного лота час закриття має бути в майбутньому.";
   if (!values.slug) fields.slug = "Адреса з латинських літер і цифр.";
   if (Object.keys(fields).length) return fail("Перевірте виділені поля.", fields);
 
-  const row = { ...values, ends_at: endsAt!.toISOString() };
+  const row = values;
 
   if (id) {
     const { data: current } = await supabase.from("lots").select("bid_count, start_price").eq("id", id).single();
@@ -177,15 +174,9 @@ const url = (value: string) => {
 
 export async function saveSettings(_: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
-  const minutes = (key: string) => {
-    const n = Number(text(form, key).replace(",", "."));
-    return Number.isFinite(n) && n >= 0 && n <= 120 ? Math.round(n * 60) : NaN;
-  };
   const values = {
     goal_amount: int(form, "goal_amount"),
     max_bid_amount: int(form, "max_bid_amount"),
-    snipe_window_seconds: minutes("snipe_window_minutes"),
-    snipe_extend_seconds: minutes("snipe_extend_minutes"),
     min_seconds_between_bids: int(form, "min_seconds_between_bids"),
     donate_url: url(text(form, "donate_url")),
     stream_url: url(text(form, "stream_url")),
@@ -194,8 +185,6 @@ export async function saveSettings(_: ActionState, form: FormData): Promise<Acti
   const fields: Record<string, string> = {};
   if (!(values.goal_amount >= 0 && values.goal_amount <= MAX_UAH)) fields.goal_amount = "Ціле число гривень.";
   if (!(values.max_bid_amount > 0 && values.max_bid_amount <= MAX_UAH)) fields.max_bid_amount = "Ціле число гривень, більше 0.";
-  if (Number.isNaN(values.snipe_window_seconds)) fields.snipe_window_minutes = "Від 0 до 120 хвилин.";
-  if (Number.isNaN(values.snipe_extend_seconds)) fields.snipe_extend_minutes = "Від 0 до 120 хвилин.";
   if (!(values.min_seconds_between_bids >= 0 && values.min_seconds_between_bids <= 3600)) fields.min_seconds_between_bids = "Від 0 до 3600 секунд.";
   if (values.donate_url === undefined) fields.donate_url = "Повне посилання, що починається з https://";
   if (values.stream_url === undefined) fields.stream_url = "Повне посилання, що починається з https://";
@@ -226,4 +215,91 @@ export async function deleteDonation(id: string, _?: ActionState, __?: FormData)
   if (error) return fail("Не вдалося видалити донат.");
   revalidatePath("/", "layout");
   return ok("Донат видалено.");
+}
+
+// ---------------------------------------------------------------- the live show
+
+/** Puts a lot on air. A closed lot shows its winner again. */
+export async function showLot(lotId: string, _?: ActionState, __?: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { data: target } = await supabase.from("lots").select("status").eq("id", lotId).maybeSingle();
+  if (!target || target.status === "draft") return fail("Чернетку не можна показати: спершу зробіть лот активним.");
+  const { error } = await supabase.from("settings").update({ current_lot_id: lotId }).eq("id", true);
+  if (error) return fail("Не вдалося показати лот.");
+  revalidatePath("/", "layout");
+  return ok("Лот в ефірі.");
+}
+
+/** Closes the lot on air: bidding stops and everyone sees the winner. */
+export async function finishLot(_?: ActionState, __?: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { data: s } = await supabase.from("settings").select("current_lot_id").single();
+  if (!s?.current_lot_id) return fail("Зараз жоден лот не в ефірі.");
+  const { data, error } = await supabase.from("lots").update({ status: "closed" }).eq("id", s.current_lot_id).eq("status", "active").select("id");
+  if (error || !data?.length) return fail("Лот уже завершено.");
+  revalidatePath("/", "layout");
+  return ok("Лот завершено, переможця показано.");
+}
+
+/** The next active lot in show order after the one on air; none left ends the show. */
+export async function nextLot(_?: ActionState, __?: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const [{ data: s }, { data: queue }] = await Promise.all([
+    supabase.from("settings").select("current_lot_id").single(),
+    supabase.from("lots").select("id, status").neq("status", "draft").order("sort_order").order("created_at"),
+  ]);
+  const list = queue ?? [];
+  const from = list.findIndex((l) => l.id === s?.current_lot_id);
+  const next = list.slice(from + 1).find((l) => l.status === "active") ?? list.find((l) => l.status === "active" && l.id !== s?.current_lot_id);
+  const { error } = await supabase.from("settings").update({ current_lot_id: next?.id ?? null }).eq("id", true);
+  if (error) return fail("Не вдалося перейти до наступного лота.");
+  revalidatePath("/", "layout");
+  return ok(next ? "Наступний лот в ефірі." : "Активних лотів більше немає: показуємо екран очікування.");
+}
+
+/** Takes everything off air: viewers see the waiting screen. */
+export async function pauseShow(_?: ActionState, __?: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("settings").update({ current_lot_id: null }).eq("id", true);
+  if (error) return fail("Не вдалося поставити паузу.");
+  revalidatePath("/", "layout");
+  return ok("Пауза: глядачі бачать екран очікування.");
+}
+
+const BID_ERRORS: Record<string, string> = {
+  amount_too_low: "Сума замала. Мінімальна ставка зараз {min}.",
+  amount_too_high: "Сума більша за максимальну в налаштуваннях.",
+  lot_not_live: "Цей лот зараз не в ефірі.",
+  lot_closed: "Лот уже завершено.",
+  lot_not_found: "Лот не знайдено.",
+  name_required: "Вкажіть ім'я учасника.",
+  forbidden: "Додавати ставки можуть лише адміністратори.",
+};
+
+/** A bid from the room or by phone, under the bidder's name. */
+export async function addManualBid(lotId: string, _: ActionState, form: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const name = text(form, "name").replace(/\s+/g, " ");
+  const phone = text(form, "phone");
+  const amount = int(form, "amount");
+  const fields: Record<string, string> = {};
+  if (name.length < 2) fields.name = "Ім'я та прізвище.";
+  if (phone && !/^\+?[0-9 ()-]{7,20}$/.test(phone)) fields.phone = "Наприклад +380 50 123 45 67.";
+  if (!(amount > 0)) fields.amount = "Ціле число гривень.";
+  // The same key on a retry, so a resent form never adds the bid twice; a new one after success.
+  const key = text(form, "client_key");
+  if (Object.keys(fields).length) return { ...fail("Перевірте виділені поля.", fields), next: key };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_add_bid", { p_lot_id: lotId, p_amount: amount, p_name: name, p_phone: phone || null, p_client_key: key });
+  if (error) {
+    const message = (BID_ERRORS[error.message] ?? "Не вдалося додати ставку.").replace("{min}", `${error.details} ₴`);
+    return { ...fail(message, error.message === "amount_too_low" ? { amount: message } : undefined), next: key };
+  }
+  revalidatePath("/", "layout");
+  return { ...ok(`Ставку ${amount} ₴ від «${name}» додано.`), next: crypto.randomUUID() };
 }

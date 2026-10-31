@@ -74,9 +74,9 @@
     "title1": "On the table:",
     "title2": "Tymofiy's",
     "title3": "things.",
-    "intro": "The three lots drawing the most bids right now. Prices update live, and bidding takes three taps.",
-    "all": "All lots · {n}",
-    "empty": "Lots will appear here soon."
+    "intro": "On air now: the lot the host is showing. The price and bids update live.",
+    "all": "Watch live",
+    "empty": "Next lot coming up. Stay tuned."
   },
   "steps": {
     "title1": "From a thing",
@@ -84,9 +84,9 @@
     "intro": "Each step is higher than the last, just like bids. The exact rules will be confirmed before the start.",
     "items": {
       "choose": {
-        "title": "Pick a thing",
-        "text": "Open a lot: photos, description, starting price and the current bid.",
-        "status": "Catalogue open"
+        "title": "Watch the show",
+        "text": "The host shows the lots one by one. The lot on air appears on the site at once.",
+        "status": "Live"
       },
       "bid": {
         "title": "Place a bid",
@@ -94,9 +94,9 @@
         "status": "Three taps"
       },
       "result": {
-        "title": "See the result",
-        "text": "After the final, the total and a report on the funds will appear here.",
-        "status": "14.11.2026"
+        "title": "See the winner",
+        "text": "The host closes the lot with a button, and the winner's name appears on screen.",
+        "status": "Instantly"
       }
     }
   },
@@ -139,7 +139,7 @@
       },
       "bidding": {
         "q": "How will bidding work?",
-        "a": "Sign in by email or with Google, open a lot and place a bid: it must beat the current one by at least the lot's step. A bid in the last minutes extends bidding so everyone can respond."
+        "a": "Sign in by email or with Google. While a lot is on air, open the Live page and place a bid: it must beat the current one by at least the lot's step. The host closes each lot during the show."
       },
       "who": {
         "q": "Who can take part?",
@@ -227,12 +227,6 @@
     "fullName": "Full name",
     "phone": "Phone",
     "phoneHint": "So we can contact you if you win.",
-    "displayName": "Nickname (optional)",
-    "displayNameHint": "Shown in the bid history instead of your name.",
-    "publicAs": "In the bid history: {name}",
-    "anonymousName": "anonymous bidder",
-    "anonymous": "Show my bids anonymously",
-    "photoConsent": "You may publish a photo of me with the lot I win on the final page (optional)",
     "adult": "I am 18 or older",
     "rules": "I agree to the <rules>auction rules</rules> and the <privacy>privacy policy</privacy>",
     "submit": "Continue",
@@ -241,7 +235,6 @@
     "errors": {
       "fullName": "Enter your full name (2–100 characters).",
       "phone": "Enter a phone number, e.g. +380 50 123 45 67.",
-      "displayName": "A nickname needs 2–40 characters.",
       "adult": "You must be 18 or older to take part.",
       "rules": "Please agree to the rules and the privacy policy.",
       "generic": "Couldn't save. Please try again."
@@ -268,7 +261,7 @@
         },
         {
           "h": "Bids",
-          "p": "Each bid must beat the current one by at least the lot's step. The starting price and step are shown on each lot page. A bid placed in the last 5 minutes extends that lot's closing time by 5 minutes."
+          "p": "Each bid must beat the current one by at least the lot's step. Bids are accepted only on the lot currently shown on air. Bids from the room or by phone are entered by the auction administrator."
         },
         {
           "h": "A bid is a commitment",
@@ -276,7 +269,7 @@
         },
         {
           "h": "Closing",
-          "p": "Bidding closes automatically at the stated time, by the server clock. The highest valid bid at closing wins."
+          "p": "The host closes bidding on each lot during the show. The highest valid bid at closing wins. The winner's full name is announced on air and shown on the site."
         },
         {
           "h": "Payment",
@@ -302,7 +295,7 @@
       "sections": [
         {
           "h": "What we collect",
-          "p": "Your name, email and phone, and your bids. A nickname, anonymity setting and consent to publish a photo are optional."
+          "p": "Your name, email and phone, and your bids."
         },
         {
           "h": "Why",
@@ -310,7 +303,7 @@
         },
         {
           "h": "Who sees it",
-          "p": "Only the auction's administrators at the KSE Rector's Office see your contacts. The public bid history shows only your nickname, your first name with a surname initial, or \"anonymous\", as you choose."
+          "p": "Only the auction's administrators at the KSE Rector's Office see your contacts. The public bid history shows your first name and surname initial. The full name of each lot's winner is announced on air and shown on the site."
         },
         {
           "h": "Storage",
@@ -323,55 +316,22 @@
       ]
     }
   },
-  "time": {
-    "d": "d",
-    "h": "h",
-    "m": "min",
-    "s": "s",
-    "ended": "ended",
-    "left": "left"
-  },
-  "catalog": {
-    "metaTitle": "Lots · KSE Auction",
-    "metaDescription": "All of the KSE Rector's things in the auction: photos, current bids, time left.",
-    "title": "All lots",
-    "intro": "Prices and bids update live. Tap an item to see the photos and place a bid.",
-    "filters": {
-      "all": "All",
-      "withBids": "With bids",
-      "noBids": "No bids yet"
-    },
-    "sort": {
-      "label": "Sort",
-      "ending": "Ending soonest",
-      "priceAsc": "Lowest price first",
-      "priceDesc": "Highest price first"
-    },
-    "empty": "Lots will appear here soon.",
-    "emptyFilter": "No lots match this filter."
-  },
   "lot": {
     "metaFallback": "A lot in the auction of the KSE Rector's things.",
-    "back": "All lots",
     "current": "Current bid",
     "start": "Starting price",
     "step": "Step",
     "bids": "{n, plural, =0 {No bids yet} one {# bid} other {# bids}}",
-    "endsIn": "Ends in",
     "ended": "Bidding closed",
     "finalPrice": "Winning bid",
     "winner": "Winner",
     "noWinner": "No bids were placed",
-    "anonymous": "Anonymous bidder",
     "history": "Bid history",
     "noBids": "Be the first to bid.",
     "photo": "Photo {n} of {total}",
     "prev": "Previous photo",
     "next": "Next photo",
     "noPhoto": "Photo coming soon",
-    "snipeNote": "A bid in the last {window} min extends bidding to {extend} min after that bid.",
-    "live": "Live",
-    "open": "Bidding open",
     "view": "View lot"
   },
   "bid": {
@@ -406,11 +366,28 @@
       "profile_required": "Please finish signing up first.",
       "not_authenticated": "Sign in to place a bid.",
       "invalid": "Enter a whole number.",
-      "generic": "Couldn't send your bid. Please try again."
+      "generic": "Couldn't send your bid. Please try again.",
+      "lot_not_live": "This lot isn't on air right now."
     }
   },
   "raised": "Raised",
   "goalOf": "of {goal}",
+  "live": {
+    "metaTitle": "Live · KSE Auction",
+    "metaDescription": "The lot on air right now. Bids and history update live.",
+    "onAir": "On air",
+    "waitingTitle": "Next lot coming up",
+    "waitingText": "As soon as the host shows a lot on air, it will appear here and you can bid.",
+    "raised": "Raised",
+    "winner": "Winner",
+    "soldFor": "Sold for {amount}",
+    "noWinner": "Lot closed with no bids",
+    "closeOverlay": "Close",
+    "lastBids": "Latest bids",
+    "bidAt": "Bid at {site}",
+    "watch": "Watch live",
+    "bidder": "Bidder"
+  },
   "notFound": {
     "title": "Page not found",
     "text": "It may have moved, or the link is out of date.",

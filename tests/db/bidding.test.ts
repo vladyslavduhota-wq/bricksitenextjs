@@ -1,11 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
-import { as, bid, bidError, createLot, createUser, lot, pool, setSettings, sql } from "./helpers";
+import { as, bid, bidError, createLot, createUser, lot, pool, setLive, setSettings, sql } from "./helpers";
 
-beforeEach(() => setSettings({ min_seconds_between_bids: 0, snipe_window_seconds: 300, snipe_extend_seconds: 300, max_bid_amount: 1_000_000 }));
+beforeEach(() => setSettings({ min_seconds_between_bids: 0, max_bid_amount: 1_000_000 }));
 afterAll(() => pool.end());
-
-const secondsUntil = (d: Date) => (d.getTime() - Date.now()) / 1000;
 
 describe("place_bid amounts", () => {
   it("accepts the start price as the first bid and nothing below it", async () => {
@@ -55,17 +53,12 @@ describe("place_bid eligibility", () => {
     expect((await bidError(await createUser(), lotId, 1000)).code).toBe("lot_not_found");
   });
 
-  it("closes on the server clock even before the cron job has run", async () => {
-    const lotId = await createLot({ endsIn: "-1 second" });
-    expect((await lot(lotId)).status).toBe("active");
-    expect((await bidError(await createUser(), lotId, 1000)).code).toBe("lot_closed");
-  });
-
   it("limits how often one person can bid", async () => {
     await setSettings({ min_seconds_between_bids: 30 });
-    const [l1, l2] = [await createLot(), await createLot()];
+    const [l1, l2] = [await createLot(), await createLot({ live: false })];
     const a = await createUser();
     await bid(a, l1, 1000);
+    await setLive(l2);
     expect(await bidError(a, l2, 1000)).toEqual({ code: "rate_limited", detail: "30" });
   });
 });
@@ -101,47 +94,6 @@ describe("place_bid reliability", () => {
     const [leader] = await sql<{ amount: number }>("select amount from public.bids where id = $1", [state.leading_bid_id]);
     expect(leader!.amount).toBe(top!.max);
   });
-});
-
-describe("anti-sniping", () => {
-  it("extends a lot to five minutes from now when bid on in its last five minutes", async () => {
-    const lotId = await createLot({ endsIn: "2 minutes" });
-    await bid(await createUser(), lotId, 1000);
-    expect(secondsUntil((await lot(lotId)).ends_at)).toBeGreaterThan(295);
-  });
-
-  it("leaves lots with more time alone", async () => {
-    const lotId = await createLot({ endsIn: "30 minutes" });
-    const before = (await lot(lotId)).ends_at;
-    await bid(await createUser(), lotId, 1000);
-    expect((await lot(lotId)).ends_at).toEqual(before);
-  });
-
-  it("uses the admin's window and extension", async () => {
-    await setSettings({ snipe_window_seconds: 600, snipe_extend_seconds: 120 });
-    const lotId = await createLot({ endsIn: "1 minute" });
-    await bid(await createUser(), lotId, 1000);
-    const left = secondsUntil((await lot(lotId)).ends_at);
-    expect(left).toBeGreaterThan(115);
-    expect(left).toBeLessThan(125);
-  });
-});
-
-describe("closing", () => {
-  it("closes due lots, fixes the winner and queues one 'won' email", async () => {
-    const lotId = await createLot({ endsIn: "1 hour" });
-    const [a, b] = [await createUser(), await createUser()];
-    await bid(a, lotId, 1000);
-    const winning = await bid(b, lotId, 1100);
-    await sql("update public.lots set ends_at = now() - interval '1 second' where id = $1", [lotId]);
-
-    await sql("select public.close_due_lots()");
-    await sql("select public.close_due_lots()");
-
-    expect(await lot(lotId)).toMatchObject({ status: "closed", winner_bid_id: winning.bid_id });
-    const mails = await sql("select user_id from public.email_outbox where kind = 'won' and lot_id = $1", [lotId]);
-    expect(mails).toEqual([{ user_id: b }]);
-  });
 
   it("queues an 'outbid' email to the previous leader", async () => {
     const lotId = await createLot();
@@ -150,17 +102,6 @@ describe("closing", () => {
     await bid(b, lotId, 1100);
     const mails = await sql("select user_id, payload from public.email_outbox where kind = 'outbid' and lot_id = $1", [lotId]);
     expect(mails).toEqual([{ user_id: a, payload: { amount: 1100, your_amount: 1000 } }]);
-  });
-
-  it("reminds every bidder once when a lot has an hour left", async () => {
-    const lotId = await createLot({ endsIn: "50 minutes" });
-    const [a, b] = [await createUser(), await createUser()];
-    await bid(a, lotId, 1000);
-    await bid(b, lotId, 1100);
-    await sql("select public.queue_ending_soon_emails()");
-    await sql("select public.queue_ending_soon_emails()");
-    const mails = await sql<{ user_id: string }>("select user_id from public.email_outbox where kind = 'ending_soon' and lot_id = $1", [lotId]);
-    expect(mails.map((m) => m.user_id).sort()).toEqual([a, b].sort());
   });
 });
 
@@ -188,9 +129,10 @@ describe("staff actions", () => {
 });
 
 describe("access rules", () => {
-  it("hides bidders' ids and other people's bids", async () => {
+  it("hides bidders' ids and shows everyone as first name and initial", async () => {
     const lotId = await createLot();
-    const [a, b] = [await createUser({ name: "Олена Петренко" }), await createUser({ anonymous: true })];
+    // Old profiles may still carry a nickname or the anonymity flag: both are ignored now.
+    const [a, b] = [await createUser({ name: "Олена Петренко" }), await createUser({ anonymous: true, nickname: "Нік" })];
     await bid(a, lotId, 1000);
     await bid(b, lotId, 1100);
 
@@ -198,12 +140,12 @@ describe("access rules", () => {
     expect(await as(a, "select user_id from public.bids where lot_id = $1", [lotId])).toEqual([{ user_id: a }]);
 
     const history = await as(null, "select * from public.bid_history where lot_id = $1 order by amount", [lotId]);
-    expect(history.map((h) => h.public_name)).toEqual(["Олена П.", null]);
+    expect(history.map((h) => h.public_name)).toEqual(["Олена П.", "Тарас Ш."]);
     expect(Object.keys(history[0]!)).not.toContain("user_id");
   });
 
   it("does not show draft lots to the public", async () => {
-    const lotId = await createLot({ status: "draft" });
+    const lotId = await createLot({ status: "draft", live: false });
     expect(await as(null, "select id from public.lots where id = $1", [lotId])).toEqual([]);
     const admin = await createUser({ role: "admin" });
     expect(await as(admin, "select id from public.lots where id = $1", [lotId])).toHaveLength(1);
@@ -218,6 +160,13 @@ describe("access rules", () => {
     // A participant's content edit is filtered out by RLS rather than erroring.
     await as(a, "update public.lots set title_uk = 'hacked' where id = $1", [lotId]);
     expect((await sql("select title_uk from public.lots where id = $1", [lotId]))[0]).toEqual({ title_uk: "Тестовий лот" });
+  });
+
+  it("no longer lets participants set a nickname, anonymity or photo consent", async () => {
+    const a = await createUser();
+    await expect(as(a, "update public.profiles set display_name = 'x' where id = $1", [a])).rejects.toThrow(/permission denied/);
+    await expect(as(a, "update public.profiles set show_anonymously = true where id = $1", [a])).rejects.toThrow(/permission denied/);
+    await as(a, "update public.profiles set full_name = 'Нове Імʼя', phone = '+380671112233' where id = $1", [a]);
   });
 
   it("counts current top bids and donations in the public total", async () => {

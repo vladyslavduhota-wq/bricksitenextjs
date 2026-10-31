@@ -45,12 +45,22 @@ describe("privileges", () => {
     expect(new Set(rows.map((r) => r.privilege_type))).toEqual(new Set(["SELECT"]));
   });
 
-  it("lets visitors call no function except the helpers RLS needs", async () => {
-    const rows = await sql<{ routine_name: string }>(
-      `select distinct routine_name from information_schema.role_routine_grants
-       where routine_schema = 'public' and grantee = 'anon' order by 1`,
-    );
-    expect(rows.map((r) => r.routine_name)).toEqual(["current_role_name", "is_admin", "is_staff"]);
+  // Asks Postgres what each role can actually run, including grants to PUBLIC that no per-role listing shows.
+  const executable = async (role: string) =>
+    (await sql<{ proname: string }>(
+      `select distinct p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname = 'public' and has_function_privilege($1, p.oid, 'execute') order by 1`,
+      [role],
+    )).map((r) => r.proname);
+
+  it("lets visitors run only the helpers RLS needs", async () => {
+    expect(await executable("anon")).toEqual(["current_role_name", "is_admin", "is_staff"]);
+  });
+
+  it("lets signed-in users run only the public entry points, never the internal bid steps", async () => {
+    expect(await executable("authenticated")).toEqual([
+      "admin_add_bid", "cancel_bid", "current_role_name", "is_admin", "is_staff", "place_bid", "set_user_blocked", "set_user_role",
+    ]);
   });
 });
 

@@ -4,8 +4,8 @@ import pg from "pg";
 import { testDatabaseUrl } from "./env";
 
 const MIGRATIONS = join(import.meta.dirname, "../../supabase/migrations");
-// Need Supabase-only schemas (pg_cron, storage); the cron functions are called directly in tests instead.
-const SKIP = new Set(["20261022000200_schedules.sql", "20261023000200_storage.sql"]);
+// Need Supabase-only schemas (pg_cron, storage).
+const SKIP = new Set(["20261022000200_schedules.sql", "20261023000200_storage.sql", "20261031000100_stop_timers.sql"]);
 
 /** Recreates the test database and applies the Supabase shim plus every migration. */
 export default async function setup() {

@@ -26,7 +26,7 @@ export type Lot = {
   description_en: string;
   start_price: number;
   bid_step: number;
-  ends_at: string;
+  ends_at: string | null;
   status: LotStatus;
   sort_order: number;
   current_amount: number | null;
@@ -39,13 +39,13 @@ export type LotImage = { id: string; lot_id: string; path: string; width: number
 
 export type Settings = {
   goal_amount: number;
-  snipe_window_seconds: number;
-  snipe_extend_seconds: number;
   max_bid_amount: number;
   min_seconds_between_bids: number;
   donate_url: string | null;
   stream_url: string | null;
   final_published: boolean;
+  /** The lot on air in the live show, or null while viewers see the waiting screen. */
+  current_lot_id: string | null;
 };
 
 export type AuctionStats = { total_raised: number; goal_amount: number; lot_count: number; bid_count: number; last_ends_at: string | null };
@@ -62,7 +62,10 @@ export type AdminBid = {
   user_id: string;
   bidder_name: string;
   bidder_email: string | null;
+  bidder_phone: string | null;
   bidder_blocked: boolean;
+  /** Entered by an admin for someone in the room or on the phone. */
+  is_manual: boolean;
   is_leading: boolean;
   cancelled_at: string | null;
   cancel_reason: string | null;
@@ -87,17 +90,14 @@ export type Winner = {
   lot_id: string;
   lot_title: string;
   lot_status: LotStatus;
-  ends_at: string;
   closed_at: string | null;
   bid_count: number;
   amount: number;
   bid_at: string;
   full_name: string;
-  display_name: string | null;
-  email: string;
-  phone: string;
-  show_anonymously: boolean;
-  photo_consent: boolean;
+  email: string | null;
+  phone: string | null;
+  is_manual: boolean;
 };
 
 export type AuditEntry = {
@@ -125,7 +125,7 @@ export type PublicLot = {
   description_en: string;
   start_price: number;
   bid_step: number;
-  ends_at: string;
+  ends_at: string | null;
   status: Exclude<LotStatus, "draft">;
   current_amount: number | null;
   bid_count: number;
@@ -137,3 +137,6 @@ export type PublicLot = {
 export type LotPatch = Pick<PublicLot, "id" | "status" | "ends_at" | "current_amount" | "bid_count">;
 
 export type PublicBid = { id: string; lot_id: string; amount: number; public_name: string | null; created_at: string };
+
+/** What viewers see: the lot on air (null while waiting), its recent bids, its winner once closed. */
+export type LiveState = { lot: PublicLot | null; bids: PublicBid[]; winner: { name: string; amount: number } | null; total: number };

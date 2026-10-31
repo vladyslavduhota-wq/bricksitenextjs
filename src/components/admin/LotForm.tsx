@@ -11,12 +11,12 @@ import type { Lot, LotStatus } from "@/lib/types";
 
 const STATUS_OPTIONS: { value: LotStatus; label: string; hint: string }[] = [
   { value: "draft", label: "Чернетка", hint: "Бачать лише адміністратори" },
-  { value: "active", label: "Активний", hint: "На сайті, приймає ставки" },
-  { value: "closed", label: "Закритий", hint: "Ставки зупинено, переможця зафіксовано" },
+  { value: "active", label: "Активний", hint: "У черзі ефіру; ставки, коли лот в ефірі" },
+  { value: "closed", label: "Закритий", hint: "Показано, переможця зафіксовано" },
 ];
 
 /** Every field of a lot from the spec (5.8), UA and EN side by side. */
-export function LotForm({ lot, endsAtDefault }: { lot?: Lot; endsAtDefault: string }) {
+export function LotForm({ lot }: { lot?: Lot }) {
   const { state, onSubmit, pending } = useFormAction(saveLot);
   const f = state.fields ?? {};
   const hasBids = (lot?.bid_count ?? 0) > 0;
@@ -79,14 +79,9 @@ export function LotForm({ lot, endsAtDefault }: { lot?: Lot; endsAtDefault: stri
           ))}
         </div>
         {f.status && <p className="text-xs text-destructive">{f.status}</p>}
-        <div className="grid gap-5 @lg:grid-cols-2">
-          <Field label="Закриття ставок (час Києва) *" hint="Під час анти-снайпінгу сервер продовжує його сам." error={f.ends_at}>
-            <input name="ends_at" type="datetime-local" className={inputClass} defaultValue={endsAtDefault} required aria-invalid={!!f.ends_at} />
-          </Field>
-          <Field label="Порядок у каталозі" hint="Менше число стоїть вище.">
-            <input name="sort_order" type="number" step={1} className={inputClass} defaultValue={lot?.sort_order ?? 0} />
-          </Field>
-        </div>
+        <Field label="Порядок в ефірі" hint="Менше число показується раніше. «Наступний лот» іде в цьому порядку." className="max-w-xs">
+          <input name="sort_order" type="number" step={1} className={inputClass} defaultValue={lot?.sort_order ?? 0} />
+        </Field>
         <Field label="Адреса сторінки" hint={slug ? undefined : autoSlug ? `Буде: /lots/${autoSlug}` : "Латинські літери, цифри й дефіси."} error={f.slug}>
           <div className="flex items-center rounded-2xl bg-card ring-1 ring-primary/15 focus-within:ring-2 focus-within:ring-accent">
             <span className="pl-4 text-muted-foreground">/lots/</span>

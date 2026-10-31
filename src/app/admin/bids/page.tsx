@@ -74,9 +74,10 @@ export default async function BidsPage({ searchParams }: Props) {
                   <td className={td}>
                     <span className="flex items-center gap-2 font-medium">
                       {b.bidder_name}
+                      {b.is_manual && <Badge tone="outline">із зали</Badge>}
                       {b.bidder_blocked && <Badge tone="danger">заблокований</Badge>}
                     </span>
-                    <span className="block text-xs text-muted-foreground">{b.bidder_email ? `${b.bidder_email} · ` : ""}на сайті: {b.public_name ?? "анонімно"}</span>
+                    <span className="block text-xs text-muted-foreground">{[b.bidder_email, b.bidder_phone].filter(Boolean).join(" · ")}{(b.bidder_email || b.bidder_phone) && " · "}на сайті: {b.public_name}</span>
                   </td>
                   <td className={`${td} whitespace-nowrap text-right font-bold tabular-nums ${b.status === "cancelled" ? "text-muted-foreground line-through" : "text-primary"}`}>{formatUah(b.amount)}</td>
                   <td className={td}>
@@ -97,17 +98,19 @@ export default async function BidsPage({ searchParams }: Props) {
                           <XCircle size={16} weight="light" /> Скасувати
                         </ConfirmAction>
                       )}
-                      <ConfirmAction
-                        action={setBlocked.bind(null, b.user_id, !b.bidder_blocked)}
-                        variant="quiet"
-                        title={b.bidder_blocked ? "Розблокувати учасника?" : "Заблокувати учасника?"}
-                        description={b.bidder_blocked ? `${b.bidder_name} знову зможе робити ставки.` : `${b.bidder_name} більше не зможе робити ставки. Наявні ставки залишаться: скасуйте їх окремо, якщо потрібно.`}
-                        confirmLabel={b.bidder_blocked ? "Розблокувати" : "Заблокувати"}
-                        tone={b.bidder_blocked ? "primary" : "danger"}
-                      >
-                        {b.bidder_blocked ? <ProhibitInset size={16} weight="light" /> : <Prohibit size={16} weight="light" />}
-                        <span className="sr-only sm:not-sr-only">{b.bidder_blocked ? "Розблокувати" : "Блок"}</span>
-                      </ConfirmAction>
+                      {!b.is_manual && b.user_id && (
+                        <ConfirmAction
+                          action={setBlocked.bind(null, b.user_id!, !b.bidder_blocked)}
+                          variant="quiet"
+                          title={b.bidder_blocked ? "Розблокувати учасника?" : "Заблокувати учасника?"}
+                          description={b.bidder_blocked ? `${b.bidder_name} знову зможе робити ставки.` : `${b.bidder_name} більше не зможе робити ставки. Наявні ставки залишаться: скасуйте їх окремо, якщо потрібно.`}
+                          confirmLabel={b.bidder_blocked ? "Розблокувати" : "Заблокувати"}
+                          tone={b.bidder_blocked ? "primary" : "danger"}
+                        >
+                          {b.bidder_blocked ? <ProhibitInset size={16} weight="light" /> : <Prohibit size={16} weight="light" />}
+                          <span className="sr-only sm:not-sr-only">{b.bidder_blocked ? "Розблокувати" : "Блок"}</span>
+                        </ConfirmAction>
+                      )}
                     </div>
                   </td>
                 </tr>

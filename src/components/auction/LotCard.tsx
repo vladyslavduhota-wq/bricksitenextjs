@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowUpRight, Clock, ImageSquare } from "@phosphor-icons/react";
+import { ArrowUpRight, ImageSquare } from "@phosphor-icons/react";
 import { Link } from "@/i18n/navigation";
 import { Bezel } from "@/components/ui";
 import { photoUrl } from "@/lib/supabase/env";
@@ -12,20 +12,21 @@ import { formatUah } from "@/lib/format";
 import { lotTitle } from "@/lib/lot-text";
 import type { PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { TimeLeft } from "./TimeLeft";
+import { OnAirDot } from "./LiveView";
 
 /**
- * The site's "price tag" card, now with the real photo, live price and countdown.
+ * The site's "price tag" card for the lot on air: real photo, live price, links to the live page.
  * `dense` shrinks it on phones only, so the catalogue fits two to a row there.
  */
 export function LotCard({ lot, priority = false, dense = false }: { lot: PublicLot; priority?: boolean; dense?: boolean }) {
   const d = (classes: string) => (dense ? classes : "");
   const t = useTranslations("lot");
+  const tl = useTranslations("live");
   const locale = useLocale();
   const title = lotTitle(lot, locale);
   const cover = lot.images[0];
   return (
-    <Link href={`/lots/${lot.slug}`} className="group block outline-none transition-transform duration-700 ease-spring hover:-translate-y-2 focus-visible:-translate-y-2" aria-label={`${title}. ${t("view")}`}>
+    <Link href="/live" className="group block outline-none transition-transform duration-700 ease-spring hover:-translate-y-2 focus-visible:-translate-y-2" aria-label={`${title}. ${t("view")}`}>
       <Bezel dark className={d("max-sm:rounded-[1.4rem] max-sm:p-1")} core={cn("relative overflow-hidden bg-navy-deep transition-shadow group-focus-visible:ring-[3px] group-focus-visible:ring-accent", d("max-sm:rounded-[calc(1.4rem-0.25rem)]"))}>
         <div className={cn("absolute left-1/2 top-4 z-10 h-4 w-4 -translate-x-1/2 rounded-full bg-primary ring-4 ring-primary-foreground/10", d("max-sm:top-2.5 max-sm:h-3 max-sm:w-3 max-sm:ring-2"))} />
         <div className={cn("dot-grid-light relative m-3 mt-12 aspect-[4/5] overflow-hidden rounded-[1.6rem] bg-primary/40", d("max-sm:m-2 max-sm:mt-8 max-sm:aspect-square max-sm:rounded-[1rem]"))}>
@@ -34,9 +35,8 @@ export function LotCard({ lot, priority = false, dense = false }: { lot: PublicL
           ) : (
             <span className="absolute inset-0 grid place-items-center text-primary-foreground/50"><ImageSquare size={dense ? 32 : 40} weight="light" /></span>
           )}
-          <span className={cn("absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium text-primary shadow-soft backdrop-blur", d("max-sm:right-2 max-sm:top-2 max-sm:gap-1 max-sm:px-2 max-sm:py-1 max-sm:text-[11px]"))}>
-            <Clock weight="bold" size={14} className={d("max-sm:hidden")} />
-            <TimeLeft endsAt={lot.ends_at} closed={lot.status === "closed"} urgentClassName="text-destructive" />
+          <span className={cn("absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium shadow-soft backdrop-blur", lot.status === "active" ? "bg-accent text-accent-foreground" : "bg-background/90 text-primary", d("max-sm:right-2 max-sm:top-2 max-sm:gap-1 max-sm:px-2 max-sm:py-1 max-sm:text-[11px]"))}>
+            {lot.status === "active" ? <><OnAirDot className="text-primary" /> {tl("onAir")}</> : t("ended")}
           </span>
         </div>
         <div className={cn("px-6 pb-6 text-primary-foreground", d("max-sm:px-3 max-sm:pb-3"))}>

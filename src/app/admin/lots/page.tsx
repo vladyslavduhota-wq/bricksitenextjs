@@ -2,12 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { CaretRight, DownloadSimple, ImageSquare, Plus } from "@phosphor-icons/react/dist/ssr";
 import { Empty, LotStatusBadge, PageHeader, Panel, Table, Tabs, td, th, tr, DownloadLink } from "@/components/admin/kit";
-import { buttonClass } from "@/components/ui";
+import { Badge, buttonClass } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { photoUrl } from "@/lib/supabase/env";
 import { formatUah } from "@/lib/format";
-import { formatKyiv, formatTimeLeft } from "@/lib/time";
 import type { Lot, LotStatus } from "@/lib/types";
 
 export const metadata = { title: "Лоти" };
@@ -18,9 +17,10 @@ export default async function LotsPage({ searchParams }: Props) {
   await requireAdmin();
   const { status = "" } = await searchParams;
   const supabase = await createClient();
-  const [{ data: lots }, { data: images }] = await Promise.all([
+  const [{ data: lots }, { data: images }, { data: show }] = await Promise.all([
     supabase.from("lots").select("*").order("sort_order").order("created_at").returns<Lot[]>(),
     supabase.from("lot_images").select("lot_id, path").order("sort_order"),
+    supabase.from("settings").select("current_lot_id").single(),
   ]);
   const all = lots ?? [];
   const cover = new Map<string, string>();
@@ -32,7 +32,7 @@ export default async function LotsPage({ searchParams }: Props) {
     <>
       <PageHeader
         title="Лоти"
-        description="Речі ректора: назви, фото, ціни й час закриття. Чернетки на сайті не видно."
+        description="Речі ректора в порядку показу в ефірі. Чернетки на сайті не видно."
         actions={
           <>
             <Link href="/admin/lots/new" className={buttonClass("primary")}><Plus size={18} weight="bold" /> Новий лот</Link>
@@ -56,7 +56,7 @@ export default async function LotsPage({ searchParams }: Props) {
                 <th className={th}>Статус</th>
                 <th className={`${th} text-right`}>Ціна</th>
                 <th className={`${th} text-right`}>Ставок</th>
-                <th className={th}>Закриття</th>
+                <th className={`${th} text-right`}>Порядок</th>
                 <th className={th}><span className="sr-only">Відкрити</span></th>
               </tr>
             </thead>
@@ -72,20 +72,17 @@ export default async function LotsPage({ searchParams }: Props) {
                         </span>
                         <span className="min-w-0">
                           <span className="block max-w-[18rem] truncate font-bold text-primary group-hover:underline">{l.title_uk}</span>
-                          <span className="block text-xs text-muted-foreground">/lots/{l.slug}{!l.title_en && " · без EN"}</span>
+                          {!l.title_en && <span className="block text-xs text-muted-foreground">без EN</span>}
                         </span>
                       </Link>
                     </td>
-                    <td className={td}><LotStatusBadge status={l.status} /></td>
+                    <td className={td}><span className="flex flex-wrap gap-1"><LotStatusBadge status={l.status} />{l.id === show?.current_lot_id && <Badge tone="accent">В ефірі</Badge>}</span></td>
                     <td className={`${td} whitespace-nowrap text-right tabular-nums`}>
                       {l.current_amount ? <b className="text-primary">{formatUah(l.current_amount)}</b> : <span className="text-muted-foreground">старт {formatUah(l.start_price)}</span>}
                       <span className="block text-xs text-muted-foreground">крок {formatUah(l.bid_step)}</span>
                     </td>
                     <td className={`${td} text-right tabular-nums`}>{l.bid_count}</td>
-                    <td className={`${td} whitespace-nowrap`}>
-                      <span className="tabular-nums">{formatKyiv(l.ends_at)}</span>
-                      {l.status === "active" && <span className="block text-xs text-muted-foreground">{formatTimeLeft(l.ends_at)}</span>}
-                    </td>
+                    <td className={`${td} text-right tabular-nums text-muted-foreground`}>{l.sort_order}</td>
                     <td className={`${td} text-right`}>
                       <Link href={`/admin/lots/${l.id}`} aria-label={`Редагувати «${l.title_uk}»`} className="inline-grid h-9 w-9 place-items-center rounded-full text-primary ring-1 ring-primary/15 transition group-hover:bg-primary group-hover:text-primary-foreground">
                         <CaretRight size={16} />

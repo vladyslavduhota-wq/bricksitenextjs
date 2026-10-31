@@ -25,7 +25,7 @@ export default async function UsersPage({ searchParams }: Props) {
   const supabase = await createClient();
 
   let query = supabase.from("admin_users").select("*", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-  if (search) query = query.or(`full_name.ilike.*${search}*,display_name.ilike.*${search}*${isAdmin ? `,email.ilike.*${search}*,phone.ilike.*${search}*` : ""}`);
+  if (search) query = query.or(`full_name.ilike.*${search}*${isAdmin ? `,email.ilike.*${search}*,phone.ilike.*${search}*` : ""}`);
   if (filter === "blocked") query = query.eq("is_blocked", true);
   if (filter === "staff") query = query.neq("role", "participant");
   if (filter === "bidders") query = query.gt("bid_count", 0);
@@ -45,7 +45,7 @@ export default async function UsersPage({ searchParams }: Props) {
           <Form action="/admin/users" className="relative">
             {filter && <input type="hidden" name="filter" value={filter} />}
             <MagnifyingGlass size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input name="q" defaultValue={search} placeholder={isAdmin ? "Ім'я, email або телефон" : "Ім'я або нік"} aria-label="Пошук" className={`${inputClass} h-11 w-64 py-0 pl-11 text-sm`} />
+            <input name="q" defaultValue={search} placeholder={isAdmin ? "Ім'я, email або телефон" : "Ім'я"} aria-label="Пошук" className={`${inputClass} h-11 w-64 py-0 pl-11 text-sm`} />
           </Form>
         </div>
       }>
@@ -56,7 +56,6 @@ export default async function UsersPage({ searchParams }: Props) {
                 <th className={th}>Учасник</th>
                 {isAdmin && <th className={th}>Контакти</th>}
                 <th className={`${th} text-right`}>Ставок</th>
-                <th className={th}>Налаштування</th>
                 <th className={th}>З нами з</th>
                 <th className={`${th} text-right`}>{isAdmin ? "Роль і доступ" : "Доступ"}</th>
               </tr>
@@ -66,7 +65,6 @@ export default async function UsersPage({ searchParams }: Props) {
                 <tr key={u.id} className={tr}>
                   <td className={td}>
                     <span className="flex flex-wrap items-center gap-2 font-medium text-primary">{u.full_name}<RoleBadge role={u.role} />{u.is_blocked && <Badge tone="danger">заблокований</Badge>}</span>
-                    {u.display_name && <span className="block text-xs text-muted-foreground">нік: {u.display_name}</span>}
                   </td>
                   {isAdmin && (
                     <td className={td}>
@@ -75,13 +73,6 @@ export default async function UsersPage({ searchParams }: Props) {
                     </td>
                   )}
                   <td className={`${td} text-right tabular-nums`}>{u.bid_count}</td>
-                  <td className={td}>
-                    <span className="flex flex-wrap gap-1">
-                      {u.show_anonymously && <Badge tone="outline">анонімно</Badge>}
-                      {u.photo_consent && <Badge tone="outline">згода на фото</Badge>}
-                      {!u.show_anonymously && !u.photo_consent && <span className="text-xs text-muted-foreground">—</span>}
-                    </span>
-                  </td>
                   <td className={`${td} whitespace-nowrap tabular-nums text-muted-foreground`}>{formatKyiv(u.created_at)}</td>
                   <td className={td}>
                     <div className="flex items-center justify-end gap-1.5">

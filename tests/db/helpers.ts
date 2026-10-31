@@ -39,19 +39,26 @@ export async function createUser(opts: UserOpts = {}) {
   return user!.id;
 }
 
-type LotOpts = { startPrice?: number; step?: number; endsIn?: string; status?: "draft" | "active" | "closed" };
+type LotOpts = { startPrice?: number; step?: number; status?: "draft" | "active" | "closed"; live?: boolean };
 
+/** A lot, put on air by default (bids are only accepted on the lot on air). */
 export async function createLot(opts: LotOpts = {}) {
   const [lot] = await sql<{ id: string }>(
-    `insert into public.lots (slug, title_uk, start_price, bid_step, ends_at, status)
-     values ($1, 'Тестовий лот', $2, $3, now() + $4::interval, $5) returning id`,
-    [`lot-${randomUUID().slice(0, 8)}`, opts.startPrice ?? 1000, opts.step ?? 100, opts.endsIn ?? "1 day", opts.status ?? "active"],
+    `insert into public.lots (slug, title_uk, start_price, bid_step, status)
+     values ($1, 'Тестовий лот', $2, $3, $4) returning id`,
+    [`lot-${randomUUID().slice(0, 8)}`, opts.startPrice ?? 1000, opts.step ?? 100, opts.status ?? "active"],
   );
+  if (opts.live ?? true) await setLive(lot!.id);
   return lot!.id;
 }
 
+/** Puts a lot on air, or takes everything off air with null. */
+export const setLive = (lotId: string | null) => sql("update public.settings set current_lot_id = $1", [lotId]);
+
+type BidResult = { bid_id: string; amount: number; duplicate: boolean; lot: { current_amount: number } };
+
 export async function bid(uid: string, lotId: string, amount: number, key: string = randomUUID()) {
-  const [row] = await as<{ r: { bid_id: string; amount: number; duplicate: boolean; lot: { ends_at: string; current_amount: number } } }>(
+  const [row] = await as<{ r: BidResult }>(
     uid,
     "select public.place_bid($1, $2, $3) as r",
     [lotId, amount, key],
@@ -59,19 +66,28 @@ export async function bid(uid: string, lotId: string, amount: number, key: strin
   return row!.r;
 }
 
-/** Resolves to the error code place_bid raised, e.g. "amount_too_low". */
-export async function bidError(uid: string | null, lotId: string, amount: number) {
+/** A bid an admin enters for someone in the room or on the phone. */
+export async function manualBid(adminId: string, lotId: string, amount: number, name: string, phone: string | null = null, key: string = randomUUID()) {
+  const [row] = await as<{ r: BidResult }>(adminId, "select public.admin_add_bid($1, $2, $3, $4, $5) as r", [lotId, amount, name, phone, key]);
+  return row!.r;
+}
+
+/** Resolves to the error code a query raised, e.g. "amount_too_low". */
+export async function errorOf(run: Promise<unknown>) {
   try {
-    await as(uid, "select public.place_bid($1, $2, $3)", [lotId, amount, randomUUID()]);
+    await run;
   } catch (e) {
     const err = e as { message: string; detail?: string };
     return { code: err.message, detail: err.detail };
   }
-  throw new Error("expected place_bid to fail");
+  throw new Error("expected the query to fail");
 }
 
+export const bidError = (uid: string | null, lotId: string, amount: number) =>
+  errorOf(as(uid, "select public.place_bid($1, $2, $3)", [lotId, amount, randomUUID()]));
+
 export async function lot(id: string) {
-  const [row] = await sql<{ status: string; current_amount: number | null; bid_count: number; ends_at: Date; leading_bid_id: string | null; winner_bid_id: string | null }>(
+  const [row] = await sql<{ status: string; current_amount: number | null; bid_count: number; leading_bid_id: string | null; winner_bid_id: string | null }>(
     "select * from public.lots where id = $1",
     [id],
   );

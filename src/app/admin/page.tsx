@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { CheckCircle, DownloadSimple, Plus, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import { Empty, PageHeader, Panel, Progress, StatCard, Table, td, th, tr, DownloadLink } from "@/components/admin/kit";
-import { buttonClass } from "@/components/ui";
+import { Badge, buttonClass } from "@/components/ui";
 import { requireStaff } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatUah } from "@/lib/format";
-import { formatKyivPrecise, formatTimeLeft } from "@/lib/time";
+import { formatKyivPrecise } from "@/lib/time";
 import type { AdminBid, AuctionStats, Lot, Settings } from "@/lib/types";
 
 export const metadata = { title: "Огляд" };
@@ -18,7 +18,7 @@ export default async function AdminHome() {
   const [stats, settings, lots, recent, people, blocked, images] = await Promise.all([
     supabase.from("auction_stats").select("*").single<AuctionStats>(),
     supabase.from("settings").select("*").single<Settings>(),
-    supabase.from("lots").select("id, title_uk, title_en, status, ends_at, current_amount, start_price, bid_count").order("ends_at").returns<Lot[]>(),
+    supabase.from("lots").select("id, title_uk, title_en, status, current_amount, start_price, bid_count, sort_order").order("sort_order").order("created_at").returns<Lot[]>(),
     supabase.from("admin_bids").select("*").order("created_at", { ascending: false }).limit(8).returns<AdminBid[]>(),
     supabase.from("admin_users").select("id", { count: "exact", head: true }),
     supabase.from("admin_users").select("id", { count: "exact", head: true }).eq("is_blocked", true),
@@ -28,6 +28,8 @@ export default async function AdminHome() {
   const s = stats.data;
   const all = lots.data ?? [];
   const active = all.filter((l) => l.status === "active");
+  const onAir = all.find((l) => l.id === settings.data?.current_lot_id) ?? null;
+  const queue = active.filter((l) => l !== onAir);
   const goal = settings.data?.goal_amount ?? 0;
   const withPhotos = new Set((images.data ?? []).map((i) => i.lot_id));
 
@@ -64,20 +66,20 @@ export default async function AdminHome() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-5">
-        <Panel title="Скоро завершуються" flush className="lg:col-span-2" actions={<Link href={isAdmin ? "/admin/lots?status=active" : "/admin/bids"} className="text-sm font-medium text-primary hover:underline">Усі</Link>}>
-          {active.length === 0 ? <Empty>Активних лотів немає.</Empty> : (
+        <Panel title="Ефір" flush className="lg:col-span-2" actions={isAdmin && <Link href="/admin/live" className="text-sm font-medium text-primary hover:underline">Керувати</Link>}>
+          {onAir || queue.length ? (
             <ul className="divide-y divide-primary/[0.07]">
-              {active.slice(0, 6).map((l) => (
+              {[...(onAir ? [onAir] : []), ...queue.slice(0, 5)].map((l) => (
                 <li key={l.id} className="flex items-center justify-between gap-3 px-5 py-3 sm:px-6">
                   <div className="min-w-0">
                     {isAdmin ? <Link href={`/admin/lots/${l.id}`} className="block truncate font-medium text-primary hover:underline">{l.title_uk}</Link> : <p className="truncate font-medium text-primary">{l.title_uk}</p>}
                     <p className="text-xs text-muted-foreground">{l.bid_count ? `${formatUah(l.current_amount)} · ставок ${l.bid_count}` : `старт ${formatUah(l.start_price)} · без ставок`}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium tabular-nums text-primary">{formatTimeLeft(l.ends_at)}</span>
+                  {l === onAir ? <Badge tone="accent">В ефірі</Badge> : <Badge tone="outline">Далі</Badge>}
                 </li>
               ))}
             </ul>
-          )}
+          ) : <Empty>Активних лотів немає.</Empty>}
         </Panel>
 
         <Panel title="Останні ставки" flush className="lg:col-span-3" actions={<Link href="/admin/bids" className="text-sm font-medium text-primary hover:underline">Усі ставки</Link>}>

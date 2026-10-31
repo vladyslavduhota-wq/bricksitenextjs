@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Bezel, Button, Notice, buttonClass, inputClass } from "@/components/ui";
 import { formatUah } from "@/lib/format";
 import { lotTitle } from "@/lib/lot-text";
+import { minNextBid } from "@/lib/bidding";
 import { cn } from "@/lib/utils";
 import type { LotPatch, PublicLot } from "@/lib/types";
 
@@ -17,7 +18,6 @@ type PlaceResult = { bid_id: string; amount: number; lot: LotPatch; duplicate: b
 const KNOWN = ["amount_too_low", "amount_too_high", "already_leading", "rate_limited", "lot_closed", "lot_not_live", "lot_not_found", "user_blocked", "profile_required", "not_authenticated"] as const;
 type ErrorKey = (typeof KNOWN)[number] | "invalid" | "generic";
 
-const minNext = (lot: PublicLot) => (lot.current_amount == null ? lot.start_price : lot.current_amount + lot.bid_step);
 
 /** Spec 5.3–5.4: three clicks (bid → check amount → confirm), with the commitment stated on the form. */
 export function BidPanel({ lot, open, maxBid, onPlaced }: { lot: PublicLot; open: boolean; maxBid: number | null; onPlaced: (patch: LotPatch & { leading_bid_id: string }) => void }) {
@@ -52,7 +52,7 @@ export function BidPanel({ lot, open, maxBid, onPlaced }: { lot: PublicLot; open
     };
   }, [lot.id]);
 
-  const min = minNext(lot);
+  const min = minNextBid(lot);
   const value = raw ?? String(min);
   const amount = /^\d{1,9}$/.test(value) ? Number(value) : NaN;
   const nudge = (d: number) => {

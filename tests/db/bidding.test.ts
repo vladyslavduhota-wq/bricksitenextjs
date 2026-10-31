@@ -14,6 +14,15 @@ describe("place_bid amounts", () => {
     expect(await lot(lotId)).toMatchObject({ current_amount: 1000, bid_count: 1 });
   });
 
+  it("starts a lot priced at 0 with a first bid of at least one step", async () => {
+    const lotId = await createLot({ startPrice: 0, step: 100 });
+    const [a, b] = [await createUser(), await createUser()];
+    expect(await bidError(a, lotId, 0)).toEqual({ code: "amount_too_low", detail: "100" });
+    expect(await bidError(a, lotId, 99)).toEqual({ code: "amount_too_low", detail: "100" });
+    await bid(a, lotId, 100);
+    expect(await bidError(b, lotId, 150)).toEqual({ code: "amount_too_low", detail: "200" });
+  });
+
   it("requires the current price plus the lot's step", async () => {
     const lotId = await createLot({ startPrice: 1000, step: 250 });
     const [a, b] = [await createUser(), await createUser()];

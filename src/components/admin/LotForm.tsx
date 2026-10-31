@@ -52,7 +52,7 @@ export function LotForm({ lot }: { lot?: Lot }) {
       <fieldset className="space-y-5 border-t border-primary/10 pt-8">
         <legend className="mb-4 text-lg font-bold tracking-tight text-primary">Ціна</legend>
         <div className="grid gap-5 @lg:grid-cols-2">
-          <Field label="Стартова ціна, ₴ *" hint={hasBids ? "На лот уже є ставки: стартову ціну змінити не можна." : "Перша ставка має бути не меншою."} error={f.start_price}>
+          <Field label="Стартова ціна, ₴ *" hint={hasBids ? "На лот уже є ставки: стартову ціну змінити не можна." : "0 — торги з нуля: перша ставка щонайменше на крок."} error={f.start_price}>
             <input name="start_price" inputMode="numeric" className={inputClass} value={start} onChange={(e) => setStart(e.target.value.replace(/[^\d]/g, ""))} readOnly={hasBids} aria-readonly={hasBids} aria-invalid={!!f.start_price} />
           </Field>
           <Field label="Крок ставки, ₴ *" hint={Number(step) > 0 ? `Кожна наступна ставка більша щонайменше на ${formatUah(Number(step))}.` : undefined} error={f.bid_step}>

@@ -46,7 +46,7 @@ export async function saveLot(_: ActionState, form: FormData): Promise<ActionSta
   if (!values.title_uk) fields.title_uk = "Вкажіть назву українською.";
   if (values.title_uk.length > 160 || values.title_en.length > 160) fields.title_uk = "Назва до 160 символів.";
   if (values.description_uk.length > 4000 || values.description_en.length > 4000) fields.description_uk = "Опис до 4000 символів.";
-  if (!(values.start_price > 0 && values.start_price <= MAX_UAH)) fields.start_price = "Ціле число гривень, більше 0.";
+  if (!(values.start_price >= 0 && values.start_price <= MAX_UAH)) fields.start_price = "Ціле число гривень, від 0.";
   if (!(values.bid_step > 0 && values.bid_step <= MAX_UAH)) fields.bid_step = "Ціле число гривень, більше 0.";
   if (!STATUSES.includes(values.status)) fields.status = "Оберіть статус.";
   if (!Number.isFinite(values.sort_order)) values.sort_order = 0;

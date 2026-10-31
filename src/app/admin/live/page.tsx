@@ -10,6 +10,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { photoUrl } from "@/lib/supabase/env";
 import { formatUah } from "@/lib/format";
+import { minNextBid } from "@/lib/bidding";
 import { formatKyivPrecise } from "@/lib/time";
 import type { AdminBid, Lot } from "@/lib/types";
 
@@ -36,7 +37,7 @@ export default async function LivePage() {
   const queue = all.filter((l) => l.status === "active" && l.id !== lot?.id);
   const done = all.filter((l) => l.status === "closed");
   const open = lot?.status === "active";
-  const min = lot ? (lot.current_amount == null ? lot.start_price : lot.current_amount + lot.bid_step) : 0;
+  const min = lot ? minNextBid(lot) : 0;
 
   return (
     <>

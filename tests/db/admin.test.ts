@@ -59,7 +59,7 @@ describe("privileges", () => {
 
   it("lets signed-in users run only the public entry points, never the internal bid steps", async () => {
     expect(await executable("authenticated")).toEqual([
-      "admin_add_bid", "cancel_bid", "current_role_name", "is_admin", "is_staff", "place_bid", "set_user_blocked", "set_user_role",
+      "admin_add_bid", "cancel_bid", "current_role_name", "is_admin", "is_staff", "place_bid", "reset_show", "set_user_blocked", "set_user_role",
     ]);
   });
 });

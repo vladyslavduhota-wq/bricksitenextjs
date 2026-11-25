@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowSquareOut, Broadcast, CheckCircle, ImageSquare, Pause, SkipForward, Trophy, XCircle } from "@phosphor-icons/react/dist/ssr";
+import { ArrowSquareOut, ArrowCounterClockwise, Broadcast, CheckCircle, ImageSquare, Pause, SkipForward, Trophy, XCircle } from "@phosphor-icons/react/dist/ssr";
 import { Empty, PageHeader, Panel, Table, td, th, tr } from "@/components/admin/kit";
 import { ConfirmAction } from "@/components/admin/ConfirmAction";
 import { ActionButton, LiveRefresh, ManualBidForm } from "@/components/admin/LiveControls";
 import { Badge, buttonClass, microLabel } from "@/components/ui";
-import { cancelBid, finishLot, nextLot, pauseShow, showLot } from "@/app/admin/actions";
+import { cancelBid, finishLot, nextLot, pauseShow, resetShow, showLot } from "@/app/admin/actions";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { photoUrl } from "@/lib/supabase/env";
@@ -47,6 +47,16 @@ export default async function LivePage() {
         description="Лот в ефірі бачать усі глядачі на сайті й на екрані трансляції. Оновлюється наживо."
         actions={
           <>
+            <ConfirmAction
+              action={resetShow}
+              size="md"
+              tone="danger"
+              title="Почати показ спочатку?"
+              description={`Екран стане порожнім, усі ставки на всіх лотах буде скасовано, а завершені лоти (${done.length}) повернуться в чергу. Неможливо відмінити. Благодійні внески залишаться.`}
+              confirmLabel="Скинути й почати спочатку"
+            >
+              <ArrowCounterClockwise size={18} weight="light" /> Почати спочатку
+            </ConfirmAction>
             <a href="/screen" target="_blank" rel="noreferrer" className={buttonClass("ghost")}><ArrowSquareOut size={18} weight="light" /> Екран трансляції</a>
             <a href="/live" target="_blank" rel="noreferrer" className={buttonClass("ghost")}><ArrowSquareOut size={18} weight="light" /> Сторінка глядачів</a>
           </>

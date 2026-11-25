@@ -269,6 +269,16 @@ export async function pauseShow(_?: ActionState, __?: FormData): Promise<ActionS
   return ok("Пауза: глядачі бачать екран очікування.");
 }
 
+/** After a rehearsal: off air, every bid cancelled, every closed lot back in the queue. */
+export async function resetShow(_?: ActionState, __?: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reset_show");
+  if (error) return fail("Не вдалося почати спочатку.");
+  revalidatePath("/", "layout");
+  return ok("Показ скинуто: усі лоти знову в черзі.");
+}
+
 const BID_ERRORS: Record<string, string> = {
   amount_too_low: "Сума замала. Мінімальна ставка зараз {min}.",
   amount_too_high: "Сума більша за максимальну в налаштуваннях.",

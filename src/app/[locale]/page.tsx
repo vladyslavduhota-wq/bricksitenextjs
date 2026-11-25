@@ -17,7 +17,7 @@ export default async function Home({ params }: Props) {
   setRequestLocale((await params).locale);
   const lots = await getPublicLots();
   return (
-    <ClientMessages namespaces={["nav", "hero", "marquee", "about", "lots", "steps", "faq", "footer", "lot"]}>
+    <ClientMessages namespaces={["nav", "hero", "marquee", "about", "lots", "steps", "countdown", "faq", "footer", "lot"]}>
       <HomePage lots={lots} />
     </ClientMessages>
   );

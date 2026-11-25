@@ -31,6 +31,10 @@ const SETS = {
     { C: Ticket, c: "right-[26%] top-28 hidden w-32 md:block", r: -8, d: 8 },
     { C: Coin, c: "left-[40%] top-10 hidden w-10 md:block", r: -6, d: 5 },
   ],
+  countdown: [
+    { C: Spark, c: "left-[52%] top-10 hidden w-10 md:block", r: 0, d: 4 },
+    { C: Tag, c: "right-[8%] bottom-6 hidden w-28 md:block", r: 18, d: 7 },
+  ],
 } as const;
 
 export function FloatingObjects({ set }: { set: keyof typeof SETS }) {

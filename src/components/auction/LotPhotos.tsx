@@ -10,11 +10,12 @@ import type { PublicImage } from "@/lib/types";
 
 /**
  * Lot photos that fill whatever height the parent gives them and show the whole photo,
- * so the page fits one screen. `autoplay` cycles them for the stream; otherwise arrows.
+ * so the page fits one screen. `preview` is an already loaded small copy of the first photo, shown until the full one arrives. `autoplay` cycles them for the stream; otherwise arrows.
  */
-export function LotPhotos({ images, title, autoplay = false, className }: { images: PublicImage[]; title: string; autoplay?: boolean; className?: string }) {
+export function LotPhotos({ images, title, autoplay = false, sizes = "(min-width: 1024px) 40vw, 100vw", preview, className }: { images: PublicImage[]; title: string; autoplay?: boolean; sizes?: string; preview?: string; className?: string }) {
   const t = useTranslations("lot");
   const [i, setI] = useState(0);
+  const [loaded, setLoaded] = useState(false);
   const n = images.length;
   const go = (d: number) => setI((k) => (k + d + n) % n);
 
@@ -36,7 +37,9 @@ export function LotPhotos({ images, title, autoplay = false, className }: { imag
             alt={`${title}. ${t("photo", { n: k + 1, total: n })}`}
             fill
             priority={k === 0}
-            sizes="(min-width: 1024px) 40vw, 100vw"
+            style={k === 0 && preview && !loaded ? { background: `url("${preview}") center / contain no-repeat` } : undefined}
+            onLoad={k === 0 ? () => setLoaded(true) : undefined}
+            sizes={sizes}
             className={cn("object-contain transition-opacity duration-700", k === (i % n) ? "opacity-100" : "opacity-0")}
             aria-hidden={k !== i % n}
           />

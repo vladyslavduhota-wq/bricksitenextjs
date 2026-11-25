@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ImageSquare, X } from "@phosphor-icons/react";
@@ -15,12 +15,24 @@ const FIRST = 12;
 // Phones start with four rows of two.
 const FIRST_PHONE = 8;
 
+const DIALOG_SIZES = "(min-width: 1024px) 28rem, (min-width: 768px) 45vw, 92vw";
+
+/** Starts loading the dialog's photo as soon as the visitor points at or touches the card. */
+function warm(lot: PublicLot) {
+  const cover = lot.images[0];
+  if (!cover) return;
+  const { props } = getImageProps({ src: photoUrl(cover.path), alt: "", fill: true, sizes: DIALOG_SIZES });
+  const img = new window.Image();
+  img.sizes = props.sizes ?? "";
+  img.srcset = props.srcSet ?? "";
+}
+
 /** Every lot to look through before the auction: photo and title, the story opens in a dialog. No prices here. */
 export function LotCatalogue({ lots }: { lots: PublicLot[] }) {
   const t = useTranslations("lots");
   const locale = useLocale();
   const [all, setAll] = useState(false);
-  const [open, setOpen] = useState<PublicLot | null>(null);
+  const [open, setOpen] = useState<{ lot: PublicLot; preview?: string } | null>(null);
   if (!lots.length) return <p className="mt-12 text-primary-foreground/65">{t("empty")}</p>;
   return (
     <>
@@ -30,7 +42,7 @@ export function LotCatalogue({ lots }: { lots: PublicLot[] }) {
           const cover = lot.images[0];
           return (
             <li key={lot.id} className={!all && k >= FIRST_PHONE ? "max-md:hidden" : undefined}>
-              <button type="button" aria-haspopup="dialog" onClick={() => setOpen(lot)} className="group block h-full w-full rounded-[1.6rem] text-left outline-none transition-transform duration-500 ease-spring hover:-translate-y-1 focus-visible:ring-[3px] focus-visible:ring-accent">
+              <button type="button" aria-haspopup="dialog" onPointerEnter={() => warm(lot)} onFocus={() => warm(lot)} onClick={(e) => setOpen({ lot, preview: e.currentTarget.querySelector("img")?.currentSrc })} className="group block h-full w-full rounded-[1.6rem] text-left outline-none transition-transform duration-500 ease-spring hover:-translate-y-1 focus-visible:ring-[3px] focus-visible:ring-accent">
                 <Bezel dark className="h-full rounded-[1.6rem] p-1" core="overflow-hidden rounded-[1.35rem] bg-navy-deep">
                   <span className="dot-grid-light relative block aspect-square overflow-hidden bg-primary/40">
                     {cover ? (
@@ -51,13 +63,13 @@ export function LotCatalogue({ lots }: { lots: PublicLot[] }) {
           <button type="button" onClick={() => setAll(true)} className={buttonClass("accent", "lg")}>{t("all", { n: lots.length })}</button>
         </div>
       )}
-      {open && <LotDialog lot={open} onClose={() => setOpen(null)} />}
+      {open && <LotDialog {...open} onClose={() => setOpen(null)} />}
     </>
   );
 }
 
 /** Native dialog: focus trap, Escape and the backdrop come with it. */
-function LotDialog({ lot, onClose }: { lot: PublicLot; onClose: () => void }) {
+function LotDialog({ lot, preview, onClose }: { lot: PublicLot; preview?: string; onClose: () => void }) {
   const t = useTranslations("common");
   const locale = useLocale();
   const ref = useRef<HTMLDialogElement>(null);
@@ -77,7 +89,7 @@ function LotDialog({ lot, onClose }: { lot: PublicLot; onClose: () => void }) {
       className="m-auto max-h-[92dvh] w-[min(60rem,calc(100vw-2rem))] max-w-none overflow-y-auto rounded-[2rem] bg-card p-0 text-foreground shadow-soft backdrop:bg-primary/70"
     >
       <div className="relative grid gap-5 p-4 md:grid-cols-2 md:gap-8 md:p-6">
-        <div className="h-[46dvh] min-w-0 md:h-[60dvh]"><LotPhotos images={lot.images} title={lotTitle(lot, locale)} /></div>
+        <div className="h-[46dvh] min-w-0 md:h-[60dvh]"><LotPhotos images={lot.images} title={lotTitle(lot, locale)} sizes={DIALOG_SIZES} preview={preview || undefined} /></div>
         <div className="min-w-0 pb-3 md:pr-8 md:pt-12">
           <h3 id="lot-dialog-title" className="text-2xl font-bold tracking-tight text-primary md:text-4xl">{lotTitle(lot, locale)}</h3>
           {lotDescription(lot, locale) && <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{lotDescription(lot, locale)}</p>}

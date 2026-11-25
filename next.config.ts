@@ -9,7 +9,8 @@ const config: NextConfig = {
   // A stray package-lock.json in the home folder otherwise makes Next guess the wrong root.
   turbopack: { root: import.meta.dirname },
   images: {
-    formats: ["image/avif", "image/webp"],
+    // WebP only: photos are resized on first request, and AVIF takes up to 3 times longer to encode.
+    formats: ["image/webp"],
     remotePatterns: [
       ...(supabaseHost ? [{ protocol: "https" as const, hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }] : []),
     ],

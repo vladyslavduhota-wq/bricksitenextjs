@@ -10,6 +10,7 @@ import { Preloader } from "@/components/Preloader";
 import { BrandLogo, KSE_PATHS } from "@/components/BrandLogo";
 import { Bezel } from "@/components/ui";
 import { LocaleSwitch } from "@/components/SiteBar";
+import { Countdown } from "@/components/home/Countdown";
 import { LotCatalogue } from "@/components/home/LotCatalogue";
 import type { PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ export function HomePage({ lots }: { lots: PublicLot[] }) {
         <About />
         <Lots lots={lots} />
         <Steps />
+        <Countdown />
         <Faq />
       </main>
       <Footer />
@@ -95,7 +97,7 @@ type Section = (typeof SECTIONS)[number];
 /**
  * Which section the visitor is reading, for the header. One IntersectionObserver watches a thin band
  * across the upper middle of the screen, so nothing runs on scroll and state changes only when the
- * section under the band does. The hero is not in the menu, so over it the pill
+ * section under the band does. The hero and the countdown are not in the menu, so over them the pill
  * goes out; past the last section (the footer) the last one stays lit.
  * A click locks the target until its smooth scroll ends, so the highlight doesn't hop through every
  * section on the way.
@@ -106,7 +108,7 @@ function useActiveSection() {
   const setActive = (next: Section | null) => setSpot((s) => (s.active === next ? s : { active: next, from: s.active }));
   const lock = useRef<Section | null>(null);
   useEffect(() => {
-    const targets = ["top", ...SECTIONS].map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    const targets = ["top", ...SECTIONS, "countdown"].map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
     const crossing = new Set<Element>();
     const io = new IntersectionObserver(
       (entries) => {

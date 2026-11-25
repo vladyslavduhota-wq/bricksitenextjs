@@ -80,6 +80,20 @@
       }
     }
   },
+  "countdown": {
+    "title": "Until the auction",
+    "date": "4 December",
+    "text": "Live bidding at the event with the Rector. The date is tentative.",
+    "units": {
+      "d": "days",
+      "h": "hours",
+      "m": "minutes",
+      "s": "seconds"
+    },
+    "timeNote": "The exact start time is to be confirmed.",
+    "calendarMonth": "December 2026",
+    "calendarDay": "Friday"
+  },
   "faq": {
     "title1": "Questions",
     "title2": "that matter.",

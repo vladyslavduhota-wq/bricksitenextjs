@@ -91,7 +91,7 @@
       },
       "bidding": {
         "q": "How will bidding work?",
-        "a": "All bidding takes place exclusively live in the hall. On the site you can browse the lots in advance; you place bids and compete for them at the event itself by raising numbered paddles."
+        "a": "Bidding takes place live. You can browse the lots on the site in advance. During the event, people in the hall bid by raising numbered paddles, and viewers of the YouTube stream can scan the QR code on screen and place a bid on the site."
       },
       "bid": {
         "q": "What does a bid mean?",
@@ -99,7 +99,7 @@
       },
       "who": {
         "q": "Who can take part?",
-        "a": "Students, faculty, KSE staff, alumni and guests of the university who register for the offline event (the number of seats in the hall is limited)."
+        "a": "In the hall: students, faculty, KSE staff, alumni and guests of the university who register for the offline event (the number of seats is limited). Online, you can join through the stream: scan the QR code on screen and sign in on the site to place a bid."
       },
       "payment": {
         "q": "How do I pay for and receive a lot I won?",

@@ -70,12 +70,12 @@
       },
       "bid": {
         "title": "Come and bid",
-        "text": "Register for the event and raise your numbered paddle in the hall.",
+        "text": "Just come to the live event.",
         "status": "Tentatively 4 December"
       },
       "result": {
-        "title": "Take your lot home",
-        "text": "Pay by QR code. The Rector hands you the lot and takes a photo with you.",
+        "title": "Win",
+        "text": "Take a photo with the Rector.",
         "status": "Right at the event"
       }
     }

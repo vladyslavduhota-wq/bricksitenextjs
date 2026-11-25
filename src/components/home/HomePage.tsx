@@ -11,6 +11,7 @@ import { BrandLogo, KSE_PATHS } from "@/components/BrandLogo";
 import { Bezel } from "@/components/ui";
 import { LocaleSwitch } from "@/components/SiteBar";
 import { Countdown } from "@/components/home/Countdown";
+import { RectorFigure } from "@/components/home/RectorFigure";
 import { LotCatalogue } from "@/components/home/LotCatalogue";
 import type { PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -18,8 +19,6 @@ import { SplitWords, Highlight, OutlineFill, VelocityMarquee, ScrollWords, EASE,
 import { CONTACT_EMAIL } from "@/lib/auction";
 
 const GAVEL = "/images/gavel-3d.webp";
-// Cut-out of the Rector sitting (transparent background); the hero swings its shins.
-const RECTOR_SITTING = "/images/rector-sitting.webp";
 const i = (n: number) => ({ ["--i" as string]: n }) as CSSProperties;
 // Base styles the prototype took from the shadcn Button.
 const BTN = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
@@ -290,11 +289,7 @@ function Hero() {
           <motion.div style={reduce ? {} : portrait} className="relative z-20 pointer-events-none">
             <figure className="enter rector-stage" style={i(2)}>
               <div className="rector-plinth" />
-              <div className="rector-figure">
-                <Image src={RECTOR_SITTING} alt={t("photoAlt")} width={1010} height={1780} priority sizes="(max-width: 639px) 210px, 320px" className="rector-body" />
-                <Image src={RECTOR_SITTING} alt="" aria-hidden width={1010} height={1780} sizes="(max-width: 639px) 210px, 320px" className="rector-shin" />
-                <Image src={RECTOR_SITTING} alt="" aria-hidden width={1010} height={1780} sizes="(max-width: 639px) 210px, 320px" className="rector-shin is-right" />
-              </div>
+              <RectorFigure alt={t("photoAlt")} />
               <figcaption className="rector-label">
                 <b className="block text-sm sm:text-base">{t("name")}</b>
                 <span className="text-xs text-primary-foreground/70">{t("role")}</span>

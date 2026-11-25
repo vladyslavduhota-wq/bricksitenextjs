@@ -2,44 +2,29 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode, type CSSProperties, type PointerEvent } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
-import {
-  ArrowUpRight,
-  Gavel,
-  HandPointing,
-  Trophy,
-  Asterisk,
-  Plus,
-} from "@phosphor-icons/react";
-import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
+import { ArrowUpRight, Gavel, HandPointing, Trophy, Asterisk, Plus } from "@phosphor-icons/react";
 import { FloatingObjects } from "@/components/objects";
 import { Preloader } from "@/components/Preloader";
 import { BrandLogo, KSE_PATHS } from "@/components/BrandLogo";
-import { ClosedWindow } from "@/components/ClosedWindow";
 import { Bezel } from "@/components/ui";
-import { AccountLink, LocaleSwitch } from "@/components/SiteBar";
-import { LotCard } from "@/components/auction/LotCard";
-import { useLiveShow } from "@/components/auction/live";
-import { formatUah } from "@/lib/format";
-import type { LiveState, PublicLot } from "@/lib/types";
+import { LocaleSwitch } from "@/components/SiteBar";
+import { LotCatalogue } from "@/components/home/LotCatalogue";
+import type { PublicLot } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { SplitWords, Highlight, OutlineFill, Magnetic, VelocityMarquee, RollDigits, ScrollWords, EASE, VIEW } from "@/components/fx";
-import { CONTACT_EMAIL, FINAL_AT } from "@/lib/auction";
+import { SplitWords, Highlight, OutlineFill, VelocityMarquee, ScrollWords, EASE, VIEW } from "@/components/fx";
+import { CONTACT_EMAIL } from "@/lib/auction";
 
 const GAVEL = "/images/gavel-3d.webp";
 // Cut-out of the Rector sitting (transparent background); the hero swings its shins.
 const RECTOR_SITTING = "/images/rector-sitting.webp";
-// The prototype's playful tilt, kept for the real cards on wide screens.
-const TILT = ["md:-rotate-[3deg] md:translate-y-8", "md:rotate-[2deg] md:-translate-y-3", "md:-rotate-[1deg] md:translate-y-12"];
 const i = (n: number) => ({ ["--i" as string]: n }) as CSSProperties;
 // Base styles the prototype took from the shadcn Button.
 const BTN = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
-export function HomePage({ live }: { live: LiveState }) {
+export function HomePage({ lots }: { lots: PublicLot[] }) {
   const [ready, setReady] = useState(false);
-  // Follows the presenter: the lot on air and the total raised, both live.
-  const { lot, total } = useLiveShow(live);
   useEffect(() => {
     const on = () => setReady(true);
     if ((window as unknown as { __ksePreDone?: boolean }).__ksePreDone) { document.documentElement.style.overflow = ""; on(); return; }
@@ -54,15 +39,12 @@ export function HomePage({ live }: { live: LiveState }) {
     <div className={`home grain overflow-x-clip ${ready ? "is-ready" : ""}`}>
       <Preloader />
       <Nav />
-      <ClosedWindow />
       <main>
-        <Hero raised={total} />
+        <Hero />
         <Marquee />
         <About />
-        <Lots lot={lot} />
+        <Lots lots={lots} />
         <Steps />
-        <Report />
-        <Final />
         <Faq />
       </main>
       <Footer />
@@ -87,7 +69,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   );
 }
 
-function PillCta({ children, onClick, href, variant = "primary" }: { children: ReactNode; onClick?: () => void; href?: string; variant?: "primary" | "accent" }) {
+function PillCta({ children, href, variant = "primary" }: { children: ReactNode; href: string; variant?: "primary" | "accent" }) {
   const cls =
     variant === "primary"
       ? "bg-primary text-primary-foreground"
@@ -96,26 +78,24 @@ function PillCta({ children, onClick, href, variant = "primary" }: { children: R
   const body = (
     <>
       <span>{children}</span>
-      <span className={`grid h-9 w-9 place-items-center rounded-full ${inner} transition-transform duration-500 ease-spring group-hover:-translate-y-[1px] group-hover:translate-x-1 group-hover:scale-105`}>
+      <span className={`grid h-9 w-9 place-items-center rounded-full ${inner}`}>
         <ArrowUpRight weight="light" size={18} />
       </span>
     </>
   );
-  const c = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
-  // Site paths go through the locale-aware Link; anchors and mailto stay plain links.
-  const link = href?.startsWith("/") ? <Link href={href} className={c}>{body}</Link> : <a href={href} className={c}>{body}</a>;
-  return <Magnetic>{href ? link : <button onClick={onClick} className={cn(BTN, c, "h-auto")}>{body}</button>}</Magnetic>;
+  const c = `inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 font-medium shadow-soft transition-transform duration-500 ease-spring active:scale-[0.98] ${cls}`;
+  return <a href={href} className={c}>{body}</a>;
 }
 
 /* ---------- nav ---------- */
 
-const SECTIONS = ["about", "lots", "how", "report", "faq"] as const;
+const SECTIONS = ["about", "lots", "how", "faq"] as const;
 type Section = (typeof SECTIONS)[number];
 
 /**
  * Which section the visitor is reading, for the header. One IntersectionObserver watches a thin band
  * across the upper middle of the screen, so nothing runs on scroll and state changes only when the
- * section under the band does. The hero and the countdown are not in the menu, so over them the pill
+ * section under the band does. The hero is not in the menu, so over it the pill
  * goes out; past the last section (the footer) the last one stays lit.
  * A click locks the target until its smooth scroll ends, so the highlight doesn't hop through every
  * section on the way.
@@ -126,7 +106,7 @@ function useActiveSection() {
   const setActive = (next: Section | null) => setSpot((s) => (s.active === next ? s : { active: next, from: s.active }));
   const lock = useRef<Section | null>(null);
   useEffect(() => {
-    const targets = ["top", ...SECTIONS, "countdown"].map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    const targets = ["top", ...SECTIONS].map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
     const crossing = new Set<Element>();
     const io = new IntersectionObserver(
       (entries) => {
@@ -200,10 +180,6 @@ function Nav() {
           </nav>
           <div className="flex items-center gap-2">
             <LocaleSwitch />
-            <AccountLink />
-            <Link href="/live" className={cn(BTN, "hidden h-auto rounded-full bg-primary px-5 py-2.5 text-primary-foreground hover:bg-primary/90 active:scale-[0.98] sm:inline-flex")}>
-              {t("common.placeBid")}
-            </Link>
             <button aria-label={t("common.menu")} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className={cn(BTN, "relative h-10 w-10 shrink-0 rounded-full bg-primary/5 lg:hidden")}>
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 rotate-45" : "top-[15px]"}`} />
               <span className={`absolute left-3 right-3 h-[1.5px] bg-primary transition-transform duration-500 ease-spring ${open ? "top-1/2 -rotate-45" : "top-[23px]"}`} />
@@ -272,7 +248,7 @@ function usePointerDepth() {
 const useDepth = (v: MotionValue<number>, px: number, plus?: MotionValue<number>) =>
   useTransform(plus ? [v, plus] : [v], (xs: number[]) => (xs[0] ?? 0) * px + (xs[1] ?? 0));
 
-function Hero({ raised }: { raised: number }) {
+function Hero() {
   const t = useTranslations("hero");
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
@@ -300,11 +276,11 @@ function Hero({ raised }: { raised: number }) {
           </p>
           <div className="enter hero-actions flex flex-wrap items-center gap-3" style={i(5)}>
             <PillCta href="#lots">{t("viewLots")}</PillCta>
-            <a href="#how" className={cn(BTN, "hero-howto h-auto rounded-full px-3 py-3 text-primary hover:bg-accent hover:text-accent-foreground")}>{t("howToBid")} <ArrowUpRight weight="light" /></a>
+            <a href="#how" className={cn(BTN, "hero-howto h-auto rounded-full px-3 py-3 text-primary")}>{t("how")} <ArrowUpRight weight="light" /></a>
           </div>
           <div className="enter hero-details grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-primary/15" style={i(6)}>
-            <span className="min-w-0 text-xs text-muted-foreground">{t("catalogStatus")} <b className="ml-1 text-sm tabular-nums text-primary">{formatUah(raised)}</b></span>
-            <span className="text-xs font-medium text-primary">{t("final")} <b className="ml-2">14.11.2026</b></span>
+            <span className="min-w-0 text-xs text-muted-foreground">{t("format")}</span>
+            <span className="text-xs font-medium text-primary">{t("dateLabel")} <b className="ml-1">{t("date")}</b></span>
           </div>
         </div>
         <div className="hero-visual relative min-w-0">
@@ -337,7 +313,7 @@ function Hero({ raised }: { raised: number }) {
           </motion.div>
           <motion.div style={reduce ? {} : ticket} className="absolute left-[-28px] top-8 z-10 max-lg:hidden">
             <div key={hits} className="hero-ticket flex items-center gap-3 bg-accent text-accent-foreground" style={replay}>
-              <span className="text-3xl font-bold leading-none">14</span>
+              <span className="text-3xl font-bold leading-none">4</span>
               <span className="text-xs leading-snug"><b className="block">{t("ticketDate")}</b>{t("ticketLabel")}</span>
             </div>
           </motion.div>
@@ -373,20 +349,17 @@ function Marquee() {
 
 /* ---------- lots ---------- */
 
-/** Only the lot on air: viewers follow the show, not a catalogue. */
-function Lots({ lot }: { lot: PublicLot | null }) {
+function Lots({ lots }: { lots: PublicLot[] }) {
   const t = useTranslations("lots");
-  const reduce = useReducedMotion();
-  const top = lot ? [lot] : [];
   return (
-    <section id="lots" className="relative overflow-hidden bg-primary pb-20 pt-24 text-primary-foreground">
+    <section id="lots" className="relative overflow-hidden bg-primary pb-12 pt-12 md:pb-20 md:pt-24 text-primary-foreground">
       <div className="orb pointer-events-none absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full opacity-30" />
       <span aria-hidden className="text-outline-light pointer-events-none absolute -left-6 top-24 select-none text-[22vw] font-bold leading-none opacity-60">
         {t("watermark")}
       </span>
       <div className="relative mx-auto max-w-7xl px-4 md:px-8">
         <Reveal className="max-w-2xl md:ml-auto md:text-right">
-          <h2 className="text-5xl font-bold tracking-tight md:text-7xl">
+          <h2 className="text-4xl font-bold tracking-tight md:text-7xl">
             <SplitWords text={t("title1")} /> <span className="text-accent"><SplitWords text={t("title2")} delay={0.14} /></span>{" "}
             <SplitWords text={t("title3")} delay={0.21} />
           </h2>
@@ -394,36 +367,7 @@ function Lots({ lot }: { lot: PublicLot | null }) {
             {t("intro")}
           </p>
         </Reveal>
-        {top.length ? (
-          // Phones: a swipeable row with the next tag peeking in, instead of three screen-tall cards.
-          <div className="mx-auto mt-12 w-full max-w-sm max-sm:mt-8">
-            {top.map((lot, k) => (
-              // A price tag hung by its hole: it drops onto the hook, swings and settles; a nudge on hover.
-              // The tilt lives on its own wrapper so the swing never fights it.
-              <div key={lot.id} className={TILT[1]}>
-                <motion.div
-                  style={{ transformOrigin: "50% 1.9rem" }}
-                  initial={reduce ? false : { opacity: 0, y: -90, rotate: (k - 1) * 9 + 7 }}
-                  whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-                  whileHover={reduce ? undefined : { rotate: [0, -2.5, 1.6, -0.8, 0], transition: { duration: 1.1, ease: "easeOut" } }}
-                  viewport={VIEW}
-                  transition={{
-                    opacity: { duration: 0.4, delay: 0.1 + k * 0.14 },
-                    y: { duration: 0.7, delay: 0.1 + k * 0.14, ease: EASE },
-                    rotate: { type: "spring", stiffness: 70, damping: 6, mass: 0.9, delay: 0.1 + k * 0.14 },
-                  }}
-                >
-                  <LotCard lot={lot} />
-                </motion.div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-12 text-primary-foreground/65">{t("empty")}</p>
-        )}
-        <div className="mt-14 flex justify-center max-sm:mt-6">
-          <PillCta href="/live" variant="accent">{t("all")}</PillCta>
-        </div>
+        <LotCatalogue lots={lots} />
       </div>
     </section>
   );
@@ -441,11 +385,11 @@ function Steps() {
     { key: "result", icon: Trophy, h: "lg:h-[30rem]" },
   ] as const;
   return (
-    <section id="how" className="relative overflow-hidden py-16 md:py-24">
+    <section id="how" className="relative overflow-hidden py-12 md:py-24">
       <FloatingObjects set="how" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-8">
         <Reveal>
-          <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
+          <h2 className="text-4xl font-bold tracking-tight text-primary md:text-7xl">
             <span className="block"><SplitWords text={t("title1")} /></span>
             <OutlineFill text={t("title2")} />
           </h2>
@@ -455,15 +399,15 @@ function Steps() {
         <motion.div className="mt-10 grid items-end gap-4 sm:mt-16 sm:gap-5 lg:grid-cols-3" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
           {steps.map((s, k) => (
             <LadderStep key={s.key} k={k} wide={wide} reduce={!!reduce}>
-              <Bezel core={`flex flex-col justify-between p-6 sm:p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
+              <Bezel core={`flex flex-col justify-between p-5 sm:p-8 ${k === 2 ? "bg-primary text-primary-foreground" : k === 1 ? "bg-accent text-accent-foreground" : "bg-card"} ${s.h}`}>
                 <div className="flex items-start justify-between">
-                  <s.icon size={40} weight="light" />
-                  <span className="text-5xl font-bold leading-none opacity-15 sm:text-7xl">{k + 1}</span>
+                  <s.icon weight="light" className="size-7 sm:size-10" />
+                  <span className="text-4xl font-bold leading-none opacity-15 sm:text-7xl">{k + 1}</span>
                 </div>
-                <div className="mt-8 sm:mt-16">
+                <div className="mt-4 sm:mt-16">
                   <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">{t(`items.${s.key}.title`)}</h3>
-                  <p className="mt-3 opacity-70">{t(`items.${s.key}.text`)}</p>
-                  <span className="mt-6 inline-block rounded-full bg-current/10 px-4 py-1.5 text-xs font-medium ring-1 ring-current/20">{t(`items.${s.key}.status`)}</span>
+                  <p className="mt-2 opacity-70 sm:mt-3">{t(`items.${s.key}.text`)}</p>
+                  <span className="mt-4 inline-block rounded-full bg-current/10 sm:mt-6 px-4 py-1.5 text-xs font-medium ring-1 ring-current/20">{t(`items.${s.key}.status`)}</span>
                 </div>
               </Bezel>
             </LadderStep>
@@ -508,219 +452,16 @@ const subscribeWide = (cb: () => void) => {
 /** True on screens where the ladder stands in one row (lg and up); false during server render. */
 const useWide = () => useSyncExternalStore(subscribeWide, () => window.matchMedia("(min-width: 1024px)").matches, () => false);
 
-/* ---------- report: bento ---------- */
-
-function Report() {
-  const t = useTranslations("report");
-  const reduce = useReducedMotion();
-  const box = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: box, offset: ["start end", "end start"] });
-  const drift = useTransform(scrollYProgress, [0, 1], ["18%", "-22%"]);
-  return (
-    <section ref={box} id="report" className="px-4 pb-16 md:px-8">
-      <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-12 md:grid-rows-2">
-        <Reveal className="md:col-span-7 md:row-span-2">
-          <Bezel core="relative h-full overflow-hidden bg-accent-soft p-6 sm:p-10 lg:p-14">
-            <div className="orb absolute -bottom-24 -right-24 h-80 w-80 rounded-full opacity-60" />
-            <motion.span aria-hidden style={reduce ? {} : { x: drift }} className="text-outline pointer-events-none absolute -right-6 bottom-6 select-none text-[9rem] font-bold leading-none opacity-30 md:text-[12rem]">{t("watermark")}</motion.span>
-            <motion.img src={GAVEL} alt="" aria-hidden loading="lazy" decoding="async" animate={reduce ? undefined : { rotate: [-14, 8, -14], y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute right-8 top-8 hidden w-28 md:block" />
-            <h2 className="relative text-4xl font-bold text-primary lg:text-6xl">
-              <SplitWords text={t("title")} /> <Highlight delay={0.5}><span className="italic">{t("titleHighlight")}</span></Highlight>
-            </h2>
-            <p className="relative mt-6 max-w-[42ch] text-muted-foreground">
-              {t("text")}
-            </p>
-            <p className="relative mt-10 text-sm font-medium text-primary sm:mt-16">{t("credit")}</p>
-          </Bezel>
-        </Reveal>
-        {[
-          [t("cause"), "bg-primary text-primary-foreground"],
-          [t("goal"), "bg-card"],
-        ].map(([a, c], k) => (
-          <Reveal key={a} delay={0.1 + k * 0.1} className="md:col-span-5">
-            <Bezel core={`flex h-full min-h-32 items-end justify-between p-6 sm:min-h-44 sm:p-8 ${c}`}>
-              <div>
-                <p className="text-2xl font-bold tracking-tight">{a}</p>
-                <p className="mt-1 text-sm opacity-60">{t("pending")}</p>
-              </div>
-              <span className="text-outline text-6xl font-bold leading-none opacity-40">?</span>
-            </Bezel>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ---------- final ---------- */
-
-function useCountdown() {
-  const [left, setLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
-  useEffect(() => {
-    const calc = () => {
-      const ms = Math.max(0, FINAL_AT.getTime() - Date.now());
-      setLeft({ d: Math.floor(ms / 864e5), h: Math.floor(ms / 36e5) % 24, m: Math.floor(ms / 6e4) % 60, s: Math.floor(ms / 1e3) % 60 });
-    };
-    calc();
-    const t = setInterval(calc, 1000);
-    return () => clearInterval(t);
-  }, []);
-  return left;
-}
-
-function Final() {
-  const t = useTranslations("final");
-  const reduce = useReducedMotion();
-  const left = useCountdown();
-  const units = ["d", "h", "m", "s"] as const;
-  return (
-    <section id="countdown" className="relative overflow-hidden bg-primary py-16 text-primary-foreground md:py-24">
-      <div className="dot-grid-light absolute inset-0" />
-      <FloatingObjects set="final" />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 md:grid-cols-12 md:px-8">
-        <Reveal className="md:col-span-7">
-          <h2 className="text-6xl font-bold leading-[0.95] tracking-tight md:text-8xl">
-            <span className="block"><SplitWords text={t("title")} /></span>
-            <OutlineFill text="14.11" light />
-          </h2>
-          <p className="mt-8 max-w-[44ch] text-primary-foreground/65">
-            {t("text")}
-          </p>
-          <Link href="/final" className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground transition active:scale-[0.98]">
-            {t("pageLink")} <ArrowUpRight weight="light" />
-          </Link>
-          <div className="mt-12 grid max-w-xl grid-cols-4 gap-3">
-            {units.map((k) => (
-              <div key={k} className="rounded-3xl bg-primary-foreground/5 p-2 sm:p-4 text-center ring-1 ring-primary-foreground/10">
-                <div className="text-2xl font-bold tabular-nums lg:text-5xl">{left ? <RollDigits value={String(left[k]).padStart(2, "0")} /> : "--"}</div>
-                <div className="mt-1 text-[11px] text-primary-foreground/60 sm:uppercase sm:tracking-[0.2em]">{t(`units.${k}`)}</div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-primary-foreground/40">{t("timeNote")}</p>
-        </Reveal>
-        <motion.div
-          className="md:col-span-5"
-          initial={reduce ? false : { opacity: 0, y: -90, rotate: -8 }}
-          whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-          viewport={VIEW}
-          transition={{ type: "spring", stiffness: 110, damping: 20, mass: 1, delay: 0.15 }}
-        >
-          {/* tear-off calendar: counts down from the visitor's today to the final when it comes into view */}
-          <div className="relative mx-auto w-full max-w-[15rem] sm:max-w-xs">
-            <div className="absolute inset-0 translate-x-4 translate-y-4 rotate-6 rounded-[2rem] bg-accent/30" />
-            <div className="absolute inset-0 translate-x-2 translate-y-2 rotate-3 rounded-[2rem] bg-primary-foreground/20" />
-            <Bezel className="relative -rotate-3 transition-transform duration-700 ease-spring hover:rotate-0">
-              <div className="overflow-hidden rounded-[calc(2.25rem-0.375rem)]">
-                <div className="flex justify-center gap-10 bg-accent py-4">
-                  <span className="h-4 w-4 rounded-full bg-primary" />
-                  <span className="h-4 w-4 rounded-full bg-primary" />
-                </div>
-                <TearOffCalendar fallback={{ month: t("calendarMonth"), weekday: t("calendarDay") }} />
-              </div>
-            </Bezel>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function CalendarPage({ month, day, weekday }: { month: string; day: string; weekday: string }) {
-  return (
-    <div className="bg-card py-10 text-center text-primary">
-      <p className="text-sm font-bold uppercase tracking-[0.2em]">{month}</p>
-      <div className="text-[9rem] font-bold leading-none tracking-tighter tabular-nums">{day}</div>
-      <p className="text-sm text-muted-foreground">{weekday}</p>
-    </div>
-  );
-}
-
-const FINAL_DAY = new Date(FINAL_AT.getFullYear(), FINAL_AT.getMonth(), FINAL_AT.getDate());
-
-/** Calendar days from the visitor's today to the final, thinned evenly to at most `max` pages. */
-function daysToFinal(today: Date, max = 24): Date[] {
-  const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const all: Date[] = [];
-  for (const d = day; d < FINAL_DAY; d.setDate(d.getDate() + 1)) all.push(new Date(d));
-  all.push(FINAL_DAY);
-  if (all.length <= max) return all;
-  return Array.from({ length: max }, (_, k) => all[Math.round((k * (all.length - 1)) / (max - 1))]!);
-}
-
-/**
- * The calendar opens on the visitor's today and, once it is on screen, tears off one page per day
- * until 14 November, fast at first and slowing into the final day. Only two pages are ever mounted:
- * the current one and the one falling off it. The server renders 14, so hydration never reads the clock.
- */
-function TearOffCalendar({ fallback }: { fallback: { month: string; weekday: string } }) {
-  const locale = useLocale();
-  const reduce = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.6 });
-  const [days, setDays] = useState<Date[] | null>(null);
-  const [at, setAt] = useState(0);
-
-  useEffect(() => {
-    // The visitor's own date is only known in the browser.
-    if (!reduce) setDays(daysToFinal(new Date())); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [reduce]);
-
-  useEffect(() => {
-    if (!inView || !days || days.length < 2) return;
-    let k = 0;
-    let timer: ReturnType<typeof setTimeout>;
-    const n = days.length - 1;
-    const next = () => {
-      k += 1;
-      setAt(k);
-      // Quick flicks that slow down, so the last few days land one by one.
-      if (k < n) timer = setTimeout(next, 55 + 340 * Math.pow(k / n, 3));
-    };
-    timer = setTimeout(next, 450);
-    return () => clearTimeout(timer);
-  }, [inView, days]);
-
-  const fmt = (o: Intl.DateTimeFormatOptions) => (d: Date) => new Intl.DateTimeFormat(locale, o).format(d);
-  const pageOf = (date: Date | undefined) =>
-    date
-      ? { month: `${fmt({ month: "long" })(date)} ${date.getFullYear()}`, day: String(date.getDate()), weekday: fmt({ weekday: "long" })(date) }
-      : { month: fallback.month, day: String(FINAL_DAY.getDate()), weekday: fallback.weekday };
-  const landed = days != null && at === days.length - 1 && at > 0;
-
-  return (
-    <div ref={ref} className="relative" aria-live="off">
-      {/* The final day settles with a small knock when it is reached. */}
-      <motion.div key={landed ? "landed" : "counting"} initial={landed ? { scale: 1.08 } : false} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14 }}>
-        <CalendarPage {...pageOf(days?.[at])} />
-      </motion.div>
-      {at > 0 && days && (
-        // Re-keyed on every step, so the single falling page restarts with the day just torn off.
-        <motion.div
-          key={at}
-          className="absolute inset-0"
-          initial={{ y: "0%", rotate: 0, opacity: 1 }}
-          animate={{ y: "115%", rotate: at % 2 ? -14 : 16, opacity: 0 }}
-          transition={{ duration: 0.42, ease: [0.55, 0, 0.75, 0.2] }}
-          style={{ transformOrigin: at % 2 ? "100% 0%" : "0% 0%" }}
-        >
-          <CalendarPage {...pageOf(days[at - 1])} />
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
 /* ---------- faq ---------- */
 
 function Faq() {
   const t = useTranslations("faq");
-  const keys = ["start", "photos", "bidding", "who", "offline", "delivery", "funds"] as const;
+  const keys = ["when", "bidding", "bid", "who", "payment", "funds"] as const;
   return (
-    <section id="faq" className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 md:grid-cols-12 md:px-8 md:py-24">
+    <section id="faq" className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-12 md:px-8 md:py-24">
       <div className="md:col-span-5">
         <div className="md:sticky md:top-32">
-          <h2 className="text-5xl font-bold tracking-tight text-primary md:text-7xl">
+          <h2 className="text-4xl font-bold tracking-tight text-primary md:text-7xl">
             <span className="block"><SplitWords text={t("title1")} /></span>
             <OutlineFill text={t("title2")} />
           </h2>
@@ -729,7 +470,7 @@ function Faq() {
           </a>
         </div>
       </div>
-      <div className="space-y-4 md:col-span-7">
+      <div className="space-y-3 md:col-span-7 md:space-y-4">
         {keys.map((key, k) => (
           <Reveal key={key} delay={k * 0.06}>
             <Bezel>
@@ -746,10 +487,8 @@ function Faq() {
 
 function About() {
   const t = useTranslations("about");
-  const reduce = useReducedMotion();
-  const facts = ["01", "02", "03", "04"] as const;
   return (
-    <section id="about" className="relative overflow-hidden px-4 pb-8 pt-20 md:px-8 md:pt-24">
+    <section id="about" className="relative overflow-hidden px-4 pb-12 pt-14 md:px-8 md:pb-24 md:pt-24">
       <FloatingObjects set="about" />
       <div className="relative z-10 mx-auto grid max-w-7xl gap-10 md:grid-cols-12">
         <div className="md:col-span-5">
@@ -759,26 +498,7 @@ function About() {
         </div>
         <div className="space-y-5 text-lg leading-relaxed text-muted-foreground md:col-span-7 md:pt-14">
           <p><b className="font-medium text-primary">{t("p1Name")}</b><ScrollWords text={t("p1")} /></p>
-          <p><ScrollWords text={t("p2")} /></p>
         </div>
-      </div>
-      <div className="relative z-10 mx-auto mt-10 grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        {facts.map((n, k) => (
-          <motion.div
-            key={n}
-            initial={reduce ? false : { opacity: 0, y: 70, rotate: (k - 1.5) * 7 }}
-            whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-            viewport={VIEW}
-            transition={{ opacity: { duration: 0.4, delay: k * 0.08 }, default: { type: "spring", stiffness: 90, damping: 14, delay: k * 0.08 } }}
-            whileHover={reduce ? undefined : { y: -6, rotate: k % 2 ? 1.2 : -1.2 }}
-          >
-            <Bezel className="h-full max-sm:rounded-[1.6rem]" core="group h-full bg-card p-4 transition-colors duration-500 hover:bg-accent-soft max-sm:rounded-[calc(1.6rem-0.375rem)] sm:p-6">
-              <span className="text-outline text-3xl font-bold leading-none sm:text-4xl">{n}</span>
-              <p className="mt-4 text-base font-bold leading-tight tracking-tight text-primary sm:mt-6 sm:text-xl">{t(`facts.${n}.title`)}</p>
-              <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground sm:mt-2 sm:text-sm">{t(`facts.${n}.text`)}</p>
-            </Bezel>
-          </motion.div>
-        ))}
       </div>
     </section>
   );
@@ -790,7 +510,7 @@ function Footer() {
   const t = useTranslations("footer");
   return (
     <footer className="relative overflow-hidden bg-navy-deep text-primary-foreground">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 pt-16 md:grid-cols-12 md:gap-10 md:px-8 md:pt-24">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 pt-12 md:grid-cols-12 md:gap-10 md:px-8 md:pt-24">
         <div className="md:col-span-6">
           <p className="text-3xl font-bold tracking-tight md:text-4xl">{t("question")}</p>
           <div className="mt-8">
@@ -807,7 +527,6 @@ function Footer() {
           <a href="https://kse.ua" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 py-2 hover:text-accent">
             {t("site")} <ArrowUpRight weight="light" />
           </a>
-          <p className="pt-3 text-xs text-primary-foreground/40">{t("note")}</p>
         </div>
       </div>
       <FooterMark />
@@ -823,7 +542,7 @@ function FooterMark() {
   const fill = useTransform(scrollYProgress, [0.75, 1], [0, 0.14], { clamp: true });
   const bar = useTransform(scrollYProgress, [0.8, 1], [1, 0], { clamp: true });
   return (
-    <div ref={ref} className="mx-auto mt-16 max-w-7xl px-4 pb-6 md:px-8">
+    <div ref={ref} className="mx-auto mt-8 max-w-7xl px-4 pb-6 md:mt-16 md:px-8">
     <svg aria-hidden viewBox="0 120 1270 520" className="block w-full">
       {KSE_PATHS.map((d, k) => (
         <motion.path
@@ -847,8 +566,8 @@ function FooterMark() {
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="px-7 py-6">
-      <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 text-left text-xl font-bold tracking-tight text-primary">
+    <div className="px-5 py-4 md:px-7 md:py-6">
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between gap-4 text-left text-lg font-bold tracking-tight text-primary md:text-xl">
         {q}
         <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full transition-all duration-700 ease-spring ${open ? "rotate-[135deg] bg-accent" : "bg-primary/5"}`}>
           <Plus weight="light" size={20} />

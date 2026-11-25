@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "motion/react";
 import { Trophy, X } from "@phosphor-icons/react";
@@ -13,7 +13,7 @@ import type { LiveState } from "@/lib/types";
  * The moment a lot closes: the winner's full name in big letters, centre screen.
  * On the stream it stays until the next lot; on the site viewers can close it to see the history.
  */
-export function WinnerReveal({ lot, winner, screen = false }: { lot: NonNullable<LiveState["lot"]>; winner: LiveState["winner"]; screen?: boolean }) {
+export function WinnerReveal({ lot, winner, screen = false, children }: { children?: ReactNode; lot: NonNullable<LiveState["lot"]>; winner: LiveState["winner"]; screen?: boolean }) {
   const t = useTranslations("live");
   const locale = useLocale();
   const reduce = useReducedMotion();
@@ -55,6 +55,7 @@ export function WinnerReveal({ lot, winner, screen = false }: { lot: NonNullable
         )}
         <p className="mt-4 text-[clamp(1rem,2.4vmin,1.75rem)] text-primary-foreground/70">{lotTitle(lot, locale)}</p>
       </motion.div>
+      {children}
     </motion.div>
   );
 }

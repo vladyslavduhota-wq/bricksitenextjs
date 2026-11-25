@@ -11,7 +11,7 @@ const Coin = () => (
   <svg viewBox="0 0 80 80" className="h-full w-full"><circle cx="40" cy="40" r="36" className="fill-primary" /><circle cx="40" cy="40" r="27" className="fill-none stroke-accent" strokeWidth="3" strokeDasharray="4 5" /><text x="40" y="49" textAnchor="middle" className="fill-accent" fontSize="26" fontWeight="700">₴</text></svg>
 );
 const Paddle = () => (
-  <svg viewBox="0 0 70 120" className="h-full w-full"><rect x="30" y="58" width="10" height="58" rx="5" className="fill-primary" /><circle cx="35" cy="34" r="31" className="fill-card stroke-primary" strokeWidth="3" /><text x="35" y="45" textAnchor="middle" className="fill-primary" fontSize="28" fontWeight="700">14</text></svg>
+  <svg viewBox="0 0 70 120" className="h-full w-full"><rect x="30" y="58" width="10" height="58" rx="5" className="fill-primary" /><circle cx="35" cy="34" r="31" className="fill-card stroke-primary" strokeWidth="3" /><text x="35" y="45" textAnchor="middle" className="fill-primary" fontSize="28" fontWeight="700">4</text></svg>
 );
 const Ticket = () => (
   <svg viewBox="0 0 120 60" className="h-full w-full"><path d="M4 4h112v18a8 8 0 0 0 0 16v18H4V38a8 8 0 0 0 0-16Z" className="fill-card stroke-primary" strokeWidth="2.5" /><path d="M84 8v44" className="stroke-primary" strokeWidth="2" strokeDasharray="4 4" /><text x="44" y="38" textAnchor="middle" className="fill-primary" fontSize="16" fontWeight="700">ЛОТ</text></svg>
@@ -30,11 +30,6 @@ const SETS = {
     { C: Paddle, c: "right-[6%] top-12 w-16 md:w-24", r: 12, d: 6 },
     { C: Ticket, c: "right-[26%] top-28 hidden w-32 md:block", r: -8, d: 8 },
     { C: Coin, c: "left-[40%] top-10 hidden w-10 md:block", r: -6, d: 5 },
-  ],
-  final: [
-    { C: Coin, c: "left-[6%] bottom-10 hidden w-14 md:block md:w-20", r: 8, d: 6 },
-    { C: Spark, c: "left-[52%] top-10 w-10", r: 0, d: 4 },
-    { C: Tag, c: "right-[8%] bottom-6 hidden w-28 md:block", r: 18, d: 7 },
   ],
 } as const;
 

@@ -80,24 +80,6 @@ export function useLiveShow(initial: LiveState) {
   return { ...state, phase: phaseOf(state.lot), applyOwnBid };
 }
 
-// ---------------------------------------------------------------- all lots (final page)
-
-const STATE_COLUMNS = "id, status, ends_at, current_amount, bid_count, leading_bid_id";
-
-/** All lots with prices and counts kept live. */
-export function useLiveLots(initial: PublicLot[]) {
-  const [lots, setLots] = useState(initial);
-  const [listener] = useState<Listener>(() => ({
-    lot: (p) => setLots((ls) => ls.map((l) => (l.id === p.id ? { ...l, ...p } : l))),
-    resync: async () => {
-      const { data } = await createClient().from("lots").select(STATE_COLUMNS).in("id", initial.map((l) => l.id));
-      if (data) setLots((ls) => ls.map((l) => ({ ...l, ...(data.find((d) => d.id === l.id) ?? {}) })));
-    },
-  }));
-  useAuctionEvents(listener);
-  return lots;
-}
-
 /** Calls back on any auction event (a bid, a close, a lot switch, a reconnect). For pages that refetch everything. */
 export function useAuctionPulse(onPulse: () => void) {
   const ref = useRef(onPulse);

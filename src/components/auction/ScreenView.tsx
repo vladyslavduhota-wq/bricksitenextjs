@@ -4,7 +4,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { BrandLogo } from "@/components/BrandLogo";
 import { formatUah } from "@/lib/format";
 import { lotTitle } from "@/lib/lot-text";
+import type { Qr } from "@/lib/qr";
 import type { LiveState } from "@/lib/types";
+import { BidQr } from "./BidQr";
 import { BidRows, OnAirDot, timeFormat } from "./LiveView";
 import { LotPhotos } from "./LotPhotos";
 import { WinnerReveal } from "./WinnerReveal";
@@ -16,7 +18,7 @@ const VISIBLE_BIDS = 6;
  * For the YouTube stream and the screen in the room: no bid form, no navigation, sized in
  * viewport units so it reads the same at any capture size. Follows the presenter live.
  */
-export function ScreenView({ initial, site }: { initial: LiveState; site: string }) {
+export function ScreenView({ initial, site, qr }: { initial: LiveState; site: string; qr: Qr }) {
   const t = useTranslations("live");
   const tl = useTranslations("lot");
   const locale = useLocale();
@@ -40,7 +42,8 @@ export function ScreenView({ initial, site }: { initial: LiveState; site: string
       {!lot ? (
         <section className="flex flex-1 flex-col items-center justify-center px-[6vw] text-center">
           <h1 className="text-[clamp(2.5rem,8vmin,7rem)] font-bold leading-none tracking-tight">{t("waitingTitle")}</h1>
-          {site && <p className="mt-[3vh] text-[clamp(1rem,2.6vmin,2rem)] text-primary-foreground/70">{t("bidAt", { site })}</p>}
+          <BidQr qr={qr} label={t("scan")} className="mt-[4vh] w-[34vmin]" />
+          <p className="mt-[3vh] text-[clamp(1rem,2.6vmin,2rem)] text-primary-foreground/70">{t("bidAt", { site })}</p>
         </section>
       ) : (
         <section className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,6fr)] gap-[3vw] px-[3vw] py-[3vh]">
@@ -54,19 +57,27 @@ export function ScreenView({ initial, site }: { initial: LiveState; site: string
             <p key={lot.current_amount} className="text-[clamp(3rem,11vmin,9rem)] font-bold leading-none tracking-tight tabular-nums text-accent">{formatUah(lot.current_amount ?? lot.start_price)}</p>
             <p className="mt-[1.5vh] text-[clamp(1rem,2.2vmin,1.75rem)] text-primary-foreground/70">{tl("bids", { n: lot.bid_count })} · {tl("step")} {formatUah(lot.bid_step)}</p>
 
-            <div className="mt-[3vh] min-h-0 flex-1 overflow-hidden rounded-[1.75rem] bg-primary-foreground/5 ring-1 ring-primary-foreground/10">
+            <div className="mt-[3vh] flex min-h-0 flex-1 items-start gap-[2vw]">
+            <div className="h-full min-w-0 flex-1 overflow-hidden rounded-[1.75rem] bg-primary-foreground/5 ring-1 ring-primary-foreground/10">
               {bids.length ? (
                 <BidRows bids={bids.slice(0, VISIBLE_BIDS)} time={timeFormat(locale)} anonymous={t("bidder")} size="lg" />
               ) : (
                 <p className="grid h-full place-items-center px-8 text-center text-[clamp(1rem,2.4vmin,1.75rem)] text-primary-foreground/60">{tl("noBids")}</p>
               )}
             </div>
-            {site && <p className="mt-[2vh] text-[clamp(0.9rem,1.8vmin,1.4rem)] font-medium text-primary-foreground/70">{t("bidAt", { site })}</p>}
+              <BidQr qr={qr} label={t("scan")} className="w-[30vmin]" />
+            </div>
+            <p className="mt-[2vh] text-[clamp(0.9rem,1.8vmin,1.4rem)] font-medium text-primary-foreground/70">{t("bidAt", { site })}</p>
           </div>
         </section>
       )}
 
-      {lot && phase === "winner" && <WinnerReveal key={lot.id} lot={lot} winner={winner} screen />}
+      {lot && phase === "winner" && (
+        <WinnerReveal key={lot.id} lot={lot} winner={winner} screen>
+          {/* The next lot is coming: late viewers can still get to the bidding page. */}
+          <BidQr qr={qr} label={t("scan")} className="absolute bottom-[3vmin] right-[3vmin] w-[24vmin]" />
+        </WinnerReveal>
+      )}
     </main>
   );
 }

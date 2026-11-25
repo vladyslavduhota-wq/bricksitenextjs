@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FloppyDisk, Plus } from "@phosphor-icons/react";
-import { Button, Check, Field, inputClass } from "@/components/ui";
+import { Button, Field, inputClass } from "@/components/ui";
 import { addDonation, saveSettings } from "@/app/admin/actions";
 import { formatUah } from "@/lib/format";
 import { useFormAction } from "./useFormAction";
@@ -51,16 +51,10 @@ export function SettingsForm({ settings }: { settings: Settings }) {
       </fieldset>
 
       <fieldset className="grid gap-5 border-t border-primary/10 pt-8 @lg:grid-cols-2">
-        <legend className="mb-4 text-lg font-bold tracking-tight text-primary">Фінал 14.11</legend>
-        <Field label="Пряма трансляція" hint="Посилання YouTube або Instagram Live. Показується на сторінці фіналу й на головній." error={f.stream_url}>
+        <legend className="mb-4 text-lg font-bold tracking-tight text-primary">Трансляція</legend>
+        <Field label="Пряма трансляція" hint="Посилання YouTube або Instagram Live." error={f.stream_url}>
           <input name="stream_url" type="url" className={inputClass} defaultValue={settings.stream_url ?? ""} placeholder="https://www.youtube.com/watch?v=…" aria-invalid={!!f.stream_url} />
         </Field>
-        <div className="-mx-3 self-end">
-          <Check name="final_published" defaultChecked={settings.final_published}>
-            <b className="font-medium text-primary">Опублікувати підсумки</b>
-            <span className="block text-xs text-muted-foreground">Сторінка фіналу покаже суму, переможців (за їхньою згодою) і подяки.</span>
-          </Check>
-        </div>
       </fieldset>
 
       <SaveBar pending={pending} ok={state.ok} error={state.error} at={state.at} label="Зберегти налаштування" />

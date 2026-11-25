@@ -1,17 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  useMotionValue,
-  useSpring,
-  useAnimationFrame,
-  AnimatePresence,
-  type MotionValue,
-} from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform, useMotionValue, useAnimationFrame, type MotionValue } from "motion/react";
 
 export const EASE = [0.32, 0.72, 0, 1] as const;
 /** Fire once, when the element is a little way into the screen rather than at its first pixel. */
@@ -90,32 +80,6 @@ export function OutlineFill({ text, className = "", light = false, delay = 0.35 
   );
 }
 
-/** Button drifts toward the cursor. Story: feedback / invitation. */
-export function Magnetic({ children, strength = 0.3 }: { children: ReactNode; strength?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useSpring(useMotionValue(0), { stiffness: 180, damping: 15 });
-  const y = useSpring(useMotionValue(0), { stiffness: 180, damping: 15 });
-  return (
-    <motion.div
-      ref={ref}
-      style={{ x, y }}
-      className="inline-block"
-      onPointerMove={(e) => {
-        if (!ref.current || window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)").matches) return;
-        const r = ref.current.getBoundingClientRect();
-        x.set((e.clientX - r.left - r.width / 2) * strength);
-        y.set((e.clientY - r.top - r.height / 2) * strength);
-      }}
-      onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 /** Calm continuous travel, independent of scroll velocity. */
 export function VelocityMarquee({ children, base = 18 }: { children: ReactNode; base?: number }) {
   const reduce = useReducedMotion();
@@ -132,32 +96,6 @@ export function VelocityMarquee({ children, base = 18 }: { children: ReactNode; 
       <div className="shrink-0">{children}</div>
       <div aria-hidden className="shrink-0">{children}</div>
     </motion.div>
-  );
-}
-
-/** Digit that rolls when it changes. */
-export function RollDigits({ value }: { value: string }) {
-  const reduce = useReducedMotion();
-  if (reduce) return <span>{value}</span>;
-  return (
-    <span className="inline-flex overflow-hidden">
-      {value.split("").map((d, k) => (
-        <span key={k} className="relative inline-block w-[0.62em] text-center">
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
-              key={d}
-              className="inline-block"
-              initial={{ y: "-100%", opacity: 0 }}
-              animate={{ y: "0%", opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ duration: 0.45, ease: EASE }}
-            >
-              {d}
-            </motion.span>
-          </AnimatePresence>
-        </span>
-      ))}
-    </span>
   );
 }
 

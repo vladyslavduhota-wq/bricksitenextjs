@@ -188,11 +188,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (min-width: 1280px) { .hero-title { font-size: 96px; } .hero-title > span:first-child { font-size: 60px; } .hero-visual { --stage-h: 605px; } }
 @media (min-width: 640px) and (max-width: 1023px) { .hero-layout { gap: 20px; } .hero-title { font-size: 62px; } .hero-title > span:first-child { font-size: 36px; } .hero-visual { --stage-h: 475px; --gavel-w: 98px; } .hero-description { font-size: 15px; } .hero-actions { gap: 8px; } }
 @media (max-width: 639px) {
-  .hero-section { padding: 88px 0 20px; }
-  /* Phone order: title, text, action, then the Rector on his plinth, then the raised total and the date. */
+  .hero-section { padding: 96px 0 16px; }
+  /* Phone order: title, text, action, then the Rector on his plinth, then the format and the date. */
   .hero-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .hero-copy { display: contents; }
-  .hero-visual { order: 1; margin-top: 28px; }
+  .hero-visual { order: 1; margin-top: 20px; }
   .hero-details { order: 2; }
   .hero-title { font-size: 50px; line-height: 1; }
   .hero-title > span:first-child { font-size: 30px; margin-bottom: 6px; }
@@ -201,10 +201,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero-actions a { padding-left: 20px; gap: 8px; font-size: 14px; }
   .hero-actions a > span:last-child { width: 32px; height: 32px; }
   .hero-actions .hero-howto { padding: 10px 6px; font-size: 13px; }
-  .hero-details { margin-top: 22px; padding-top: 12px; }
-  .hero-visual { --stage-h: 380px; --gavel-w: 80px; --plinth-label: 56px; padding: 0; max-width: 390px; width: 100%; margin-left: auto; margin-right: auto; }
+  .hero-details { margin-top: 16px; padding-top: 12px; }
+  .hero-visual { --stage-h: 320px; --gavel-w: 80px; --plinth-label: 56px; padding: 0; max-width: 390px; width: 100%; margin-left: auto; margin-right: auto; }
   .rector-plinth { border-radius: 20px 20px 8px 8px; }
-  .hero-badge { right: 0; top: -4px; transform: scale(.62); }
+  .hero-badge { right: 0; top: -4px; transform: scale(.5); }
   .hero-gavel { right: 6px; }
   .hero-ticket { display: none; }
   #about { padding-top: 48px; }
@@ -212,7 +212,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   #how, #faq { padding-top: 48px; padding-bottom: 48px; }
   h2.text-5xl { font-size: 36px; }
   h2.text-6xl { font-size: 48px; }
-  #report .text-outline { font-size: 96px; }
   #faq > div { min-width: 0; }
   #faq button { font-size: 18px; }
   #faq button + div p { font-size: 15px; line-height: 1.6; }

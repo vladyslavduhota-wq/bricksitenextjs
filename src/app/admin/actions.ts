@@ -180,7 +180,6 @@ export async function saveSettings(_: ActionState, form: FormData): Promise<Acti
     min_seconds_between_bids: int(form, "min_seconds_between_bids"),
     donate_url: url(text(form, "donate_url")),
     stream_url: url(text(form, "stream_url")),
-    final_published: form.get("final_published") === "on",
   };
   const fields: Record<string, string> = {};
   if (!(values.goal_amount >= 0 && values.goal_amount <= MAX_UAH)) fields.goal_amount = "Ціле число гривень.";
